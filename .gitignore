@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+
+data/raw/*
+data/processed/*
+data/external/*
+
+backend/models/*.pkl
+backend/models/*.joblib
+
+!.gitkeep
