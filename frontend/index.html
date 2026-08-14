@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NutriLens AI — Backend Demo</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, system-ui, sans-serif; color: #17211b; background: #eef4ef; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 2rem 1rem; }
+    main { max-width: 960px; margin: auto; }
+    header, section { background: #fff; border: 1px solid #d9e5dc; border-radius: 14px; padding: 1.4rem; margin-bottom: 1rem; }
+    h1, h2, h3 { margin-top: 0; }
+    h1 { color: #14633b; }
+    .muted { color: #5f6f65; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .8rem; }
+    label { display: grid; gap: .35rem; font-weight: 600; }
+    input, button { font: inherit; padding: .7rem; border: 1px solid #b8c9bd; border-radius: 8px; }
+    button { background: #14633b; color: #fff; border: 0; cursor: pointer; margin-top: 1rem; }
+    button:disabled { opacity: .6; cursor: wait; }
+    .status { padding: .8rem; border-radius: 8px; background: #edf5ff; }
+    .status.error { background: #fff0f0; color: #8c1d18; }
+    .status.success { background: #ebf8ef; color: #155c32; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .6rem; }
+    .card { background: #f6f9f7; border-radius: 8px; padding: .75rem; }
+    ul { padding-left: 1.2rem; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #f5f7f6; padding: .8rem; border-radius: 8px; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>NutriLens AI</h1>
+    <p class="muted">Member 4 backend integration demo. Results may be partial when the label does not provide every required per-100-g nutrient.</p>
+  </header>
+
+  <section>
+    <h2>Analyze a nutrition label</h2>
+    <label>JPEG, PNG, or WEBP image
+      <input type="file" id="image" accept="image/jpeg,image/png,image/webp">
+    </label>
+    <button id="analyze">Analyze image</button>
+    <p id="image-status" class="status" aria-live="polite">Choose an image to begin.</p>
+    <div id="analysis" hidden>
+      <h3>Nutrition</h3><div id="nutrition" class="cards"></div>
+      <h3>Ingredients</h3><ul id="ingredients"></ul>
+      <h3>Health score</h3><div id="score" class="card"></div>
+      <h3>Warnings and missing fields</h3><ul id="warnings"></ul>
+      <details><summary>OCR and integration metadata</summary><pre id="metadata"></pre></details>
+    </div>
+  </section>
+
+  <section>
+    <h2>Manual per-100-g scoring</h2>
+    <p class="muted">Energy is kJ; all other values are grams per 100 g.</p>
+    <div class="grid" id="manual-fields"></div>
+    <button id="manual">Calculate score</button>
+    <p id="manual-status" class="status" aria-live="polite">Enter all required values.</p>
+  </section>
+</main>
+<script>
+  const API = '/api/v1';
+  const fieldDefinitions = [
+    ['energy_100g', 'Energy (kJ)', 840, 10000], ['fat_100g', 'Total fat (g)', 10, 100],
+    ['saturated_fat_100g', 'Saturated fat (g)', 3, 100], ['sugars_100g', 'Sugars (g)', 12, 100],
+    ['fiber_100g', 'Fiber (g)', 2, 100], ['proteins_100g', 'Protein (g)', 5, 100],
+    ['salt_100g', 'Salt (g)', 0.5, 100], ['sodium_100g', 'Sodium (g)', 0.2, 100]
+  ];
+
+  const fields = document.getElementById('manual-fields');
+  fieldDefinitions.forEach(([name, label, value, max]) => {
+    fields.insertAdjacentHTML('beforeend', `<label>${label}<input id="${name}" type="number" min="0" max="${max}" step="any" value="${value}" required></label>`);
+  });
+
+  async function apiRequest(url, options) {
+    const response = await fetch(url, options);
+    let data;
+    try { data = await response.json(); } catch { throw new Error(`Backend returned HTTP ${response.status}.`); }
+    if (!response.ok) throw new Error(data.error?.message || `Request failed with HTTP ${response.status}.`);
+    return data;
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>'"]/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[character]));
+  }
+
+  function setStatus(element, text, kind = '') {
+    element.textContent = text;
+    element.className = `status ${kind}`;
+  }
+
+  document.getElementById('analyze').addEventListener('click', async () => {
+    const button = document.getElementById('analyze');
+    const status = document.getElementById('image-status');
+    const file = document.getElementById('image').files[0];
+    if (!file) return setStatus(status, 'Please choose an image.', 'error');
+    const body = new FormData(); body.append('image', file);
+    button.disabled = true; setStatus(status, 'Validating image and running OCR…');
+    try {
+      const data = await apiRequest(`${API}/analyze/image`, { method: 'POST', body });
+      document.getElementById('analysis').hidden = false;
+      document.getElementById('nutrition').innerHTML = Object.entries(data.extracted_nutrition)
+        .map(([name, item]) => `<div class="card"><strong>${name.replaceAll('_', ' ')}</strong><br>${item.value} ${item.unit}<br><small>${item.basis.replaceAll('_', ' ')}</small></div>`).join('') || '<p>No nutrients extracted.</p>';
+      document.getElementById('ingredients').innerHTML = data.ingredients.map(value => `<li>${escapeHtml(value)}</li>`).join('') || '<li>No ingredient list found.</li>';
+      document.getElementById('score').textContent = data.health_score.performed ? String(data.health_score.value) : data.health_score.detail;
+      const notices = [...data.warnings, ...(data.missing_required_fields.length ? [`Missing: ${data.missing_required_fields.join(', ')}`] : [])];
+      document.getElementById('warnings').innerHTML = notices.map(value => `<li>${escapeHtml(value)}</li>`).join('') || '<li>No warnings.</li>';
+      document.getElementById('metadata').textContent = JSON.stringify({ basis: data.basis, ocr: data.ocr, integrations: data.integrations }, null, 2);
+      setStatus(status, data.status === 'success' ? 'Analysis and scoring completed.' : 'Partial extraction completed; review the warnings.', data.status === 'success' ? 'success' : '');
+    } catch (error) { setStatus(status, error.message, 'error'); }
+    finally { button.disabled = false; }
+  });
+
+  document.getElementById('manual').addEventListener('click', async () => {
+    const button = document.getElementById('manual');
+    const status = document.getElementById('manual-status');
+    const payload = { basis: 'per_100g' };
+    for (const [name] of fieldDefinitions) payload[name] = Number(document.getElementById(name).value);
+    button.disabled = true; setStatus(status, 'Calculating…');
+    try {
+      const data = await apiRequest(`${API}/score/manual`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      setStatus(status, `Health score: ${data.health_score.value}`, 'success');
+    } catch (error) { setStatus(status, error.message, 'error'); }
+    finally { button.disabled = false; }
+  });
+</script>
+</body>
+</html>

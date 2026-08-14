@@ -1,0 +1,2 @@
+# Production runtime: Tesseract/OpenCV OCR and the legacy sklearn scorer.
+-r requirements-base.txt
