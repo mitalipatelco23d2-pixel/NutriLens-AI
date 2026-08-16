@@ -41,3 +41,6 @@ local_test_images/
 .EasyOCR/
 easyocr_models/
 ocr_comparison_outputs/
+
+# Local authentication database
+data/nutrilens.db*
