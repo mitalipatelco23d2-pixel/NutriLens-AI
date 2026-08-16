@@ -2,6 +2,12 @@ from __future__ import annotations
 
 import logging
 
+from .api.auth_routes import router as auth_router
+
+from .api.user_routes import router as user_router
+
+from .db.init_db import init_db
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,6 +35,7 @@ def _error_response(status_code: int, code: str, message: str, details: dict | N
 def create_app() -> FastAPI:
     configure_logging()
     settings = get_settings()
+    init_db()
     application = FastAPI(
         title="NutriLens AI",
         description="Nutrition-label OCR and backend integration API",
@@ -40,7 +47,7 @@ def create_app() -> FastAPI:
             allow_origins=list(settings.cors_origins),
             allow_credentials=False,
             allow_methods=["GET", "POST", "OPTIONS"],
-            allow_headers=["Content-Type"],
+            allow_headers=["Content-Type", "Authorization"],
         )
 
     @application.exception_handler(NutriLensError)
@@ -62,6 +69,8 @@ def create_app() -> FastAPI:
         return _error_response(500, "internal_error", "An unexpected server error occurred.")
 
     application.include_router(router)
+    application.include_router(auth_router)
+    application.include_router(user_router)
     application.include_router(legacy_router)
 
     if settings.frontend_dir.is_dir():

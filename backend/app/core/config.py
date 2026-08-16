@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dotenv import load_dotenv
 import os
 from dataclasses import dataclass
 from functools import lru_cache
@@ -8,6 +9,7 @@ from pathlib import Path
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 BACKEND_ROOT = REPOSITORY_ROOT / "backend"
+load_dotenv(REPOSITORY_ROOT / ".env")
 
 
 def _path_from_env(name: str, default: Path) -> Path:
@@ -46,6 +48,10 @@ class Settings:
     data_dir: Path
     processed_data_dir: Path
     model_path: Path
+    database_url: str
+    jwt_secret_key: str
+    jwt_algorithm: str
+    jwt_expire_minutes: int
     max_upload_bytes: int
     max_image_pixels: int
     ocr_language: str
@@ -61,6 +67,12 @@ def get_settings() -> Settings:
     processed_dir = _path_from_env(
         "NUTRILENS_PROCESSED_DATA_DIR", data_dir / "processed"
     )
+
+    database_url = os.getenv("NUTRILENS_DATABASE_URL")
+    if not database_url:
+        database_path = data_dir / "nutrilens.db"
+        database_url = f"sqlite:///{database_path.as_posix()}"
+
     origins = tuple(
         origin.strip()
         for origin in os.getenv(
@@ -80,6 +92,16 @@ def get_settings() -> Settings:
         model_path=_path_from_env(
             "NUTRILENS_MODEL_PATH",
             processed_dir / "health_score_model.joblib",
+        ),
+        database_url=database_url,
+        jwt_secret_key=os.getenv(
+            "NUTRILENS_JWT_SECRET_KEY",
+            "nutrilens-dev-secret-change-before-deployment",
+        ),
+        jwt_algorithm="HS256",
+        jwt_expire_minutes=_positive_int(
+            "NUTRILENS_JWT_EXPIRE_MINUTES",
+            60,
         ),
         max_upload_bytes=_positive_int("NUTRILENS_MAX_UPLOAD_BYTES", 8 * 1024 * 1024),
         max_image_pixels=_positive_int("NUTRILENS_MAX_IMAGE_PIXELS", 25_000_000),
