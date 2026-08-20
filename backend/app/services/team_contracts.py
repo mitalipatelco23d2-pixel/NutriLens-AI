@@ -4,29 +4,17 @@ import logging
 from typing import Any, Protocol
 
 from ..core.errors import InvalidModelInputError, ModelInferenceError, ModelUnavailableError
-from ..nlp.parser import FallbackIngredientExtractor, extract_explicit_allergens
+from ..nlp.parser import (
+    PackagedFoodNlpAnalyzer,
+    canonical_nutrition as _canonical_nutrition,
+)
 from ..ocr.extractor import OcrResult
 from ..ocr.nutrition_parser import MODEL_FIELDS, NutritionParseResult, parse_nutrition_text
 from ..scoring.predictor import HealthScoreService, get_health_score_service
 
 
-CANONICAL_NUTRITION_KEYS = (
-    "energy_kcal_100g",
-    "energy_kj_100g",
-    "fat_100g",
-    "saturated_fat_100g",
-    "trans_fat_100g",
-    "carbohydrates_100g",
-    "sugars_100g",
-    "added_sugars_100g",
-    "fiber_100g",
-    "proteins_100g",
-    "salt_100g",
-    "sodium_100g",
-    "calcium_100g",
-)
-
 logger = logging.getLogger(__name__)
+_default_nlp_analyzer = PackagedFoodNlpAnalyzer()
 
 
 class LabelTextAnalyzer(Protocol):
@@ -50,14 +38,8 @@ class AnalysisExplainer(Protocol):
 
 
 def canonical_nutrition(parsed: NutritionParseResult) -> dict[str, float]:
-    nutrition: dict[str, float] = {}
-    for name, nutrient in parsed.nutrients.items():
-        if name == "energy_100g":
-            nutrition["energy_kj_100g"] = nutrient.value
-            nutrition["energy_kcal_100g"] = round(nutrient.value / 4.184, 6)
-        elif name in CANONICAL_NUTRITION_KEYS:
-            nutrition[name] = nutrient.value
-    return nutrition
+    """Backward-compatible import used by development benchmark reporting."""
+    return _canonical_nutrition(parsed)
 
 
 def parse_ocr_nutrition(result: OcrResult) -> NutritionParseResult:
@@ -112,35 +94,39 @@ def parse_ocr_nutrition(result: OcrResult) -> NutritionParseResult:
     return selected
 
 
-def _fallback_analysis(raw_text: str, parsed: NutritionParseResult) -> dict[str, Any]:
-    return {
-        "ingredients": FallbackIngredientExtractor().extract(raw_text),
-        "additives": None,
-        "allergens": extract_explicit_allergens(raw_text),
-        "nutrition": canonical_nutrition(parsed),
-        "basis": parsed.basis,
-        "warnings": list(parsed.warnings),
-        "integration": {
-            "status": "fallback",
-            "provider": "member_4_basic_parser",
-        },
-    }
-
-
 def analyze_label_text(
-    ocr_result: dict[str, Any], analyzer: LabelTextAnalyzer | None = None
+    ocr_result: dict[str, Any],
+    analyzer: LabelTextAnalyzer | None = None,
+    *,
+    parsed_nutrition: NutritionParseResult | None = None,
 ) -> dict[str, Any]:
-    """Stable Member 1 boundary with an explicitly marked Member 4 fallback."""
-    if analyzer is not None:
-        try:
-            result = analyzer.analyze(ocr_result)
-            return {**result, "integration": {"status": "available", "provider": analyzer.provider}}
-        except Exception:
-            logger.exception("Configured Member 1 analyzer failed; using fallback")
-    raw_text = str(ocr_result.get("raw_text") or "")
-    result = _fallback_analysis(raw_text, parse_nutrition_text(raw_text))
-    if analyzer is not None:
-        result["warnings"].append("Member 1 analysis was unavailable; Member 4 fallback parsing was used.")
+    """Stable Member 1 boundary backed by the lightweight packaged-food NLP."""
+    if analyzer is None:
+        result = _default_nlp_analyzer.analyze(
+            ocr_result,
+            parsed_nutrition=parsed_nutrition,
+        )
+        result["integration"] = {
+            "status": "available",
+            "provider": _default_nlp_analyzer.provider,
+        }
+        return result
+    try:
+        result = analyzer.analyze(ocr_result)
+        return {**result, "integration": {"status": "available", "provider": analyzer.provider}}
+    except Exception:
+        logger.exception("Configured Member 1 analyzer failed; using built-in NLP")
+    result = _default_nlp_analyzer.analyze(
+        ocr_result,
+        parsed_nutrition=parsed_nutrition,
+    )
+    result["integration"] = {
+        "status": "fallback",
+        "provider": _default_nlp_analyzer.provider,
+    }
+    result["warnings"].append(
+        "The configured Member 1 analyzer was unavailable; built-in NLP was used."
+    )
     return result
 
 
@@ -149,20 +135,18 @@ def analyze_ocr_result(
     normalized_contract: dict[str, Any],
     analyzer: LabelTextAnalyzer | None = None,
 ) -> dict[str, Any]:
-    if analyzer is not None:
-        configured = analyze_label_text(normalized_contract, analyzer)
-        if configured["integration"]["status"] == "available":
-            return configured
+    """Map M4's OCR object to its stable contract, then enter the M1 adapter."""
     parsed = parse_ocr_nutrition(result)
-    fallback = _fallback_analysis(result.text, parsed)
-    if analyzer is not None:
-        fallback["warnings"].append(
-            "Member 1 analysis was unavailable; Member 4 fallback parsing was used."
-        )
-    return fallback
+    return analyze_label_text(
+        normalized_contract,
+        analyzer,
+        parsed_nutrition=parsed,
+    )
 
 
 def _legacy_features(nlp_result: dict[str, Any]) -> dict[str, float] | None:
+    if nlp_result.get("basis") != "per_100g":
+        return None
     nutrition = nlp_result.get("nutrition") or {}
     mapping = {"energy_100g": "energy_kj_100g", **{key: key for key in MODEL_FIELDS if key != "energy_100g"}}
     if any(source not in nutrition for source in mapping.values()):
