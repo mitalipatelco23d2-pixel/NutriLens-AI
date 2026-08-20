@@ -54,12 +54,15 @@ class LegacyScorer:
         return 6.5
 
 
-def test_member1_fallback_uses_existing_backend_parser():
+def test_member1_nlp_uses_existing_backend_nutrition_parser():
     result = analyze_label_text({"raw_text": LABEL})
     assert result["ingredients"] == ["oats", "sugar"]
     assert result["nutrition"]["energy_kcal_100g"] == 100
     assert result["nutrition"]["energy_kj_100g"] == 418.4
-    assert result["integration"]["status"] == "fallback"
+    assert result["integration"] == {
+        "status": "available",
+        "provider": "member_1_packaged_food_nlp",
+    }
 
 
 def test_fallback_allergen_extraction_requires_explicit_label_text():
@@ -115,3 +118,11 @@ def test_configured_adapter_failures_degrade_gracefully():
     assert nlp["integration"]["status"] == "fallback"
     assert health["integration"]["status"] == "error"
     assert explanation["integration"]["status"] == "error"
+
+
+def test_legacy_scorer_rejects_non_100g_basis_even_with_complete_keys():
+    nutrition = analyze_label_text(
+        {"raw_text": LABEL.replace("Per 100 g", "Per serving")}
+    )
+    result = predict_health(nutrition, legacy_scorer=LegacyScorer())
+    assert result["available"] is False

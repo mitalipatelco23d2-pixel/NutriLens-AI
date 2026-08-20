@@ -35,7 +35,7 @@ LABELS: tuple[tuple[str, re.Pattern[str]], ...] = (
 )
 
 VALUE_PATTERN = re.compile(
-    r"(?<![\w])(?P<qualifier><\s*)?(?P<number>[0-9Oo]+(?:[.,][0-9Oo]+)?)\s*(?P<unit>kcal|kj|mg|g)\b",
+    r"(?<![\w])(?P<qualifier><\s*)?(?P<number>[0-9Oo]+(?:[.,][0-9Oo]+)?)\s*(?P<unit>kcal|kj|mcg|µg|ug|mg|g)\b",
     re.I,
 )
 OCR_100G_PATTERN = re.compile(
@@ -45,8 +45,8 @@ OCR_100ML_PATTERN = re.compile(
     r"(?<!\w)[1I][0Oo][0Oo]\s*m[lIi1](?!\w)", re.I
 )
 UNIT_BEFORE_VALUE_PATTERN = re.compile(
-    r"(?:\(\s*)?(?P<unit>kcal|kj|mg|g)(?:\s*\))?\s*[:=\-]?\s*"
-    r"(?P<qualifier><\s*)?(?P<number>[0-9Oo]+(?:[.,][0-9Oo]+)?)\b",
+    r"(?:\(\s*)?(?P<unit>kcal|kj|mcg|µg|ug|mg|g)(?:\s*\))?\s*[:=\-]?\s*"
+    r"(?P<qualifier><\s*)?(?P<number>[0-9Oo]+(?:[.,][0-9Oo]+)?)\b(?!\s*%)",
     re.I,
 )
 
@@ -126,14 +126,20 @@ def basis_candidate_lines(text: str) -> list[str]:
     return candidates
 
 
-def _detect_basis(text: str) -> str:
+def _detected_bases(text: str) -> list[str]:
+    bases: list[str] = []
     if OCR_100ML_PATTERN.search(text):
-        return "per_100ml"
+        bases.append("per_100ml")
     if re.search(r"\bper\s+(?:serving|serve|portion)\b|\bamount\s+per\s+serving\b", text, re.I):
-        return "per_serving"
+        bases.append("per_serving")
     if basis_candidate_lines(text):
-        return "per_100g"
-    return "unknown"
+        bases.append("per_100g")
+    return bases
+
+
+def _detect_basis(text: str) -> str:
+    bases = _detected_bases(text)
+    return bases[0] if len(bases) == 1 else "unknown"
 
 
 def _number(raw: str) -> tuple[float, bool]:
@@ -175,29 +181,77 @@ def _parse_segment(field_name: str, segment: str, basis: str) -> tuple[ParsedNut
         segment,
         flags=re.I,
     )
-    matches = sorted(
-        [
-            *VALUE_PATTERN.finditer(segment_without_basis),
-            *UNIT_BEFORE_VALUE_PATTERN.finditer(segment_without_basis),
-        ],
-        key=lambda match: match.start(),
-    )
+    value_matches = list(VALUE_PATTERN.finditer(segment_without_basis))
+    unit_before_matches = [
+        match
+        for match in UNIT_BEFORE_VALUE_PATTERN.finditer(segment_without_basis)
+        if not any(
+            value_match.start() <= match.start() < value_match.end()
+            for value_match in value_matches
+        )
+    ]
+    matches = sorted([*value_matches, *unit_before_matches], key=lambda match: match.start())
     if not matches:
         return None, warnings
 
     if field_name == "energy_100g":
-        energy_matches = [m for m in matches if m.group("unit").lower() in {"kj", "kcal"}]
-        if not energy_matches:
+        relevant_matches = [m for m in matches if m.group("unit").lower() in {"kj", "kcal"}]
+        if not relevant_matches:
             return None, warnings
-        match = next((m for m in energy_matches if m.group("unit").lower() == "kj"), energy_matches[0])
+        match = next(
+            (m for m in relevant_matches if m.group("unit").lower() == "kj"),
+            relevant_matches[0],
+        )
     else:
-        mass_matches = [m for m in matches if m.group("unit").lower() in {"g", "mg"}]
-        if not mass_matches:
+        relevant_matches = [
+            m
+            for m in matches
+            if m.group("unit").lower() in {"g", "mg", "mcg", "µg", "ug"}
+        ]
+        if not relevant_matches:
             return None, warnings
-        match = mass_matches[0]
+        match = relevant_matches[0]
 
+    normalized_candidates: list[float] = []
+    candidate_qualifiers: set[bool] = set()
+    for candidate in relevant_matches:
+        candidate_number = candidate.group("number").replace("O", "0").replace("o", "0")
+        if re.fullmatch(r"0[1-9][0-9]*", candidate_number):
+            warnings.append(
+                f"Omitted {field_name}: a leading-zero OCR value had no reliable decimal separator."
+            )
+            return None, warnings
+        candidate_value, _ = _number(candidate.group("number"))
+        candidate_unit = candidate.group("unit").lower()
+        if candidate_unit in {"µg", "ug"}:
+            candidate_unit = "mcg"
+        if candidate_unit == "mcg":
+            candidate_value /= 1_000_000
+        elif candidate_unit == "mg":
+            candidate_value /= 1000
+        elif candidate_unit == "kcal":
+            candidate_value *= 4.184
+        normalized_candidates.append(candidate_value)
+        candidate_qualifiers.add(bool(candidate.group("qualifier")))
+    if len(normalized_candidates) > 1:
+        tolerance = max(normalized_candidates) * 0.02 if field_name == "energy_100g" else 1e-6
+        if max(normalized_candidates) - min(normalized_candidates) > max(tolerance, 1e-6):
+            warnings.append(f"Ambiguous multiple values for {field_name}; value omitted.")
+            return None, warnings
+        if len(candidate_qualifiers) > 1:
+            warnings.append(f"Conflicting qualifiers for {field_name}; value omitted.")
+            return None, warnings
+
+    raw_number = match.group("number").replace("O", "0").replace("o", "0")
+    if re.fullmatch(r"0[1-9][0-9]*", raw_number):
+        warnings.append(
+            f"Omitted {field_name}: a leading-zero OCR value had no reliable decimal separator."
+        )
+        return None, warnings
     source_value, corrected = _number(match.group("number"))
     source_unit = match.group("unit").lower()
+    if source_unit in {"µg", "ug"}:
+        source_unit = "mcg"
     if corrected:
         warnings.append(f"Corrected an OCR letter O to zero for {field_name}.")
     qualifier = "less_than" if match.group("qualifier") else None
@@ -206,7 +260,10 @@ def _parse_segment(field_name: str, segment: str, basis: str) -> tuple[ParsedNut
 
     value = source_value
     unit = source_unit
-    if source_unit == "mg":
+    if source_unit == "mcg":
+        value = source_value / 1_000_000
+        unit = "g"
+    elif source_unit == "mg":
         value = source_value / 1000
         unit = "g"
     elif source_unit == "kcal":
@@ -223,6 +280,34 @@ def _parse_segment(field_name: str, segment: str, basis: str) -> tuple[ParsedNut
         basis=basis,
         qualifier=qualifier,
     ), warnings
+
+
+def _same_nutrient(left: ParsedNutrient, right: ParsedNutrient) -> bool:
+    return (
+        left.basis == right.basis
+        and left.unit == right.unit
+        and left.qualifier == right.qualifier
+        and abs(left.value - right.value) <= 1e-6
+    )
+
+
+def _merge_text_nutrient(
+    result: NutritionParseResult,
+    field_name: str,
+    nutrient: ParsedNutrient,
+    conflicted: set[str],
+) -> None:
+    if field_name in conflicted:
+        return
+    existing = result.nutrients.get(field_name)
+    if existing is None:
+        result.nutrients[field_name] = nutrient
+    elif not _same_nutrient(existing, nutrient):
+        result.nutrients.pop(field_name, None)
+        conflicted.add(field_name)
+        result.warnings.append(
+            f"Omitted {field_name}: multiple conflicting OCR values were detected."
+        )
 
 
 def _field_for_row(text: str) -> str | None:
@@ -362,7 +447,7 @@ def _numeric_cells(row: list[SpatialWord]) -> list[tuple[float, str]]:
     numeric_piece = re.compile(r"^[0-9Oo]+(?:[.,][0-9Oo]+)?$|^[.,]$")
     complete_cell = re.compile(
         r"^(?P<qualifier><)?\s*(?P<number>[0-9Oo]+(?:[.,][0-9Oo]+)?)"
-        r"\s*(?P<unit>kcal|kj|mg|g|q)?\s*(?P<percent>%)?$",
+        r"\s*(?P<unit>kcal|kj|mcg|µg|ug|mg|g|q)?\s*(?P<percent>%)?$",
         re.I,
     )
     while index < len(row):
@@ -555,7 +640,7 @@ def infer_per_100_column(words: Iterable[SpatialWord], basis: str) -> float | No
 
 
 def _row_unit(row_text: str, field_name: str) -> str | None:
-    units = re.findall(r"(?<![a-z])(kcal|kj|mg|g)(?![a-z])", row_text, re.I)
+    units = re.findall(r"(?<![a-z])(kcal|kj|mcg|µg|ug|mg|g)(?![a-z])", row_text, re.I)
     if field_name == "energy_100g":
         direct = next((unit.lower() for unit in units if unit.lower() in {"kcal", "kj"}), None)
         if direct:
@@ -563,9 +648,9 @@ def _row_unit(row_text: str, field_name: str) -> str | None:
         if re.search(r"\bk[ec]a[il1]?\b", row_text, re.I):
             return "kcal"
         return None
-    direct = next((unit.lower() for unit in units if unit.lower() in {"mg", "g"}), None)
+    direct = next((unit.lower() for unit in units if unit.lower() in {"mcg", "µg", "ug", "mg", "g"}), None)
     if direct:
-        return direct
+        return "mcg" if direct in {"µg", "ug"} else direct
     if field_name == "cholesterol_100g" and re.search(r"\(\s*i?g\s*\)", row_text, re.I):
         return "mg"
     if re.search(r"\(\s*[q9]\s*[\)1|]", row_text, re.I):
@@ -702,7 +787,10 @@ def parse_spatial_nutrition(
             continue
         value = source_value
         normalized_unit = unit
-        if unit == "mg":
+        if unit == "mcg":
+            value = source_value / 1_000_000
+            normalized_unit = "g"
+        elif unit == "mg":
             value = source_value / 1000
             normalized_unit = "g"
         elif unit == "kcal":
@@ -747,7 +835,7 @@ def _fragmented_spatial_fields(words: Iterable[SpatialWord], basis: str) -> set[
                 not consensus_cell
                 and digit_count
                 and not re.fullmatch(
-                    r"<?\s*[0-9Oo]+(?:[.,][0-9Oo]+)?\s*(?:kcal|kj|mg|g|q)?",
+                    r"<?\s*[0-9Oo]+(?:[.,][0-9Oo]+)?\s*(?:kcal|kj|mcg|µg|ug|mg|g|q)?",
                     token,
                     re.I,
                 )
@@ -778,13 +866,14 @@ def _apply_plausibility(result: NutritionParseResult) -> None:
         "sodium_100g": 10,
         "calcium_100g": 10,
     }
-    for field_name, maximum in gram_limits.items():
-        nutrient = result.nutrients.get(field_name)
-        if nutrient and not 0 <= nutrient.value <= maximum:
-            invalid[field_name] = f"outside the plausible 0-{maximum} g per 100 g range"
-    energy = result.nutrients.get("energy_100g")
-    if energy and not 0 <= energy.value <= 5000:
-        invalid["energy_100g"] = "outside the plausible energy range"
+    if result.basis == "per_100g":
+        for field_name, maximum in gram_limits.items():
+            nutrient = result.nutrients.get(field_name)
+            if nutrient and not 0 <= nutrient.value <= maximum:
+                invalid[field_name] = f"outside the plausible 0-{maximum} g per 100 g range"
+        energy = result.nutrients.get("energy_100g")
+        if energy and not 0 <= energy.value <= 5000:
+            invalid["energy_100g"] = "outside the plausible per-100-g energy range"
 
     relations = (
         ("saturated_fat_100g", "fat_100g", "saturated fat exceeds total fat"),
@@ -821,7 +910,7 @@ def _reconstructed_nutrition_rows(text: str) -> list[tuple[str, str]]:
             ):
                 break
             parts.append(following)
-            if re.search(r"(?:kcal|kj|mg|g|q)\b", following, re.I):
+            if re.search(r"(?:kcal|kj|mcg|µg|ug|mg|g|q)\b", following, re.I):
                 break
         reconstructed.append((field_name, " ".join(parts)))
     return reconstructed
@@ -833,35 +922,74 @@ def parse_nutrition_text(
     basis_override: str | None = None,
 ) -> NutritionParseResult:
     normalized = text.replace("—", "-").replace("\u00a0", " ")
-    basis = basis_override or _detect_basis(normalized)
+    detected_bases = _detected_bases(normalized) if basis_override is None else []
+    ambiguous_basis = len(detected_bases) > 1
+    basis = basis_override or (detected_bases[0] if len(detected_bases) == 1 else "unknown")
     result = NutritionParseResult(basis=basis)
-    if basis == "unknown":
-        result.warnings.append("Could not determine whether values are per 100 g or per serving.")
+    if ambiguous_basis:
+        result.warnings.append(
+            "Multiple nutrition bases were detected; values were omitted because their source column was ambiguous."
+        )
+    elif basis == "unknown":
+        result.warnings.append(
+            "Could not determine the nutrition basis; extracted values retain an unknown basis."
+        )
     elif basis != "per_100g":
-        result.warnings.append(f"Detected {basis.replace('_', ' ')} values; the current model requires per 100 g values.")
+        result.warnings.append(
+            f"Detected {basis.replace('_', ' ')} values; values were preserved without conversion, "
+            "and the current health model requires per 100 g values."
+        )
 
     spatial_word_list = list(spatial_words)
     strict_spatial_table = basis == "per_100ml" and bool(spatial_word_list)
-    if not strict_spatial_table:
+    conflicted_fields: set[str] = set()
+    if not strict_spatial_table and not ambiguous_basis:
         for line in (item.strip() for item in normalized.splitlines() if item.strip()):
-            for field_name, segment in _segments(line):
+            parsed_line = line
+            inferred_calories = False
+            if (
+                basis != "unknown"
+                and re.search(r"\bnutrition(?:al)?\s+(?:facts|information)\b", normalized, re.I)
+                and re.search(r"\bcalories?\b", line, re.I)
+                and not re.search(r"\b(?:kcal|kj)\b", line, re.I)
+            ):
+                parsed_line, replacements = re.subn(
+                    r"(\bcalories?\s*:?[ \t]*)([0-9Oo]+(?:[.,][0-9Oo]+)?)(?!\s*(?:%|kcal|kj|mg|g))",
+                    r"\1\2 kcal",
+                    line,
+                    count=1,
+                    flags=re.I,
+                )
+                inferred_calories = replacements == 1
+            for field_name, segment in _segments(parsed_line):
                 nutrient, warnings = _parse_segment(field_name, segment, basis)
-                if nutrient is not None and field_name not in result.nutrients:
-                    result.nutrients[field_name] = nutrient
-                    result.warnings.extend(warnings)
+                result.warnings.extend(warnings)
+                if nutrient is not None:
+                    _merge_text_nutrient(result, field_name, nutrient, conflicted_fields)
+                    if inferred_calories and field_name == "energy_100g":
+                        result.warnings.append(
+                            "Interpreted an explicit Calories row as kcal within nutrition context."
+                        )
 
-    if basis != "unknown" and not strict_spatial_table:
+    if basis != "unknown" and not strict_spatial_table and not ambiguous_basis:
         for field_name, reconstructed in _reconstructed_nutrition_rows(normalized):
             if field_name in result.nutrients:
                 continue
             nutrient, warnings = _parse_segment(field_name, reconstructed, basis)
+            result.warnings.extend(warnings)
             if nutrient is not None:
-                result.nutrients[field_name] = nutrient
-                result.warnings.extend(warnings)
+                _merge_text_nutrient(result, field_name, nutrient, conflicted_fields)
 
     spatial_nutrients, spatial_warnings = parse_spatial_nutrition(spatial_word_list, basis)
     if spatial_nutrients:
-        result.nutrients.update(spatial_nutrients)
+        for field_name, nutrient in spatial_nutrients.items():
+            existing = result.nutrients.get(field_name)
+            if existing is not None and not _same_nutrient(existing, nutrient):
+                result.warnings.append(
+                    f"Spatial OCR evidence replaced a conflicting text value for {field_name}."
+                )
+            result.nutrients[field_name] = nutrient
+            conflicted_fields.discard(field_name)
         result.warnings.extend(spatial_warnings)
     for field_name in _fragmented_spatial_fields(spatial_word_list, basis):
         if field_name in result.nutrients:

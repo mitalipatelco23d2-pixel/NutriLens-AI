@@ -1,3 +1,13 @@
-from .parser import FallbackIngredientExtractor, IngredientExtractor
+from .parser import (
+    FallbackIngredientExtractor,
+    IngredientExtractor,
+    PackagedFoodNlpAnalyzer,
+    analyze_food_label_text,
+)
 
-__all__ = ["FallbackIngredientExtractor", "IngredientExtractor"]
+__all__ = [
+    "FallbackIngredientExtractor",
+    "IngredientExtractor",
+    "PackagedFoodNlpAnalyzer",
+    "analyze_food_label_text",
+]
