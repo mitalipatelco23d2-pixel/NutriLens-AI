@@ -16,6 +16,7 @@ from .team_contracts import (
     explain_analysis,
     predict_health,
 )
+from .m2 import get_m2_health_predictor
 
 
 class TeamAnalysisPipeline:
@@ -43,6 +44,7 @@ class TeamAnalysisPipeline:
         health = predict_health(analysis, self.health_predictor, self.legacy_scorer)
         explanation = explain_analysis(analysis, health.get("result"), self.explainer)
         warnings = list(analysis.get("warnings") or [])
+        warnings.extend(health.get("warnings") or [])
         if health.get("warning"):
             warnings.append(health["warning"])
         if explanation.get("warning"):
@@ -95,5 +97,5 @@ _team_pipeline: TeamAnalysisPipeline | None = None
 def get_team_analysis_pipeline() -> TeamAnalysisPipeline:
     global _team_pipeline
     if _team_pipeline is None:
-        _team_pipeline = TeamAnalysisPipeline()
+        _team_pipeline = TeamAnalysisPipeline(health_predictor=get_m2_health_predictor())
     return _team_pipeline

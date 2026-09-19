@@ -9,6 +9,10 @@ from pathlib import Path
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
 BACKEND_ROOT = REPOSITORY_ROOT / "backend"
+RISK_MODEL_SHA256 = "55397e61da7b9e6b22c88d2757c75dcd8b1b8b894f93a63ca59752bb159f50e8"
+RISK_VECTORIZER_SHA256 = (
+    "ca053bfc80dca02de68e21294f675a2416aa62be3377f6c0ffb8eef9affda677"
+)
 load_dotenv(REPOSITORY_ROOT / ".env")
 
 
@@ -40,6 +44,18 @@ def _choice(name: str, default: str, supported: set[str]) -> str:
     return value
 
 
+def _optional_sha256(name: str, default: str | None = None) -> str | None:
+    value = os.getenv(name, default)
+    if not value or not value.strip():
+        return None
+    normalized = value.strip().lower()
+    if len(normalized) != 64 or any(
+        character not in "0123456789abcdef" for character in normalized
+    ):
+        raise ValueError(f"{name} must be a 64-character hexadecimal SHA-256 digest")
+    return normalized
+
+
 @dataclass(frozen=True)
 class Settings:
     repository_root: Path
@@ -48,6 +64,11 @@ class Settings:
     data_dir: Path
     processed_data_dir: Path
     model_path: Path
+    risk_model_path: Path
+    risk_vectorizer_path: Path
+    risk_model_sha256: str | None
+    risk_vectorizer_sha256: str | None
+    risk_sklearn_version: str
     database_url: str
     jwt_secret_key: str
     jwt_algorithm: str
@@ -92,6 +113,24 @@ def get_settings() -> Settings:
         model_path=_path_from_env(
             "NUTRILENS_MODEL_PATH",
             processed_dir / "health_score_model.joblib",
+        ),
+        risk_model_path=_path_from_env(
+            "NUTRILENS_RISK_MODEL_PATH",
+            processed_dir / "m2" / "health_risk_model.pkl",
+        ),
+        risk_vectorizer_path=_path_from_env(
+            "NUTRILENS_RISK_VECTORIZER_PATH",
+            processed_dir / "m2" / "tfidf_vectorizer.pkl",
+        ),
+        risk_model_sha256=_optional_sha256(
+            "NUTRILENS_RISK_MODEL_SHA256", RISK_MODEL_SHA256
+        ),
+        risk_vectorizer_sha256=_optional_sha256(
+            "NUTRILENS_RISK_VECTORIZER_SHA256", RISK_VECTORIZER_SHA256
+        ),
+        risk_sklearn_version=(
+            os.getenv("NUTRILENS_RISK_SKLEARN_VERSION", "1.9.1").strip()
+            or "1.9.1"
         ),
         database_url=database_url,
         jwt_secret_key=os.getenv(

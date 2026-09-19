@@ -162,10 +162,14 @@ def predict_health(
     """Stable Member 2 boundary; current joblib output is legacy/development only."""
     if predictor is not None:
         try:
+            result = predictor.predict(nlp_result)
+            status = result.get("status", "available")
+            warnings = list(result.get("warnings") or [])
             return {
-                "available": True,
-                "result": predictor.predict(nlp_result),
-                "integration": {"status": "available", "provider": predictor.provider},
+                "available": status in {"available", "partial"},
+                "result": result,
+                "integration": {"status": status, "provider": predictor.provider},
+                "warnings": warnings,
             }
         except Exception:
             logger.exception("Configured Member 2 predictor failed")
