@@ -1,297 +1,240 @@
-import os
+"""Trust-gated, lazy loader for the M2 ingredient-risk artifacts."""
+
+from __future__ import annotations
+
+import hashlib
+import threading
+from collections.abc import Iterable
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Callable
+
 import joblib
+from sklearn import __version__ as sklearn_version
 
-
-# ============================================
-# PATH CONFIGURATION
-# ============================================
-
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-
-MODEL_PATH = os.path.join(
-    CURRENT_DIR,
-    "health_risk_model.pkl"
+from ...core.errors import (
+    InvalidModelInputError,
+    ModelInferenceError,
+    ModelUnavailableError,
 )
 
-VECTORIZER_PATH = os.path.join(
-    CURRENT_DIR,
-    "tfidf_vectorizer.pkl"
-)
+ArtifactLoader = Callable[[Path], Any]
+RISK_LEVELS = ("LOW", "MODERATE", "HIGH")
 
 
-# ============================================
-# LOAD MODEL
-# ============================================
+@dataclass(frozen=True)
+class IngredientRiskExplanationContext:
+    """Already-loaded M2 objects and the exact transformed request input."""
 
-print("Loading Health Risk Model...")
-model = joblib.load(MODEL_PATH)
-
-print("Loading TF-IDF Vectorizer...")
-vectorizer = joblib.load(VECTORIZER_PATH)
-
-print("Model and vectorizer loaded successfully.")
+    model: Any
+    features: Any
+    feature_names: Any
+    classes: Any
+    ingredient_text: str
 
 
-# ============================================
-# CONVERT MODEL LABEL
-# ============================================
+class IngredientRiskService:
+    """Load M2 pickle artifacts only after explicit SHA-256 verification."""
 
-def convert_risk_label(label):
+    def __init__(
+        self,
+        *,
+        model_path: Path,
+        vectorizer_path: Path,
+        expected_model_sha256: str | None,
+        expected_vectorizer_sha256: str | None,
+        expected_sklearn_version: str | None = None,
+        loader: ArtifactLoader = joblib.load,
+    ) -> None:
+        self.model_path = Path(model_path)
+        self.vectorizer_path = Path(vectorizer_path)
+        self.expected_model_sha256 = expected_model_sha256
+        self.expected_vectorizer_sha256 = expected_vectorizer_sha256
+        self.expected_sklearn_version = expected_sklearn_version
+        self._loader = loader
+        self._model: Any = None
+        self._vectorizer: Any = None
+        self._lock = threading.Lock()
 
-    """
-    Convert encoded model labels into
-    NutriLens AI risk levels.
+    @staticmethod
+    def _digest(path: Path) -> str:
+        digest = hashlib.sha256()
+        with path.open("rb") as stream:
+            for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(chunk)
+        return digest.hexdigest()
 
-    Model encoding:
-
-        0 = LOW
-        1 = MODERATE
-        2 = HIGH
-    """
-
-    # Handle numeric labels
-    try:
-
-        numeric_label = int(label)
-
-        mapping = {
-            0: "LOW",
-            1: "MODERATE",
-            2: "HIGH"
-        }
-
-        if numeric_label in mapping:
-            return mapping[numeric_label]
-
-    except (ValueError, TypeError):
-
-        pass
-
-    # Handle string labels
-    label_string = str(label).upper().strip()
-
-    if label_string in [
-        "LOW",
-        "MODERATE",
-        "HIGH"
-    ]:
-        return label_string
-
-    return "UNKNOWN"
-
-# ============================================
-# PREDICT HEALTH RISK
-# ============================================
-
-def predict_health_risk(normalized_ingredients):
-
-    """
-    Predict health concern level from
-    normalized ingredients.
-    """
-
-    # ----------------------------------------
-    # Validate input
-    # ----------------------------------------
-
-    if not normalized_ingredients:
-
-        return {
-            "risk_level": "UNKNOWN",
-            "probabilities": {},
-            "message": "No ingredients available."
-        }
-
-    # ----------------------------------------
-    # Clean ingredients
-    # ----------------------------------------
-
-    normalized_ingredients = [
-        str(item).strip()
-        for item in normalized_ingredients
-        if str(item).strip()
-    ]
-
-    if not normalized_ingredients:
-
-        return {
-            "risk_level": "UNKNOWN",
-            "probabilities": {},
-            "message": "No valid ingredients available."
-        }
-
-    # ----------------------------------------
-    # Convert ingredients into text
-    # ----------------------------------------
-
-    ingredient_text = ", ".join(
-        normalized_ingredients
-    )
-
-    # ----------------------------------------
-    # TF-IDF
-    # ----------------------------------------
-
-    X = vectorizer.transform(
-        [ingredient_text]
-    )
-
-    # ----------------------------------------
-    # Prediction
-    # ----------------------------------------
-
-    raw_prediction = model.predict(X)[0]
-
-    risk_level = convert_risk_label(
-        raw_prediction
-    )
-
-    # ----------------------------------------
-    # Probabilities
-    # ----------------------------------------
-
-    probability_array = model.predict_proba(X)[0]
-
-    model_classes = model.classes_
-
-    probabilities = {
-        "LOW": 0.0,
-        "MODERATE": 0.0,
-        "HIGH": 0.0
-    }
-
-    for class_label, probability in zip(
-        model_classes,
-        probability_array
-    ):
-
-        readable_label = convert_risk_label(
-            class_label
-        )
-
-        if readable_label in probabilities:
-
-            probabilities[readable_label] = round(
-                float(probability) * 100,
-                2
+    @classmethod
+    def _verify_artifact(
+        cls, path: Path, expected_sha256: str | None, label: str
+    ) -> None:
+        if expected_sha256 is None:
+            raise ModelUnavailableError(f"{label} provenance digest is not configured.")
+        if not path.is_file():
+            raise ModelUnavailableError(f"{label} artifact is unavailable.")
+        if cls._digest(path) != expected_sha256.lower():
+            raise ModelUnavailableError(
+                f"{label} artifact failed its SHA-256 provenance check."
             )
 
-    # ----------------------------------------
-    # Final result
-    # ----------------------------------------
+    def _verify_runtime(self) -> None:
+        if (
+            self.expected_sklearn_version is not None
+            and sklearn_version != self.expected_sklearn_version
+        ):
+            raise ModelUnavailableError(
+                "Ingredient-risk artifacts require scikit-learn "
+                f"{self.expected_sklearn_version}; runtime has {sklearn_version}."
+            )
 
-    return {
+    def readiness(self) -> tuple[bool, str]:
+        """Check artifact presence and trust without deserializing either file."""
 
-        "risk_level": risk_level,
+        try:
+            self._verify_runtime()
+            self._verify_artifact(
+                self.model_path, self.expected_model_sha256, "Risk model"
+            )
+            self._verify_artifact(
+                self.vectorizer_path,
+                self.expected_vectorizer_sha256,
+                "Risk vectorizer",
+            )
+        except ModelUnavailableError as exc:
+            return False, str(exc)
+        return True, "Verified ingredient-risk artifacts are available."
 
-        "probabilities": {
-            "LOW": probabilities["LOW"],
-            "MODERATE": probabilities["MODERATE"],
-            "HIGH": probabilities["HIGH"]
-        },
+    def _load_verified_artifacts(self) -> tuple[Any, Any]:
+        if self._model is not None and self._vectorizer is not None:
+            return self._model, self._vectorizer
+        with self._lock:
+            if self._model is None or self._vectorizer is None:
+                self._verify_runtime()
+                self._verify_artifact(
+                    self.model_path, self.expected_model_sha256, "Risk model"
+                )
+                self._verify_artifact(
+                    self.vectorizer_path,
+                    self.expected_vectorizer_sha256,
+                    "Risk vectorizer",
+                )
+                try:
+                    model = self._loader(self.model_path)
+                    vectorizer = self._loader(self.vectorizer_path)
+                except Exception as exc:
+                    raise ModelUnavailableError(
+                        "Verified ingredient-risk artifacts could not be loaded."
+                    ) from exc
+                if not callable(getattr(vectorizer, "transform", None)):
+                    raise ModelUnavailableError(
+                        "Risk vectorizer does not expose transform()."
+                    )
+                if not callable(getattr(model, "predict", None)):
+                    raise ModelUnavailableError("Risk model does not expose predict().")
+                self._model = model
+                self._vectorizer = vectorizer
+        return self._model, self._vectorizer
 
-        "ingredient_text": ingredient_text
-    }
+    @staticmethod
+    def _ingredient_text(ingredients: Iterable[str]) -> str:
+        if isinstance(ingredients, (str, bytes)) or not isinstance(
+            ingredients, Iterable
+        ):
+            raise InvalidModelInputError(
+                "Ingredient-risk input must be a collection of ingredient strings."
+            )
+        normalized: list[str] = []
+        for item in ingredients:
+            if not isinstance(item, str):
+                raise InvalidModelInputError(
+                    "Every ingredient-risk input item must be a string."
+                )
+            normalized.append(" ".join(item.lower().strip().split()))
+        return ", ".join(item for item in normalized if item)
 
+    @staticmethod
+    def _risk_label(value: Any) -> str:
+        try:
+            numeric = int(value)
+        except (TypeError, ValueError):
+            numeric = None
+        if numeric in {0, 1, 2}:
+            return RISK_LEVELS[numeric]
+        label = str(value).upper().strip()
+        if label in RISK_LEVELS:
+            return label
+        raise ValueError(f"Unsupported risk label: {value}")
 
-# ============================================
-# PREDICT FROM M1 + M2
-# ============================================
+    @classmethod
+    def risk_label(cls, value: Any) -> str:
+        """Map the serialized model's numeric or string class to the API label."""
 
-def predict_from_nlp_result(nlp_result):
+        return cls._risk_label(value)
 
-    """
-    Takes M1 + M2 output and performs
-    ML risk prediction.
-    """
+    def predict(self, ingredients: Iterable[str]) -> dict[str, Any]:
+        ingredient_text = self._ingredient_text(ingredients)
+        if not ingredient_text:
+            raise InvalidModelInputError(
+                "Ingredient-risk prediction requires at least one ingredient."
+            )
 
-    normalized_ingredients = nlp_result.get(
-        "normalized_ingredients",
-        []
-    )
+        model, vectorizer = self._load_verified_artifacts()
+        try:
+            features = vectorizer.transform([ingredient_text])
+            predicted = self._risk_label(model.predict(features)[0])
 
-    return predict_health_risk(
-        normalized_ingredients
-    )
+            probabilities = {label: 0.0 for label in RISK_LEVELS}
+            predict_proba = getattr(model, "predict_proba", None)
+            classes = getattr(model, "classes_", None)
+            if callable(predict_proba) and classes is not None:
+                values = predict_proba(features)[0]
+                for label, probability in zip(classes, values):
+                    probabilities[self._risk_label(label)] = round(
+                        float(probability) * 100.0, 2
+                    )
+        except Exception as exc:
+            raise ModelInferenceError("Ingredient-risk inference failed.") from exc
 
-
-# ============================================
-# TEST
-# ============================================
-
-if __name__ == "__main__":
-
-    print("\n================================")
-    print("NUTRILENS AI - ML RISK PREDICTION")
-    print("================================")
-
-    print("\nMODEL CLASSES:")
-    print(model.classes_)
-
-    # Sample M1 + M2 result
-    sample_nlp_result = {
-
-        "normalized_ingredients": [
-            "wheat flour",
-            "sugar",
-            "palm oil",
-            "citric acid",
-            "salt",
-            "raising agents",
-            "artificial flavour",
-            "glucose",
-            "fructose"
-        ],
-
-        "allergens": [
-            "wheat",
-            "milk"
-        ],
-
-        "additives": [
-            "503",
-            "500",
-            "472E"
-        ],
-
-        "nutrition": {
-            "energy_kcal": 480.0,
-            "protein_g": 6.0,
-            "sugar_g": 25.0,
-            "fat_g": 20.0,
-            "saturated_fat_g": 10.0,
-            "trans_fat_g": 0.0,
-            "sodium_mg": 400.0,
-            "basis": "per_serving",
-            "serving_size_g": 50.0
+        return {
+            "risk_level": predicted,
+            "probabilities": probabilities,
+            "ingredient_text": ingredient_text,
+            "model_version": "m2_ingredient_risk_v1",
         }
-    }
 
-    # ----------------------------------------
-    # Run prediction
-    # ----------------------------------------
+    def explanation_context(
+        self, ingredient_text: str
+    ) -> IngredientRiskExplanationContext:
+        """Reuse verified M2 objects without performing another prediction."""
 
-    result = predict_from_nlp_result(
-        sample_nlp_result
-    )
-
-    # ----------------------------------------
-    # Display result
-    # ----------------------------------------
-
-    print("\nRISK LEVEL:")
-    print(result["risk_level"])
-
-    print("\nPROBABILITIES:")
-
-    print(
-        f"LOW: {result['probabilities']['LOW']}%"
-    )
-
-    print(
-        f"MODERATE: {result['probabilities']['MODERATE']}%"
-    )
-
-    print(
-        f"HIGH: {result['probabilities']['HIGH']}%"
-    )
+        if not isinstance(ingredient_text, str) or not ingredient_text.strip():
+            raise InvalidModelInputError(
+                "SHAP explanation requires the non-empty ingredient text used by M2."
+            )
+        normalized = " ".join(ingredient_text.strip().split())
+        model, vectorizer = self._load_verified_artifacts()
+        try:
+            features = vectorizer.transform([normalized])
+            get_feature_names = getattr(vectorizer, "get_feature_names_out", None)
+            classes = getattr(model, "classes_", None)
+            if not callable(get_feature_names):
+                raise ValueError("Risk vectorizer does not expose feature names.")
+            if classes is None:
+                raise ValueError("Risk model does not expose class ordering.")
+            feature_names = get_feature_names()
+            if features.shape[1] != len(feature_names):
+                raise ValueError("Risk vectorizer feature metadata is inconsistent.")
+            expected_features = getattr(model, "n_features_in_", features.shape[1])
+            if int(expected_features) != features.shape[1]:
+                raise ValueError("Risk model and vectorizer feature counts differ.")
+        except Exception as exc:
+            raise ModelInferenceError(
+                "Ingredient-risk explanation input preparation failed."
+            ) from exc
+        return IngredientRiskExplanationContext(
+            model=model,
+            features=features,
+            feature_names=feature_names,
+            classes=classes,
+            ingredient_text=normalized,
+        )

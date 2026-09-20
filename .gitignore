@@ -1,13 +1,46 @@
-.venv/
+# Python
 __pycache__/
-*.pyc
-.env
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
 
+# Local configuration and runtime output
+.env
+*.log
+logs/
+tmp/
+temp/
+uploads/
+backend/uploads/
+backend/tmp/
+backend/app/uploads/
+backend/app/tmp/
+
+# Generated/private data and serialized models (keep directory placeholders)
 data/raw/*
 data/processed/*
 data/external/*
+*.joblib
+*.pkl
+*.pickle
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/external/.gitkeep
 
-backend/models/*.pkl
-backend/models/*.joblib
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+local_test_images/
+.EasyOCR/
+easyocr_models/
+ocr_comparison_outputs/
 
-!.gitkeep
+# Local authentication database
+data/nutrilens.db*

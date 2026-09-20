@@ -1,0 +1,118 @@
+export const completeResponse = {
+  request_id: 'request-123',
+  status: 'success',
+  ocr: { engine: 'tesseract', confidence: 0.91, rotation: 0 },
+  analysis: {
+    ingredients: ['Wheat flour', 'Sugar', 'INS 621'],
+    ingredient_quality: { status: 'trusted', reasons: ['An explicit, bounded, structurally plausible ingredient list was extracted.'] },
+    additives: ['INS 621'],
+    allergens: ['Milk'],
+    nutrition: {
+      energy_kcal_100g: 420,
+      sugars_100g: 25,
+      saturated_fat_100g: 6,
+      trans_fat_100g: 0,
+      sodium_100g: 0.4,
+    },
+    nutrition_details: {
+      sugars_100g: { basis: 'per_100g', unit: 'g' },
+      sodium_100g: { basis: 'per_100g', unit: 'g' },
+    },
+    basis: 'per_100g',
+    metadata: { ocr_line_count: 9 },
+    integration: { status: 'available', provider: 'member_1_packaged_food_nlp' },
+  },
+  health: {
+    status: 'available',
+    health_score: 72,
+    score_level: 'GOOD',
+    risk_level: 'MODERATE',
+    basis: 'per_100g',
+    nutrition_score: {
+      available: true,
+      basis: 'per_100g',
+      health_score: 72,
+      score_level: 'GOOD',
+      reasons: ['Higher sugar content'],
+      warnings: [],
+      missing_nutrients: [],
+    },
+    ingredient_risk: {
+      available: true,
+      risk_level: 'MODERATE',
+      probabilities: { LOW: 20, MODERATE: 70, HIGH: 10 },
+    },
+  },
+  explanation: {
+    status: 'available',
+    recommendations: {
+      status: 'available',
+      items: [{ category: 'sugar', priority: 'HIGH', message: 'Compare lower-sugar options.', reason: 'The label reports 25 g sugars per 100 g.' }],
+      omissions: [],
+      disclaimer: 'General label guidance; not medical advice.',
+    },
+    knowledge_base: {
+      status: 'available',
+      matched: [{ input_ingredient: 'INS 621', matched_ingredient: 'monosodium glutamate', matched_by: 'e_number', dataset_reason: 'Dataset-provided context.', dataset_source_label: 'FDA' }],
+      unmatched: [{ input_ingredient: 'Sugar', reason: 'not_found' }],
+      summary: { total: 3, matched: 1, unmatched: 2 },
+      warnings: [],
+    },
+    model_attribution: {
+      status: 'available', available: true, explained_class: 'MODERATE',
+      baseline: { probability: 0.3 }, predicted_probability: 0.7, runtime_ms: 18,
+      features: [{ tfidf_token: 'sugar', contribution: 0.12 }],
+    },
+    rag: {
+      status: 'available', available: true,
+      answer: 'Labels list ingredients in descending order. [S1]',
+      claims: [{ text: 'Labels list ingredients in descending order.', citation_ids: ['S1'], evidence_excerpts: { S1: 'Ingredients shall be listed in descending order.' } }],
+      sources: [{ citation_id: 'S1', title: 'Food Safety and Standards Labelling Regulations', organization: 'FSSAI', canonical_url: 'https://www.fssai.gov.in/example', publication_date: '2020-01-01', evidence_excerpts: ['Ingredients shall be listed in descending order.'] }],
+      disclaimer: 'Source-grounded general food-label information; not medical advice.',
+    },
+  },
+  integrations: {
+    nlp: { status: 'available', provider: 'member_1_packaged_food_nlp' },
+    health: { status: 'available', provider: 'member_2_nutrition_and_ingredient_risk' },
+    explanation: { status: 'available', provider: 'member_5_phase_3_optional_rag' },
+  },
+  warnings: [],
+}
+
+export const partialResponse = {
+  ...completeResponse,
+  request_id: 'request-partial',
+  status: 'partial_success',
+  analysis: {
+    ...completeResponse.analysis,
+    basis: 'per_serving',
+    nutrition: {},
+    nutrition_details: {},
+    ingredient_quality: { status: 'untrusted', reasons: ['The extracted section contains unrelated packaging or prose text.'] },
+  },
+  health: {
+    ...completeResponse.health,
+    status: 'partial',
+    health_score: null,
+    score_level: null,
+    basis: 'per_serving',
+    nutrition_score: {
+      available: false,
+      basis: 'per_serving',
+      missing_nutrients: ['sugars_100g'],
+      detail: 'M2 nutrition scoring requires a per_100g basis; no basis conversion was attempted.',
+    },
+  },
+  explanation: {
+    ...completeResponse.explanation,
+    status: 'partial',
+    recommendations: {
+      status: 'partial', items: [],
+      omissions: ['Nutrition-threshold recommendations require per_100g data; basis per_serving was preserved and no conversion was attempted.'],
+    },
+    knowledge_base: { status: 'unavailable', matched: [], unmatched: [], warnings: ['Knowledge-base CSV is unavailable.'] },
+    model_attribution: { status: 'disabled', available: false, detail: 'Dynamic SHAP attribution is disabled by configuration.' },
+    rag: { status: 'insufficient_evidence', available: false, detail: 'No current source passage met the retrieval threshold.' },
+  },
+  warnings: ['M5 knowledge lookup is unavailable.'],
+}
