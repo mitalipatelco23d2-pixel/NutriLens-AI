@@ -102,8 +102,9 @@ _team_pipeline: TeamAnalysisPipeline | None = None
 def get_team_analysis_pipeline() -> TeamAnalysisPipeline:
     global _team_pipeline
     if _team_pipeline is None:
+        m2_predictor = get_m2_health_predictor()
         _team_pipeline = TeamAnalysisPipeline(
-            health_predictor=get_m2_health_predictor(),
-            explainer=get_m5_explainer(),
+            health_predictor=m2_predictor,
+            explainer=get_m5_explainer(m2_predictor.risk_service),
         )
     return _team_pipeline

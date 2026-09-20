@@ -16,6 +16,13 @@ def test_repository_paths_are_deterministic(monkeypatch, tmp_path):
     assert settings.data_dir == REPOSITORY_ROOT / "data"
     assert settings.processed_data_dir == REPOSITORY_ROOT / "data" / "processed"
     assert settings.model_path == REPOSITORY_ROOT / "data" / "processed" / "health_score_model.joblib"
+    assert settings.m5_shap_enabled is False
+    assert settings.m5_shap_top_features == 8
+    assert settings.m5_shap_max_features == 3_000
+    assert settings.m5_shap_max_nonzero_features == 512
+    assert settings.m5_shap_max_trees == 250
+    assert settings.m5_shap_max_runtime_ms == 2_000
+    assert settings.m5_shap_additivity_tolerance == 1e-6
 
 
 def test_relative_environment_paths_are_repository_relative(monkeypatch):
@@ -39,5 +46,35 @@ def test_invalid_configured_ocr_engine_is_rejected(monkeypatch):
     monkeypatch.setenv("NUTRILENS_OCR_ENGINE", "easyocr")
     get_settings.cache_clear()
     with pytest.raises(ValueError, match="NUTRILENS_OCR_ENGINE"):
+        get_settings()
+    get_settings.cache_clear()
+
+
+def test_shap_must_be_explicitly_enabled_with_valid_limits(monkeypatch):
+    monkeypatch.setenv("NUTRILENS_M5_SHAP_ENABLED", "true")
+    monkeypatch.setenv("NUTRILENS_M5_SHAP_TOP_FEATURES", "5")
+    monkeypatch.setenv("NUTRILENS_M5_SHAP_ADDITIVITY_TOLERANCE", "0.00001")
+    get_settings.cache_clear()
+
+    settings = get_settings()
+
+    assert settings.m5_shap_enabled is True
+    assert settings.m5_shap_top_features == 5
+    assert settings.m5_shap_additivity_tolerance == 1e-5
+    get_settings.cache_clear()
+
+
+@pytest.mark.parametrize(
+    ("name", "value"),
+    [
+        ("NUTRILENS_M5_SHAP_ENABLED", "sometimes"),
+        ("NUTRILENS_M5_SHAP_MAX_RUNTIME_MS", "0"),
+        ("NUTRILENS_M5_SHAP_ADDITIVITY_TOLERANCE", "nan"),
+    ],
+)
+def test_invalid_shap_configuration_is_rejected(monkeypatch, name, value):
+    monkeypatch.setenv(name, value)
+    get_settings.cache_clear()
+    with pytest.raises(ValueError, match=name):
         get_settings()
     get_settings.cache_clear()

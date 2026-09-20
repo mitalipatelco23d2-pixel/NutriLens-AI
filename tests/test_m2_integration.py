@@ -258,6 +258,67 @@ def test_verified_risk_artifacts_can_use_an_injected_non_pickle_loader(tmp_path)
     assert result["probabilities"] == {"LOW": 5.0, "MODERATE": 15.0, "HIGH": 80.0}
 
 
+def test_explanation_context_reuses_loaded_artifacts_without_predicting_again(
+    tmp_path,
+):
+    model_path = tmp_path / "model.pkl"
+    vectorizer_path = tmp_path / "vectorizer.pkl"
+    model_path.write_bytes(b"verified-test-model")
+    vectorizer_path.write_bytes(b"verified-test-vectorizer")
+
+    class Features:
+        shape = (1, 1)
+
+    class Vectorizer:
+        def transform(self, values):
+            assert values == ["oats"]
+            return Features()
+
+        def get_feature_names_out(self):
+            return ["oats"]
+
+    class Model:
+        classes_ = [0, 1, 2]
+        n_features_in_ = 1
+
+        def __init__(self):
+            self.predict_calls = 0
+
+        def predict(self, features):
+            self.predict_calls += 1
+            return [0]
+
+        def predict_proba(self, features):
+            return [[1.0, 0.0, 0.0]]
+
+    model = Model()
+    vectorizer = Vectorizer()
+    loader_calls = []
+    objects = {model_path: model, vectorizer_path: vectorizer}
+
+    def loader(path):
+        loader_calls.append(path)
+        return objects[path]
+
+    service = IngredientRiskService(
+        model_path=model_path,
+        vectorizer_path=vectorizer_path,
+        expected_model_sha256=hashlib.sha256(model_path.read_bytes()).hexdigest(),
+        expected_vectorizer_sha256=hashlib.sha256(
+            vectorizer_path.read_bytes()
+        ).hexdigest(),
+        loader=loader,
+    )
+
+    predicted = service.predict(["Oats"])
+    context = service.explanation_context(predicted["ingredient_text"])
+
+    assert loader_calls == [model_path, vectorizer_path]
+    assert context.model is model
+    assert context.ingredient_text == predicted["ingredient_text"]
+    assert model.predict_calls == 1
+
+
 def test_stable_analyze_endpoint_keeps_contract_with_partial_m2(monkeypatch):
     label = """Nutrition Information per 100 g
 Sugars 25 g

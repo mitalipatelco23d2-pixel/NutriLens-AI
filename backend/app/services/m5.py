@@ -7,14 +7,21 @@ from typing import Any
 
 from ..core.config import get_settings
 from ..knowledge_base import KnowledgeBaseService
+from ..models.health_risk import IngredientRiskService
+from ..xai import ShapAttributionService
 from .recommendations import generate_recommendations
 
 
 class M5Phase1Explainer:
-    provider = "member_5_phase_1_deterministic"
+    provider = "member_5_phase_2_optional_shap"
 
-    def __init__(self, knowledge_base: KnowledgeBaseService) -> None:
+    def __init__(
+        self,
+        knowledge_base: KnowledgeBaseService,
+        shap_attribution: ShapAttributionService | None = None,
+    ) -> None:
         self.knowledge_base = knowledge_base
+        self.shap_attribution = shap_attribution
 
     @staticmethod
     def _nutrition_explanation(
@@ -71,6 +78,18 @@ class M5Phase1Explainer:
         knowledge = self.knowledge_base.lookup(ingredients)
         nutrition = self._nutrition_explanation(health_snapshot)
         ingredient_risk = self._risk_explanation(health_snapshot)
+        model_attribution = (
+            self.shap_attribution.explain(health_snapshot)
+            if self.shap_attribution is not None
+            else {
+                "status": "disabled",
+                "available": False,
+                "requested": False,
+                "method": "shap_tree_explainer",
+                "detail": "Dynamic SHAP attribution is not configured.",
+                "reason": "not_configured",
+            }
+        )
         recommendations = generate_recommendations(nlp_result, health_snapshot)
 
         warnings = list(knowledge.get("warnings") or [])
@@ -84,8 +103,19 @@ class M5Phase1Explainer:
                 "M5 received a partial or unavailable M2 result; available components were preserved."
             )
         warnings.extend(recommendations.get("omissions") or [])
+        if model_attribution.get("requested") and not model_attribution.get(
+            "available"
+        ):
+            warnings.append(str(model_attribution.get("detail")))
 
-        complete = knowledge.get("status") == "available" and health_status == "available"
+        shap_complete = not model_attribution.get("requested") or model_attribution.get(
+            "available"
+        )
+        complete = (
+            knowledge.get("status") == "available"
+            and health_status == "available"
+            and shap_complete
+        )
         any_output = bool(
             knowledge.get("matched")
             or knowledge.get("unmatched")
@@ -98,13 +128,20 @@ class M5Phase1Explainer:
             "status": status,
             "nutrition": nutrition,
             "ingredient_risk": ingredient_risk,
+            "model_attribution": model_attribution,
             "knowledge_base": knowledge,
             "recommendations": recommendations,
             "methodology": {
                 "knowledge_base": "deterministic_lookup_not_rag",
                 "nutrition": "existing_m2_output_not_recalculated",
                 "ingredient_risk": "existing_m2_output_not_rerun",
-                "dynamic_shap": "not_implemented",
+                "dynamic_shap": (
+                    "shap_tree_explainer_interventional_probability"
+                    if model_attribution.get("available")
+                    else "optional_disabled"
+                    if not model_attribution.get("requested")
+                    else "requested_but_unavailable"
+                ),
                 "generative_rag": "not_implemented",
             },
             "warnings": list(dict.fromkeys(warnings)),
@@ -114,14 +151,29 @@ class M5Phase1Explainer:
 _m5_explainer: M5Phase1Explainer | None = None
 
 
-def get_m5_explainer() -> M5Phase1Explainer:
+def get_m5_explainer(
+    risk_service: IngredientRiskService | None = None,
+) -> M5Phase1Explainer:
     global _m5_explainer
     if _m5_explainer is None:
         settings = get_settings()
+        shap_attribution = None
+        if risk_service is not None:
+            shap_attribution = ShapAttributionService(
+                risk_service,
+                enabled=settings.m5_shap_enabled,
+                top_features=settings.m5_shap_top_features,
+                max_features=settings.m5_shap_max_features,
+                max_nonzero_features=settings.m5_shap_max_nonzero_features,
+                max_trees=settings.m5_shap_max_trees,
+                max_runtime_ms=settings.m5_shap_max_runtime_ms,
+                additivity_tolerance=settings.m5_shap_additivity_tolerance,
+            )
         _m5_explainer = M5Phase1Explainer(
-            KnowledgeBaseService(
+            knowledge_base=KnowledgeBaseService(
                 settings.m5_knowledge_base_path,
                 expected_sha256=settings.m5_knowledge_base_sha256,
-            )
+            ),
+            shap_attribution=shap_attribution,
         )
     return _m5_explainer

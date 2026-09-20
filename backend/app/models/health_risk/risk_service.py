@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import threading
 from collections.abc import Iterable
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
@@ -19,6 +20,17 @@ from ...core.errors import (
 
 ArtifactLoader = Callable[[Path], Any]
 RISK_LEVELS = ("LOW", "MODERATE", "HIGH")
+
+
+@dataclass(frozen=True)
+class IngredientRiskExplanationContext:
+    """Already-loaded M2 objects and the exact transformed request input."""
+
+    model: Any
+    features: Any
+    feature_names: Any
+    classes: Any
+    ingredient_text: str
 
 
 class IngredientRiskService:
@@ -153,6 +165,12 @@ class IngredientRiskService:
             return label
         raise ValueError(f"Unsupported risk label: {value}")
 
+    @classmethod
+    def risk_label(cls, value: Any) -> str:
+        """Map the serialized model's numeric or string class to the API label."""
+
+        return cls._risk_label(value)
+
     def predict(self, ingredients: Iterable[str]) -> dict[str, Any]:
         ingredient_text = self._ingredient_text(ingredients)
         if not ingredient_text:
@@ -183,3 +201,40 @@ class IngredientRiskService:
             "ingredient_text": ingredient_text,
             "model_version": "m2_ingredient_risk_v1",
         }
+
+    def explanation_context(
+        self, ingredient_text: str
+    ) -> IngredientRiskExplanationContext:
+        """Reuse verified M2 objects without performing another prediction."""
+
+        if not isinstance(ingredient_text, str) or not ingredient_text.strip():
+            raise InvalidModelInputError(
+                "SHAP explanation requires the non-empty ingredient text used by M2."
+            )
+        normalized = " ".join(ingredient_text.strip().split())
+        model, vectorizer = self._load_verified_artifacts()
+        try:
+            features = vectorizer.transform([normalized])
+            get_feature_names = getattr(vectorizer, "get_feature_names_out", None)
+            classes = getattr(model, "classes_", None)
+            if not callable(get_feature_names):
+                raise ValueError("Risk vectorizer does not expose feature names.")
+            if classes is None:
+                raise ValueError("Risk model does not expose class ordering.")
+            feature_names = get_feature_names()
+            if features.shape[1] != len(feature_names):
+                raise ValueError("Risk vectorizer feature metadata is inconsistent.")
+            expected_features = getattr(model, "n_features_in_", features.shape[1])
+            if int(expected_features) != features.shape[1]:
+                raise ValueError("Risk model and vectorizer feature counts differ.")
+        except Exception as exc:
+            raise ModelInferenceError(
+                "Ingredient-risk explanation input preparation failed."
+            ) from exc
+        return IngredientRiskExplanationContext(
+            model=model,
+            features=features,
+            feature_names=feature_names,
+            classes=classes,
+            ingredient_text=normalized,
+        )

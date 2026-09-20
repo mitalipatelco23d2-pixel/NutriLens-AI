@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dotenv import load_dotenv
+import math
 import os
 from dataclasses import dataclass
 from functools import lru_cache
@@ -47,6 +48,31 @@ def _choice(name: str, default: str, supported: set[str]) -> str:
     return value
 
 
+def _positive_float(name: str, default: float) -> float:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    try:
+        value = float(raw)
+    except ValueError as exc:
+        raise ValueError(f"{name} must be a number") from exc
+    if not math.isfinite(value) or value <= 0:
+        raise ValueError(f"{name} must be positive")
+    return value
+
+
+def _boolean(name: str, default: bool) -> bool:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    normalized = raw.strip().casefold()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+    raise ValueError(f"{name} must be a boolean")
+
+
 def _optional_sha256(name: str, default: str | None = None) -> str | None:
     value = os.getenv(name, default)
     if not value or not value.strip():
@@ -74,6 +100,13 @@ class Settings:
     risk_sklearn_version: str
     m5_knowledge_base_path: Path
     m5_knowledge_base_sha256: str | None
+    m5_shap_enabled: bool
+    m5_shap_top_features: int
+    m5_shap_max_features: int
+    m5_shap_max_nonzero_features: int
+    m5_shap_max_trees: int
+    m5_shap_max_runtime_ms: int
+    m5_shap_additivity_tolerance: float
     database_url: str
     jwt_secret_key: str
     jwt_algorithm: str
@@ -143,6 +176,23 @@ def get_settings() -> Settings:
         ),
         m5_knowledge_base_sha256=_optional_sha256(
             "NUTRILENS_M5_KNOWLEDGE_BASE_SHA256", M5_KNOWLEDGE_BASE_SHA256
+        ),
+        m5_shap_enabled=_boolean("NUTRILENS_M5_SHAP_ENABLED", False),
+        m5_shap_top_features=_positive_int(
+            "NUTRILENS_M5_SHAP_TOP_FEATURES", 8
+        ),
+        m5_shap_max_features=_positive_int(
+            "NUTRILENS_M5_SHAP_MAX_FEATURES", 3_000
+        ),
+        m5_shap_max_nonzero_features=_positive_int(
+            "NUTRILENS_M5_SHAP_MAX_NONZERO_FEATURES", 512
+        ),
+        m5_shap_max_trees=_positive_int("NUTRILENS_M5_SHAP_MAX_TREES", 250),
+        m5_shap_max_runtime_ms=_positive_int(
+            "NUTRILENS_M5_SHAP_MAX_RUNTIME_MS", 2_000
+        ),
+        m5_shap_additivity_tolerance=_positive_float(
+            "NUTRILENS_M5_SHAP_ADDITIVITY_TOLERANCE", 1e-6
         ),
         database_url=database_url,
         jwt_secret_key=os.getenv(
