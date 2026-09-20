@@ -48,6 +48,33 @@ def _choice(name: str, default: str, supported: set[str]) -> str:
     return value
 
 
+def _nonnegative_int(name: str, default: int) -> int:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    try:
+        value = int(raw)
+    except ValueError as exc:
+        raise ValueError(f"{name} must be an integer") from exc
+    if value < 0:
+        raise ValueError(f"{name} must be nonnegative")
+    return value
+
+
+def _bounded_int(name: str, default: int, *, minimum: int, maximum: int) -> int:
+    value = _nonnegative_int(name, default)
+    if value < minimum or value > maximum:
+        raise ValueError(f"{name} must be between {minimum} and {maximum}")
+    return value
+
+
+def _exact_value(name: str, default: str, required: str) -> str:
+    value = (os.getenv(name, default).strip() or default)
+    if value != required:
+        raise ValueError(f"{name} must be {required}")
+    return value
+
+
 def _positive_float(name: str, default: float) -> float:
     raw = os.getenv(name)
     if raw is None:
@@ -107,6 +134,21 @@ class Settings:
     m5_shap_max_trees: int
     m5_shap_max_runtime_ms: int
     m5_shap_additivity_tolerance: float
+    m5_rag_enabled: bool
+    m5_rag_corpus_dir: Path
+    m5_rag_jurisdiction: str
+    m5_rag_top_k: int
+    m5_rag_min_score: float
+    m5_rag_max_per_source: int
+    m5_rag_timeout_seconds: float
+    m5_rag_retries: int
+    m5_rag_max_tokens: int
+    m5_rag_max_input_chars: int
+    m5_rag_concurrency: int
+    m5_rag_max_daily_requests: int
+    cloudflare_account_id: str | None
+    cloudflare_api_token: str | None
+    cloudflare_model_id: str
     database_url: str
     jwt_secret_key: str
     jwt_algorithm: str
@@ -193,6 +235,41 @@ def get_settings() -> Settings:
         ),
         m5_shap_additivity_tolerance=_positive_float(
             "NUTRILENS_M5_SHAP_ADDITIVITY_TOLERANCE", 1e-6
+        ),
+        m5_rag_enabled=_boolean("NUTRILENS_M5_RAG_ENABLED", False),
+        m5_rag_corpus_dir=_path_from_env(
+            "NUTRILENS_M5_RAG_CORPUS_DIR", data_dir / "processed" / "rag"
+        ),
+        m5_rag_jurisdiction=_choice(
+            "NUTRILENS_M5_RAG_JURISDICTION", "in", {"in"}
+        ).upper(),
+        m5_rag_top_k=_positive_int("NUTRILENS_M5_RAG_TOP_K", 6),
+        m5_rag_min_score=_positive_float("NUTRILENS_M5_RAG_MIN_SCORE", 1.0),
+        m5_rag_max_per_source=_positive_int(
+            "NUTRILENS_M5_RAG_MAX_PER_SOURCE", 2
+        ),
+        m5_rag_timeout_seconds=_positive_float(
+            "NUTRILENS_M5_RAG_TIMEOUT_SECONDS", 12.0
+        ),
+        m5_rag_retries=_bounded_int(
+            "NUTRILENS_M5_RAG_RETRIES", 1, minimum=0, maximum=1
+        ),
+        m5_rag_max_tokens=_positive_int("NUTRILENS_M5_RAG_MAX_TOKENS", 500),
+        m5_rag_max_input_chars=_positive_int(
+            "NUTRILENS_M5_RAG_MAX_INPUT_CHARS", 18_000
+        ),
+        m5_rag_concurrency=_positive_int("NUTRILENS_M5_RAG_CONCURRENCY", 1),
+        m5_rag_max_daily_requests=_positive_int(
+            "NUTRILENS_M5_RAG_MAX_DAILY_REQUESTS", 20
+        ),
+        cloudflare_account_id=(os.getenv("CLOUDFLARE_ACCOUNT_ID") or "").strip()
+        or None,
+        cloudflare_api_token=(os.getenv("CLOUDFLARE_API_TOKEN") or "").strip()
+        or None,
+        cloudflare_model_id=_exact_value(
+            "NUTRILENS_CLOUDFLARE_MODEL_ID",
+            "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+            "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
         ),
         database_url=database_url,
         jwt_secret_key=os.getenv(

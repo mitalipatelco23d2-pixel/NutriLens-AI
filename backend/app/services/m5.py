@@ -8,20 +8,23 @@ from typing import Any
 from ..core.config import get_settings
 from ..knowledge_base import KnowledgeBaseService
 from ..models.health_risk import IngredientRiskService
+from ..rag import RagExplanationService, build_rag_service
 from ..xai import ShapAttributionService
 from .recommendations import generate_recommendations
 
 
 class M5Phase1Explainer:
-    provider = "member_5_phase_2_optional_shap"
+    provider = "member_5_phase_3_optional_rag"
 
     def __init__(
         self,
         knowledge_base: KnowledgeBaseService,
         shap_attribution: ShapAttributionService | None = None,
+        rag: RagExplanationService | None = None,
     ) -> None:
         self.knowledge_base = knowledge_base
         self.shap_attribution = shap_attribution
+        self.rag = rag
 
     @staticmethod
     def _nutrition_explanation(
@@ -91,6 +94,31 @@ class M5Phase1Explainer:
             }
         )
         recommendations = generate_recommendations(nlp_result, health_snapshot)
+        rag = (
+            self.rag.explain(nlp_result, health_snapshot)
+            if self.rag is not None
+            else {
+                "status": "disabled",
+                "available": False,
+                "requested": False,
+                "method": "bm25_plus_cloudflare_grounded_generation",
+                "reason": "not_configured",
+                "detail": "Source-backed RAG is not configured.",
+                "generator": {
+                    "provider": "cloudflare_workers_ai_rest",
+                    "model": None,
+                    "live_validation_completed": False,
+                },
+                "retrieval": None,
+                "answer": None,
+                "claims": [],
+                "sources": [],
+                "limitations": [],
+                "disclaimer": (
+                    "Source-grounded general food-label information; not medical advice."
+                ),
+            }
+        )
 
         warnings = list(knowledge.get("warnings") or [])
         health_status = (
@@ -107,14 +135,18 @@ class M5Phase1Explainer:
             "available"
         ):
             warnings.append(str(model_attribution.get("detail")))
+        if rag.get("requested") and not rag.get("available"):
+            warnings.append(str(rag.get("detail")))
 
         shap_complete = not model_attribution.get("requested") or model_attribution.get(
             "available"
         )
+        rag_complete = not rag.get("requested") or rag.get("available")
         complete = (
             knowledge.get("status") == "available"
             and health_status == "available"
             and shap_complete
+            and rag_complete
         )
         any_output = bool(
             knowledge.get("matched")
@@ -122,6 +154,7 @@ class M5Phase1Explainer:
             or nutrition.get("available")
             or ingredient_risk.get("available")
             or recommendations.get("items")
+            or rag.get("available")
         )
         status = "available" if complete else "partial" if any_output else "unavailable"
         return {
@@ -131,6 +164,7 @@ class M5Phase1Explainer:
             "model_attribution": model_attribution,
             "knowledge_base": knowledge,
             "recommendations": recommendations,
+            "rag": rag,
             "methodology": {
                 "knowledge_base": "deterministic_lookup_not_rag",
                 "nutrition": "existing_m2_output_not_recalculated",
@@ -142,7 +176,13 @@ class M5Phase1Explainer:
                     if not model_attribution.get("requested")
                     else "requested_but_unavailable"
                 ),
-                "generative_rag": "not_implemented",
+                "generative_rag": (
+                    "bm25_plus_cloudflare_grounded_generation"
+                    if rag.get("available")
+                    else "optional_disabled"
+                    if not rag.get("requested")
+                    else "requested_but_unavailable"
+                ),
             },
             "warnings": list(dict.fromkeys(warnings)),
         }
@@ -175,5 +215,6 @@ def get_m5_explainer(
                 expected_sha256=settings.m5_knowledge_base_sha256,
             ),
             shap_attribution=shap_attribution,
+            rag=build_rag_service(settings),
         )
     return _m5_explainer

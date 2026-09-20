@@ -241,6 +241,8 @@ def test_m5_preserves_actual_m2_result_and_keeps_evidence_separate(tmp_path):
     assert result["ingredient_risk"]["knowledge_base_causality_claimed"] is False
     assert result["methodology"]["knowledge_base"] == "deterministic_lookup_not_rag"
     assert result["model_attribution"]["status"] == "disabled"
+    assert result["rag"]["status"] == "disabled"
+    assert result["methodology"]["generative_rag"] == "optional_disabled"
 
 
 def test_partial_m2_and_missing_kb_produce_partial_m5_result(tmp_path):
@@ -364,7 +366,8 @@ Contains: Milk"""
     assert payload["explanation"]["knowledge_base"]["status"] == "available"
     assert payload["explanation"]["methodology"]["dynamic_shap"] == "optional_disabled"
     assert payload["explanation"]["model_attribution"]["status"] == "disabled"
+    assert payload["explanation"]["rag"]["status"] == "disabled"
     assert payload["integrations"]["explanation"] == {
         "status": "available",
-        "provider": "member_5_phase_2_optional_shap",
+        "provider": "member_5_phase_3_optional_rag",
     }
