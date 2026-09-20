@@ -1,154 +1,323 @@
 # NutriLens AI
 
-NutriLens AI is a college team project that extracts structured nutrition and ingredient information from packaged-food labels. This repository currently contains Member 4's backend integration layer: safe image uploads, OpenCV/Pillow preprocessing, Tesseract OCR, conservative fallback parsing, stable team adapters, FastAPI endpoints, tests, Docker configuration, and a lightweight demo UI.
+NutriLens AI is a college team project for local analysis of packaged-food
+labels. A user uploads a JPEG, PNG, or WEBP photograph through the React
+interface; the FastAPI backend runs Tesseract OCR, extracts nutrition and label
+information, applies the integrated M2 scoring components, and returns M5
+knowledge-base explanations and conservative recommendations where evidence is
+available.
 
-The integrated M2 path uses deterministic per-100-g nutrition rules and a
-separate, verified ingredient-risk classifier. The older joblib scorer remains
-available only through compatibility scoring routes; it is not part of core
-readiness and is not the integrated NutriLens score.
+This repository is currently prepared for a **local Windows demonstration**.
+It is not a clinical system, and difficult photographs can produce partial or
+unavailable results. The ingredient-quality gate intentionally suppresses the
+ingredient-risk classifier and ingredient-dependent explanations when OCR text
+is missing, incomplete, or contaminated by other packaging text.
 
-## Runtime architecture
+## What is integrated
 
-```text
-Image upload
-  -> size/type/decode/pixel validation
-  -> EXIF orientation + Pillow/OpenCV preprocessing
-  -> nutrition-panel candidates
-  -> Tesseract spatial OCR
-  -> nutrition/ingredient/allergen fallback parsing
-  -> Member 1 analysis adapter
-  -> Member 2 nutrition rules + verified ingredient-risk classifier
-  -> Member 5 explanation/RAG adapters
-  -> versioned API response for Member 3
-```
-
-`run_ocr(image_bytes, ...)`, `analyze_label_text(...)`, `predict_health(...)`, and `explain_analysis(...)` remain the stable integration seams. The OCR service itself remains abstracted even though Tesseract is the only supported MVP engine.
-
-## Team ownership
-
-- Member 1 owns final ingredient, additive, and allergen NLP. Member 4 supplies a conservative fallback and adapter.
-- Member 2 owns the final health-risk/score model. Member 4 validates inputs, loads the existing artifact once, and exposes an adapter.
-- Member 3 owns the final UI. Member 4 supplies stable API schemas and a small same-origin demo.
-- Member 5 owns RAG/XAI explanations. Member 4 exposes optional adapters and never fabricates unavailable output.
-
-## Main directories
+- React 19 and Vite upload interface with image preview and explicit component
+  availability states.
+- FastAPI upload validation and stable `POST /api/v1/analyze` response.
+- Pillow/OpenCV preprocessing, orientation selection, nutrition-region
+  candidates, and Tesseract OCR.
+- M1 nutrition, ingredient, allergen, additive, basis, and confidence-aware
+  extraction.
+- M2 deterministic per-100-g nutrition score plus a separate verified
+  scikit-learn ingredient-risk classifier.
+- M5 deterministic knowledge-base matching, nutrition explanations, and
+  non-diagnostic label-reading recommendations.
+- Optional SHAP and source-backed RAG integrations, both disabled by default.
+- Local SQLite support for user accounts. Image analysis itself currently does
+  not require authentication.
 
 ```text
-backend/app/api/          FastAPI routes
-backend/app/core/         deterministic paths, settings, errors, logging
-backend/app/ocr/          preprocessing, panel detection, Tesseract, spatial parser
-backend/app/nlp/          Member 4 fallback ingredient/allergen parser
-backend/app/scoring/      cached legacy joblib adapter
-backend/app/services/     pipeline orchestration and team contracts
-backend/app/schemas/      Pydantic request/response contracts
-frontend/                 lightweight integration demo
-tests/                    unit/API/pipeline tests
-scripts/compare_ocr.py    development-only Tesseract benchmark diagnostics
+React/Vite (http://127.0.0.1:5173)
+        │  /api development proxy
+        ▼
+FastAPI (http://127.0.0.1:8000)
+        ▼
+OCR → M1 structured extraction → M2 scoring/risk → M5 explanations
 ```
 
-## Prerequisites
+## Important limitations
 
-- Python 3.12 (tested)
-- Tesseract 5.x with English language data
-- The approved M2 artifacts at `data/processed/m2/health_risk_model.pkl` and
-  `data/processed/m2/tfidf_vectorizer.pkl`
-- scikit-learn 1.9.1, pinned in `backend/requirements-base.txt` to match those
-  verified artifacts
+- Glare, blur, curvature, perspective, low resolution, mixed-language text,
+  and incomplete label photographs can reduce OCR and extraction accuracy.
+- Missing nutrients are never invented or treated as zero. Per-100-ml and
+  per-serving values are not converted to per 100 g without sufficient data.
+- Partial, untrusted, or absent ingredient extraction cannot produce an M2
+  ingredient-risk prediction, ingredient-based KB match, or ingredient-based
+  recommendation/RAG context.
+- A successful HTTP response does not prove that every extracted value is
+  correct. Compare important values with the visible label.
+- The ingredient-risk model is a college-project classifier and is **not
+  clinically validated**. Outputs are not medical or food-safety advice.
+- SHAP and RAG are optional. The basic local demo needs neither a Cloudflare
+  account nor a Cloudflare API token.
 
-The optional legacy scorer at `data/processed/health_score_model.joblib` is
-needed only for the manual and compatibility scoring routes.
+## Verified prerequisites
 
-On Windows, install Tesseract and either add it to `PATH` or set:
+The reviewed development machine used the following versions:
 
-```cmd
-set NUTRILENS_TESSERACT_CMD=C:\Program Files\Tesseract-OCR\tesseract.exe
-```
-
-On Debian/Ubuntu, `sudo apt-get install tesseract-ocr` normally makes `tesseract` available on `PATH`.
-
-## Local setup and run
-
-From the repository root in Windows CMD:
-
-```cmd
-py -3.12 -m venv .venv
-.venv\Scripts\python.exe -m pip install --upgrade pip
-.venv\Scripts\python.exe -m pip install -r backend\requirements-dev.txt
-.venv\Scripts\python.exe -m uvicorn backend.app.main:app --reload
-```
-
-Open `http://127.0.0.1:8000/` for the demo, `/docs` for OpenAPI, or run:
-
-```cmd
-.venv\Scripts\python.exe -m pytest -q
-```
-
-The application uses paths derived from the repository rather than the shell working directory, so it may also be started from `backend/` with an appropriate module path.
-
-## API
-
-| Method | Path | Purpose |
+| Tool | Verified version | Supported setup guidance |
 | --- | --- | --- |
-| `GET` | `/api/v1/health` | Lightweight liveness |
-| `GET` | `/api/v1/ready` | Required core and optional-component readiness |
-| `POST` | `/api/v1/ocr` | Tesseract OCR contract (`multipart` field `image`) |
-| `POST` | `/api/v1/analyze-text` | Analyze supplied OCR text through team adapters |
-| `POST` | `/api/v1/analyze` | Stable end-to-end team image endpoint |
-| `POST` | `/api/v1/analyze/image` | Detailed Member 4 image-analysis response |
-| `POST` | `/api/v1/score/manual` | Strict per-100-g legacy manual scoring |
+| Python | 3.12.14 | Use Python 3.12.x |
+| scikit-learn | 1.9.1 | Installed from the pinned backend requirements |
+| Node.js | 24.18.0 | Vite requires `^20.19.0` or `>=22.12.0` |
+| npm | 11.16.0 | Installed with Node.js |
+| Tesseract | 5.4.0 | Install Tesseract 5.x with English data |
+| Git for Windows | 2.55.0 | A current Git for Windows release |
 
-The older `/health`, `/ready`, `/predict/health_score`, and `/predict/health_score_from_image` routes remain as compatibility aliases. An OCR request such as `/api/v1/ocr?engine=easyocr` is rejected with `422 invalid_ocr_engine`; it is not silently redirected.
+Install Python, Node.js, Git, and Tesseract before continuing. During the
+Tesseract installer, include the English language data. Adding Tesseract to
+`PATH` is convenient but not required because its executable can be configured
+in `.env`.
 
-Readiness requires the backend API, Tesseract, deterministic M2 nutrition
-scoring, and the verified M2 ingredient-risk classifier. The response reports
-the optional knowledge base, SHAP, RAG, and frontend independently. SHAP and
-RAG being disabled by default do not make the core backend unavailable. The
-readiness check never makes a hosted inference request.
+## Clone and install on Windows
 
-Example:
+Run these commands in PowerShell. Choose any normal development directory;
+do not clone into an existing NutriLens project.
 
-```cmd
-curl -F "image=@label.jpg" http://127.0.0.1:8000/api/v1/analyze
+```powershell
+git clone https://github.com/mitalipatelco23d2-pixel/NutriLens-AI.git
+Set-Location NutriLens-AI
+
+py -3.12 -m venv .venv
+& .\.venv\Scripts\python.exe -m pip install --upgrade pip
+& .\.venv\Scripts\python.exe -m pip install -r backend\requirements-dev.txt
+
+Set-Location frontend
+npm ci
+Set-Location ..
 ```
 
-Responses explicitly include the detected basis. Per-100-ml observations are never converted to per-100-g without density data and are not sent to the current per-100-g scorer. Missing OCR values are omitted, not filled with zero.
+`backend/requirements-dev.txt` installs the complete core runtime and pytest.
+Do not install `backend/requirements-shap.txt` for the basic demo.
 
-## Environment variables
+## Required local artifacts
 
-See `.env.example`. Common settings are `NUTRILENS_RISK_MODEL_PATH`,
-`NUTRILENS_RISK_VECTORIZER_PATH`, `NUTRILENS_FRONTEND_DIR`,
-`NUTRILENS_MAX_UPLOAD_BYTES`, `NUTRILENS_MAX_IMAGE_PIXELS`,
-`NUTRILENS_OCR_LANGUAGE`, `NUTRILENS_TESSERACT_CMD`,
-`NUTRILENS_CORS_ORIGINS`, and `NUTRILENS_LOG_LEVEL`.
-`NUTRILENS_OCR_ENGINE` may remain `tesseract`; any other value fails clearly at
-configuration load. `NUTRILENS_MODEL_PATH` configures only the optional legacy
-development scorer.
+The model, vectorizer, and teammate knowledge-base CSV are intentionally not in
+Git. There is no repository documentation granting redistribution permission,
+and the CSV is treated by the application as an unverified teammate-provided
+dataset. Do not upload these files to GitHub or a public file-sharing service.
+A fresh clone alone is therefore **not sufficient** for the complete demo.
 
-## Docker Compose
+Obtain the three previously approved files from the team member who owns or is
+authorized to share them. Transfer them directly with an encrypted USB drive or
+another team-approved private method. Do not include `.env`, `nutrilens.db`,
+test photographs, or credentials in the transfer.
 
-The image is CPU-only and installs Tesseract, OpenCV, FastAPI, and the sklearn/joblib runtime. It contains no Torch or CUDA stack.
+Place the files at these exact relative paths:
 
-```cmd
-docker compose config --quiet
-docker compose up --build
+| File | Destination | Expected SHA-256 |
+| --- | --- | --- |
+| `health_risk_model.pkl` | `data/processed/m2/health_risk_model.pkl` | `55397e61da7b9e6b22c88d2757c75dcd8b1b8b894f93a63ca59752bb159f50e8` |
+| `tfidf_vectorizer.pkl` | `data/processed/m2/tfidf_vectorizer.pkl` | `ca053bfc80dca02de68e21294f675a2416aa62be3377f6c0ffb8eef9affda677` |
+| `nutrilens_knowledge_base_final.csv` | `data/external/m5/nutrilens_knowledge_base_final.csv` | `667d2fe0950183d84fc2973f9164fd2b20892d12872bb7286ff5a2661c04a046` |
+
+Example transfer on the demo laptop (change only `$artifactSource`):
+
+```powershell
+$artifactSource = 'E:\NutriLens-demo-artifacts'
+New-Item -ItemType Directory -Force data\processed\m2, data\external\m5 | Out-Null
+Copy-Item -LiteralPath "$artifactSource\health_risk_model.pkl" -Destination data\processed\m2\health_risk_model.pkl
+Copy-Item -LiteralPath "$artifactSource\tfidf_vectorizer.pkl" -Destination data\processed\m2\tfidf_vectorizer.pkl
+Copy-Item -LiteralPath "$artifactSource\nutrilens_knowledge_base_final.csv" -Destination data\external\m5\nutrilens_knowledge_base_final.csv
 ```
 
-The Compose file mounts `data/processed` read-only so the local model is not baked into the image.
+Verify all three files before starting the application:
 
-## OCR decision note
+```powershell
+Get-FileHash -Algorithm SHA256 data\processed\m2\health_risk_model.pkl
+Get-FileHash -Algorithm SHA256 data\processed\m2\tfidf_vectorizer.pkl
+Get-FileHash -Algorithm SHA256 data\external\m5\nutrilens_knowledge_base_final.csv
+```
 
-During development, Tesseract and EasyOCR were evaluated internally on three real packaged-food labels. Tesseract was selected for the MVP based on overall structured accuracy, latency, dependency size, portability, and Docker/deployment simplicity. EasyOCR performed better on one difficult curved/dark label, but required a heavier PyTorch/CUDA stack and was slower on the tested hardware. This was a small engineering evaluation, not a scientific benchmark; product photos remain local and ignored by Git.
+Compare the complete hashes with the table above. Pickle files can execute code
+when deserialized, so use only the approved files with matching hashes. The
+backend also verifies the configured hashes before loading either M2 artifact.
 
-The retained `scripts/compare_ocr.py` command is a Tesseract-only development diagnostic. It reports raw text, normalized lines, nutrition evidence, candidate parse outcomes, runtime, and OCR-vs-parser failure classification without expanding the stable frontend API.
+The generated RAG corpus under `data/processed/rag` is not needed for the basic
+demo and should not be transferred. The optional legacy
+`data/processed/health_score_model.joblib` is also not part of integrated M2
+readiness.
 
-## Known limitations
+## Local configuration
 
-- Glare, curved dark labels, low contrast, perspective, and multilingual surroundings can still prevent Tesseract recognition.
-- Spatial parsing is conservative: ambiguous cells are omitted rather than guessed.
-- Ingredient/allergen extraction is a basic explicit-text fallback until Member 1 integrates the final NLP module.
-- Per-100-ml data is reported with its true basis but is not converted for the
-  per-100-g M2 nutrition rules.
-- The compatibility scorer requires all eight named features and must not be
-  presented as the integrated M2 nutrition score.
-- RAG and SHAP are optional and disabled by default; their disabled state does
-  not affect core readiness.
+Create a private backend `.env` from the tracked example and replace the JWT
+placeholder with a random local value:
+
+```powershell
+Copy-Item .env.example .env
+$jwtSecret = & .\.venv\Scripts\python.exe -c "import secrets; print(secrets.token_hex(32))"
+(Get-Content .env -Raw).Replace('replace-with-a-long-random-secret', $jwtSecret) | Set-Content .env
+```
+
+If `tesseract --version` fails, uncomment and adjust this line in `.env`:
+
+```dotenv
+NUTRILENS_TESSERACT_CMD=C:\Program Files\Tesseract-OCR\tesseract.exe
+```
+
+The default artifact paths and reviewed hashes are already recorded in
+`.env.example` and the backend. Only change them when the team has approved a
+different artifact and corresponding SHA-256 digest.
+
+For the React development server, create its local environment file:
+
+```powershell
+Copy-Item frontend\.env.example frontend\web\.env.local
+```
+
+Keep `VITE_API_BASE_URL` empty, keep `VITE_ANALYSIS_ENABLED=true`, and use the
+default Vite proxy for the local demo. Never place backend credentials in a
+`VITE_*` variable: those values are included in browser code.
+
+## Start the local demo
+
+Open two PowerShell terminals in the repository root.
+
+Terminal 1 — backend:
+
+```powershell
+& .\.venv\Scripts\python.exe -m uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Terminal 2 — React frontend:
+
+```powershell
+Set-Location frontend
+npm run dev -- --host 127.0.0.1 --port 5173
+```
+
+Open <http://127.0.0.1:5173>. Vite sends browser requests beginning with
+`/api` to `http://127.0.0.1:8000`; `localhost` is never used as a public API.
+The FastAPI OpenAPI page is available at <http://127.0.0.1:8000/docs>.
+
+Check liveness and readiness before demonstrating an upload:
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:8000/api/v1/health
+curl.exe -i http://127.0.0.1:8000/api/v1/ready
+```
+
+`/health` confirms that the API process is running. `/ready` returns HTTP 200
+only when the required API, Tesseract, nutrition-scoring, and verified M2
+ingredient-risk components are ready. Knowledge-base, SHAP, RAG, and frontend
+status are reported separately; disabled SHAP/RAG do not make core readiness
+fail.
+
+## Demonstrating an analysis
+
+1. Use a clear, straight-on photograph showing the nutrition table and, when
+   possible, a separate ingredients photograph or a frame containing both.
+2. Select the image and confirm its preview before choosing **Analyze nutrition
+   label**.
+3. Check the detected basis and compare extracted values with the visible label.
+4. Explain `partial` or `unavailable` sections honestly. For example, an
+   unsupported per-100-ml basis may preserve nutrition values without producing
+   the per-100-g score.
+5. Check the ingredient extraction quality. `partial`, `untrusted`, and
+   `absent` deliberately suppress ingredient-driven M2/M5 results.
+
+The frontend never fabricates a result when the API or a component is
+unavailable.
+
+## Testing
+
+From the repository root:
+
+```powershell
+& .\.venv\Scripts\python.exe -m pytest -q
+```
+
+From the frontend directory:
+
+```powershell
+Set-Location frontend
+npm test
+npm run lint
+npm run build
+```
+
+The production build is written to `frontend/dist` and is ignored by Git. Local
+development should use the Vite server at port 5173 so its `/api` proxy remains
+active.
+
+## Windows troubleshooting
+
+### PowerShell blocks virtual-environment activation
+
+Activation is optional because every documented backend command calls the
+virtual-environment Python directly. If desired, enable activation only for the
+current terminal:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+& .\.venv\Scripts\Activate.ps1
+```
+
+### Tesseract is not found
+
+Run `tesseract --version`. If it is not on `PATH`, set
+`NUTRILENS_TESSERACT_CMD` in `.env` to the installed `tesseract.exe`. Restart
+the backend after editing `.env`.
+
+### Model unavailable or scikit-learn version mismatch
+
+Confirm both M2 files exist at the documented paths and their complete hashes
+match. Then run:
+
+```powershell
+& .\.venv\Scripts\python.exe -c "import sklearn; print(sklearn.__version__)"
+```
+
+It must print `1.9.1`. Reinstall `backend\requirements-dev.txt` if it does not.
+
+### Knowledge base unavailable
+
+The API remains usable, but M5 lookup will be unavailable. Verify the CSV path
+and hash, then restart the backend. Do not replace it with an unreviewed CSV.
+
+### Frontend cannot reach the backend
+
+Confirm the backend is listening on port 8000, `VITE_API_BASE_URL` is blank,
+and the React page was opened on port 5173. Restart Vite after changing any
+frontend environment value.
+
+If port 8000 is already in use, start the backend on 8001 and set the proxy
+origin before starting Vite:
+
+```powershell
+$env:VITE_BACKEND_ORIGIN='http://127.0.0.1:8001'
+npm run dev -- --host 127.0.0.1 --port 5173
+```
+
+### Image produces incomplete output
+
+Retake the photograph with diffuse lighting, the package flattened where
+possible, the label filling the frame, and the camera parallel to the label.
+Partial output is safer than guessed nutrition or ingredients.
+
+## Team responsibilities
+
+The repository documents responsibilities by project member number only:
+
+- Member 1: ingredient, additive, allergen, and nutrition NLP integration.
+- Member 2: nutrition scoring and ingredient-risk classifier artifacts.
+- Member 3: React frontend.
+- Member 4: OCR, backend integration, stable API contracts, and fallbacks.
+- Member 5: knowledge-base, explanation, optional SHAP, and optional RAG work.
+
+No personal contributor names are asserted here because they are not confirmed
+in the repository documentation.
+
+## Development roadmap
+
+- Evaluate OCR and extraction against a manually annotated independent test set.
+- Improve ingredient-region confidence and multilingual label handling without
+  product-specific rules.
+- Review artifact and dataset licensing before selecting a team distribution
+  mechanism.
+- Keep RAG and SHAP optional until their runtime, evidence, privacy, and
+  evaluation requirements are independently validated.
