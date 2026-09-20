@@ -5,6 +5,8 @@ from __future__ import annotations
 import math
 from typing import Any
 
+from ..nlp.ingredients import ingredient_quality_from_result
+
 
 def _measurement(source: dict[str, Any], field: str) -> float | None:
     value = source.get(field)
@@ -141,7 +143,8 @@ def generate_recommendations(
             )
 
     additives = nlp_result.get("additives")
-    if isinstance(additives, list) and additives:
+    ingredient_quality, quality_reasons = ingredient_quality_from_result(nlp_result)
+    if ingredient_quality == "trusted" and isinstance(additives, list) and additives:
         items.append(
             _item(
                 "label_review",
@@ -149,6 +152,15 @@ def generate_recommendations(
                 "Use the complete ingredient and additive declaration when comparing products.",
                 f"The M1 label parser detected {len(additives)} additive reference(s).",
             )
+        )
+    elif ingredient_quality in {"partial", "untrusted"} and (
+        nlp_result.get("ingredients") or additives
+    ):
+        detail = quality_reasons[0] if quality_reasons else (
+            f"Ingredient extraction quality is {ingredient_quality}."
+        )
+        omissions.append(
+            "Ingredient-dependent recommendations were suppressed. " + detail
         )
 
     priority_order = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}

@@ -32,6 +32,10 @@ def nlp_result(*, basis: str = "per_100g", omit: str | None = None) -> dict:
         "basis": basis,
         "nutrition": nutrition,
         "ingredients": ["Oats", "Brown Sugar"],
+        "ingredient_quality": {
+            "status": "trusted",
+            "reasons": ["Explicit ingredient list in test input."],
+        },
         "additives": ["INS 621", "Preservative"],
         "allergens": ["Milk"],
     }
@@ -96,6 +100,7 @@ def test_missing_lfs_artifacts_leave_risk_unavailable_but_keep_nutrition_score()
         "available": False,
         "risk_level": None,
         "probabilities": {},
+        "ingredient_quality": "trusted",
         "detail": "Risk model artifact is unavailable.",
     }
 
@@ -196,6 +201,33 @@ def test_m2_adapter_rejects_non_collection_ingredients_without_calling_model():
     assert result["status"] == "partial"
     assert result["ingredient_risk"]["available"] is False
     assert result["ingredient_risk"]["risk_level"] is None
+
+
+@pytest.mark.parametrize("quality", ["partial", "untrusted", "absent"])
+def test_untrusted_ingredient_states_suppress_risk_but_preserve_nutrition(quality):
+    class RecordingRiskService:
+        called = False
+
+        def predict(self, ingredients):
+            self.called = True
+            raise AssertionError("Untrusted ingredients must not reach the model.")
+
+    risk_service = RecordingRiskService()
+    parsed = nlp_result()
+    parsed["ingredient_quality"] = {
+        "status": quality,
+        "reasons": ["Test evidence is not trusted."],
+    }
+
+    result = M2HealthPredictor(risk_service).predict(parsed)
+
+    assert risk_service.called is False
+    assert result["status"] == "partial"
+    assert result["health_score"] == 74.0
+    assert result["nutrition_score"]["available"] is True
+    assert result["ingredient_risk"]["available"] is False
+    assert result["ingredient_risk"]["ingredient_quality"] == quality
+    assert any("Additive-based scoring was omitted" in item for item in result["warnings"])
 
 
 def test_risk_service_rejects_incompatible_sklearn_before_loader(tmp_path):

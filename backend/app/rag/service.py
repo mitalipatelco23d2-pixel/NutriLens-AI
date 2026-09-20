@@ -7,6 +7,7 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
+from ..nlp.ingredients import ingredient_quality_from_result, trusted_ingredients
 from .corpus import CorpusUnavailableError, LoadedCorpus
 from .generator import RagGenerationError
 from .models import GeneratedExplanation, RagGenerationRequest, RagGenerator, RetrievedPassage
@@ -63,11 +64,19 @@ def _product_facts(
         for key, value in (probabilities.items() if isinstance(probabilities, dict) else [])
         if isinstance(value, (int, float)) and not isinstance(value, bool)
     }
+    ingredient_quality, quality_reasons = ingredient_quality_from_result(nlp_result)
+    ingredients = trusted_ingredients(nlp_result)
     return {
         "jurisdiction": "IN",
         "nutrition_basis": str(nlp_result.get("basis") or "unknown")[:24],
-        "ingredients": _bounded_text_list(nlp_result.get("ingredients")),
-        "additives": _bounded_text_list(nlp_result.get("additives")),
+        "ingredients": _bounded_text_list(ingredients),
+        "ingredient_quality": {
+            "status": ingredient_quality,
+            "reasons": quality_reasons[:4],
+        },
+        "additives": _bounded_text_list(nlp_result.get("additives"))
+        if ingredient_quality == "trusted"
+        else [],
         "allergens": _bounded_text_list(nlp_result.get("allergens")),
         "nutrition": safe_nutrition,
         "existing_m2_result": {
@@ -77,8 +86,14 @@ def _product_facts(
             "nutrition_basis": score.get("basis", health.get("basis", "unknown")),
             "nutrition_reasons": _bounded_text_list(score.get("reasons"), limit=12, width=180),
             "missing_nutrients": _bounded_text_list(score.get("missing_nutrients"), limit=12),
-            "ingredient_risk_label": risk.get("risk_level", health.get("risk_level")),
-            "ingredient_risk_probabilities": safe_probabilities,
+            "ingredient_risk_label": (
+                risk.get("risk_level", health.get("risk_level"))
+                if ingredient_quality == "trusted"
+                else None
+            ),
+            "ingredient_risk_probabilities": (
+                safe_probabilities if ingredient_quality == "trusted" else {}
+            ),
         },
     }
 

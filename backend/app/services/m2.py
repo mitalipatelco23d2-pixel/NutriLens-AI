@@ -13,6 +13,7 @@ from ..core.errors import (
 )
 from ..models.health_risk import IngredientRiskService
 from ..models.scoring import calculate_nutrition_health_score
+from ..nlp.ingredients import ingredient_quality_from_result, trusted_ingredients
 
 
 class M2HealthPredictor:
@@ -83,14 +84,39 @@ class M2HealthPredictor:
             target: float(source[source_field]) * multiplier
             for source_field, (target, multiplier) in self._nutrition_mapping.items()
         }
+        ingredient_quality, _ = ingredient_quality_from_result(nlp_result)
+        trusted_additives = (
+            list(nlp_result.get("additives") or [])
+            if ingredient_quality == "trusted"
+            else []
+        )
         score = calculate_nutrition_health_score(
             mapped,
-            additives=list(nlp_result.get("additives") or []),
+            additives=trusted_additives,
             allergens=list(nlp_result.get("allergens") or []),
         )
+        if nlp_result.get("additives") and ingredient_quality != "trusted":
+            score.setdefault("warnings", []).append(
+                "Additive-based scoring was omitted because ingredient extraction was not trusted."
+            )
         return {"available": True, "basis": basis, **score}
 
     def _risk_result(self, nlp_result: dict[str, Any]) -> dict[str, Any]:
+        quality_status, quality_reasons = ingredient_quality_from_result(nlp_result)
+        quality_detail = quality_reasons[0] if quality_reasons else (
+            f"Ingredient extraction quality is {quality_status}."
+        )
+        if quality_status != "trusted":
+            return {
+                "available": False,
+                "risk_level": None,
+                "probabilities": {},
+                "ingredient_quality": quality_status,
+                "detail": (
+                    "Ingredient-risk classification requires a trusted ingredient list. "
+                    + quality_detail
+                ),
+            }
         raw_ingredients = nlp_result.get("ingredients")
         if raw_ingredients is not None and not isinstance(
             raw_ingredients, (list, tuple)
@@ -99,14 +125,16 @@ class M2HealthPredictor:
                 "available": False,
                 "risk_level": None,
                 "probabilities": {},
+                "ingredient_quality": quality_status,
                 "detail": "Parsed ingredients must be a list of strings.",
             }
-        ingredients = list(raw_ingredients or [])
+        ingredients = trusted_ingredients(nlp_result)
         if not ingredients:
             return {
                 "available": False,
                 "risk_level": None,
                 "probabilities": {},
+                "ingredient_quality": quality_status,
                 "detail": "Ingredient-risk classification requires parsed ingredients.",
             }
         try:
@@ -120,9 +148,10 @@ class M2HealthPredictor:
                 "available": False,
                 "risk_level": None,
                 "probabilities": {},
+                "ingredient_quality": quality_status,
                 "detail": str(exc),
             }
-        return {"available": True, **result}
+        return {"available": True, "ingredient_quality": quality_status, **result}
 
     def predict(self, nlp_result: dict[str, Any]) -> dict[str, Any]:
         nutrition_score = self._nutrition_result(nlp_result)

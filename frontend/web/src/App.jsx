@@ -140,6 +140,7 @@ function UploadPanel({ analysisEnabled, file, previewUrl, busy, error, onFile, o
 function NutritionPanel({ analysis }) {
   const nutrition = analysis?.nutrition || {}
   const details = analysis?.nutrition_details || {}
+  const ingredientQuality = analysis?.ingredient_quality || {}
   const nutrients = Object.entries(nutrition).map(([key, value]) =>
     formatNutrient(key, value, details[key]),
   )
@@ -162,7 +163,12 @@ function NutritionPanel({ analysis }) {
         </div>
       ) : <EmptyState title="No nutrition values extracted" detail="The label may be incomplete or difficult to read." />}
       <div className="label-columns">
-        <TagList title="Ingredients" values={analysis?.ingredients} empty="No ingredient list found." />
+        <TagList
+          title="Ingredients"
+          values={analysis?.ingredients}
+          empty="No ingredient list found."
+          quality={ingredientQuality}
+        />
         <TagList title="Allergens" values={analysis?.allergens} empty="No allergens extracted." emphasis />
         <TagList title="Additives" values={analysis?.additives} empty="No additives extracted." />
       </div>
@@ -170,8 +176,9 @@ function NutritionPanel({ analysis }) {
   )
 }
 
-function TagList({ title, values, empty, emphasis = false }) {
+function TagList({ title, values, empty, emphasis = false, quality = null }) {
   const items = Array.isArray(values) ? values : []
+  const qualityReason = Array.isArray(quality?.reasons) ? quality.reasons[0] : ''
   return (
     <div className="tag-group">
       <h4>{title} <span>{items.length}</span></h4>
@@ -180,6 +187,12 @@ function TagList({ title, values, empty, emphasis = false }) {
           {items.map((value, index) => <span className={emphasis ? 'tag emphasis' : 'tag'} key={`${value}-${index}`}>{value}</span>)}
         </div>
       ) : <p className="muted">{empty}</p>}
+      {quality?.status && (
+        <p className="inline-note">
+          <strong>Extraction quality: {quality.status}</strong>
+          {qualityReason ? ` — ${qualityReason}` : ''}
+        </p>
+      )}
     </div>
   )
 }

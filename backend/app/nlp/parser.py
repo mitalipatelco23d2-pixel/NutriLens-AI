@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict
-from typing import Any, Protocol
+from typing import Any, Iterable, Protocol
 
 from ..ocr.nutrition_parser import NutritionParseResult, parse_nutrition_text
 from .additives import extract_additives
@@ -66,14 +66,27 @@ def analyze_food_label_text(
     text: str,
     parsed_nutrition: NutritionParseResult | None = None,
     ocr_result: dict[str, Any] | None = None,
+    ingredient_candidates: Iterable[Iterable[str]] = (),
 ) -> dict[str, Any]:
     parsed = parsed_nutrition or parse_nutrition_text(text)
-    ingredient_result = extract_ingredient_section(text)
+    confidence = ocr_result.get("mean_confidence") if ocr_result is not None else None
+    ingredient_result = extract_ingredient_section(
+        text,
+        ocr_confidence=confidence,
+        candidate_ingredients=ingredient_candidates,
+    )
     declarations = extract_allergen_declarations(text)
     additives = extract_additives(text)
     warnings = list(dict.fromkeys([*parsed.warnings, *ingredient_result.warnings]))
     result = {
         "ingredients": ingredient_result.ingredients,
+        "ingredient_quality": {
+            "status": ingredient_result.quality_status,
+            "reasons": ingredient_result.quality_reasons,
+            "section_detected": ingredient_result.section_detected,
+            "boundary_detected": ingredient_result.boundary_detected,
+            "truncated": ingredient_result.truncated,
+        },
         "additives": additives,
         "allergens": list(dict.fromkeys(item.name for item in declarations)),
         "allergen_details": [asdict(item) for item in declarations],
@@ -93,7 +106,6 @@ def analyze_food_label_text(
     }
     if ocr_result is not None:
         lines = ocr_result.get("lines") or []
-        confidence = ocr_result.get("mean_confidence")
         result["metadata"].update(
             {
                 "ocr_mean_confidence": confidence,
@@ -136,11 +148,13 @@ class PackagedFoodNlpAnalyzer:
         ocr_result: dict[str, Any],
         *,
         parsed_nutrition: NutritionParseResult | None = None,
+        ingredient_candidates: Iterable[Iterable[str]] = (),
     ) -> dict[str, Any]:
         return analyze_food_label_text(
             self._text(ocr_result),
             parsed_nutrition=parsed_nutrition,
             ocr_result=ocr_result,
+            ingredient_candidates=ingredient_candidates,
         )
 
 

@@ -1,3 +1,6 @@
+import pytest
+
+from backend.app.nlp.ingredients import extract_ingredient_section
 from backend.app.nlp.parser import FallbackIngredientExtractor, extract_ingredients_from_text
 
 
@@ -72,3 +75,77 @@ def test_multilingual_duplicate_after_complete_english_statement_is_not_swallowe
     assert extract_ingredients_from_text(text) == [
         "Soluble Coffee Powder", "Arabica Coffee"
     ]
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Ingredients: oats, cocoa, salt\nNutrition Information",
+        "Composition: wheat flour, vegetable oil, salt\nAllergen: contains wheat",
+        "Made with: milk solids, sugar, acidity regulator (INS 330)\nBest before: 2027",
+        "Ingredients: whey powder (milk, soy), sugar, E322\nNutrition Facts",
+    ],
+)
+def test_explicit_bounded_structural_lists_are_trusted(text):
+    result = extract_ingredient_section(text, ocr_confidence=0.91)
+
+    assert result.quality_status == "trusted"
+    assert result.boundary_detected is True
+    assert result.ingredients
+
+
+def test_long_bulleted_ingredient_list_is_not_mistaken_for_repeated_heading():
+    ingredients = [f"component {index}" for index in range(1, 16)]
+    text = "Ingredients:\n" + "\n".join(
+        f"- {item}" for item in ingredients
+    ) + "\nNutrition Information"
+
+    result = extract_ingredient_section(text, ocr_confidence=0.9)
+
+    assert result.quality_status == "trusted"
+    assert result.ingredients == ingredients
+
+
+def test_low_confidence_but_structural_list_is_partial_not_trusted():
+    result = extract_ingredient_section(
+        "Ingredients: oats, cocoa\nNutrition Information",
+        ocr_confidence=0.31,
+    )
+
+    assert result.quality_status == "partial"
+    assert any("low OCR confidence" in reason for reason in result.quality_reasons)
+
+
+def test_incomplete_list_without_reliable_boundary_is_partial():
+    result = extract_ingredient_section("Ingredients: oats, cocoa,", ocr_confidence=0.9)
+
+    assert result.quality_status == "partial"
+    assert result.truncated is True
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        (
+            "Ingredients: Pasteurized Cow Milk, Milk Fat 3.0% Max, "
+            "SNF 8.5% Min\nAllergen: contains milk"
+        ),
+        "Ingredients: Refined Cane Sugar is monitored throughout the process.",
+        "Ingredients: oats, salt, MRP 25, customer care 12345",
+    ],
+)
+def test_packaging_specs_or_prose_do_not_become_trusted_ingredients(text):
+    result = extract_ingredient_section(text, ocr_confidence=0.9)
+
+    assert result.quality_status == "untrusted"
+    assert result.quality_reasons
+
+
+def test_missing_ingredient_heading_is_explicitly_absent():
+    result = extract_ingredient_section(
+        "Nutrition Information per 100 g\nEnergy 290 kcal\nNet weight 50 g",
+        ocr_confidence=0.9,
+    )
+
+    assert result.ingredients == []
+    assert result.quality_status == "absent"

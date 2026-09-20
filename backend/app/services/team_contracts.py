@@ -8,6 +8,7 @@ from ..nlp.parser import (
     PackagedFoodNlpAnalyzer,
     canonical_nutrition as _canonical_nutrition,
 )
+from ..nlp.ingredients import extract_ingredient_section, ingredient_quality_from_result
 from ..ocr.extractor import OcrResult
 from ..ocr.nutrition_parser import MODEL_FIELDS, NutritionParseResult, parse_nutrition_text
 from ..scoring.predictor import HealthScoreService, get_health_score_service
@@ -120,12 +121,14 @@ def analyze_label_text(
     analyzer: LabelTextAnalyzer | None = None,
     *,
     parsed_nutrition: NutritionParseResult | None = None,
+    ingredient_candidates: list[list[str]] | None = None,
 ) -> dict[str, Any]:
     """Stable Member 1 boundary backed by the lightweight packaged-food NLP."""
     if analyzer is None:
         result = _default_nlp_analyzer.analyze(
             ocr_result,
             parsed_nutrition=parsed_nutrition,
+            ingredient_candidates=ingredient_candidates or (),
         )
         result["integration"] = {
             "status": "available",
@@ -134,12 +137,18 @@ def analyze_label_text(
         return result
     try:
         result = analyzer.analyze(ocr_result)
+        status, reasons = ingredient_quality_from_result(result)
+        result.setdefault(
+            "ingredient_quality",
+            {"status": status, "reasons": reasons},
+        )
         return {**result, "integration": {"status": "available", "provider": analyzer.provider}}
     except Exception:
         logger.exception("Configured Member 1 analyzer failed; using built-in NLP")
     result = _default_nlp_analyzer.analyze(
         ocr_result,
         parsed_nutrition=parsed_nutrition,
+        ingredient_candidates=ingredient_candidates or (),
     )
     result["integration"] = {
         "status": "fallback",
@@ -158,10 +167,18 @@ def analyze_ocr_result(
 ) -> dict[str, Any]:
     """Map M4's OCR object to its stable contract, then enter the M1 adapter."""
     parsed = parse_ocr_nutrition(result)
+    ingredient_candidates = [
+        extraction.ingredients
+        for evidence in result.candidate_evidence
+        if evidence.region != "nutrition_table"
+        for extraction in [extract_ingredient_section(evidence.text)]
+        if extraction.ingredients
+    ]
     return analyze_label_text(
         normalized_contract,
         analyzer,
         parsed_nutrition=parsed,
+        ingredient_candidates=ingredient_candidates,
     )
 
 

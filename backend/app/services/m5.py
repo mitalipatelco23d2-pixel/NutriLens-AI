@@ -8,6 +8,7 @@ from typing import Any
 from ..core.config import get_settings
 from ..knowledge_base import KnowledgeBaseService
 from ..models.health_risk import IngredientRiskService
+from ..nlp.ingredients import ingredient_quality_from_result, trusted_ingredients
 from ..rag import RagExplanationService, build_rag_service
 from ..xai import ShapAttributionService
 from .recommendations import generate_recommendations
@@ -77,8 +78,25 @@ class M5Phase1Explainer:
         health_result: dict[str, Any] | None,
     ) -> dict[str, Any]:
         health_snapshot = deepcopy(health_result)
-        ingredients = nlp_result.get("ingredients")
-        knowledge = self.knowledge_base.lookup(ingredients)
+        ingredient_quality, quality_reasons = ingredient_quality_from_result(nlp_result)
+        ingredients = trusted_ingredients(nlp_result)
+        if ingredient_quality == "trusted":
+            knowledge = self.knowledge_base.lookup(ingredients)
+        else:
+            detail = quality_reasons[0] if quality_reasons else (
+                f"Ingredient extraction quality is {ingredient_quality}."
+            )
+            knowledge = {
+                "status": "unavailable",
+                "reason": f"ingredient_quality_{ingredient_quality}",
+                "matched": [],
+                "unmatched": [],
+                "summary": {"total": 0, "matched": 0, "unmatched": 0},
+                "dataset": None,
+                "warnings": [
+                    "Ingredient-based knowledge matching was suppressed. " + detail
+                ],
+            }
         nutrition = self._nutrition_explanation(health_snapshot)
         ingredient_risk = self._risk_explanation(health_snapshot)
         model_attribution = (

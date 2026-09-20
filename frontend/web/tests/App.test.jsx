@@ -74,6 +74,7 @@ describe('NutriLens analysis UI', () => {
     expect(screen.getByText('72/100')).toBeInTheDocument()
     expect(screen.getAllByText('MODERATE').length).toBeGreaterThan(0)
     expect(screen.getByText('Wheat flour')).toBeInTheDocument()
+    expect(screen.getByText(/Extraction quality:/)).toHaveTextContent('trusted')
     expect(screen.getByText('Compare lower-sugar options.')).toBeInTheDocument()
     expect(screen.getByText('TF-IDF token attributions for the existing MODERATE prediction. These are model contributions, not ingredient-level medical causality.')).toBeInTheDocument()
   })
@@ -118,6 +119,8 @@ describe('NutriLens analysis UI', () => {
     expect(screen.getByText('SHAP is disabled')).toBeInTheDocument()
     expect(screen.getByText('Not enough source evidence')).toBeInTheDocument()
     expect(screen.getAllByText('MODERATE').length).toBeGreaterThan(0)
+    expect(screen.getByText(/Extraction quality:/)).toHaveTextContent('untrusted')
+    expect(screen.getByText(/unrelated packaging or prose text/)).toBeInTheDocument()
     expect(screen.getByText('M5 knowledge lookup is unavailable.')).toBeInTheDocument()
   })
 

@@ -63,6 +63,10 @@ def nlp_result(*, basis: str = "per_100g") -> dict:
     return {
         "basis": basis,
         "ingredients": ["Wheat flour", "MSG", "Oats"],
+        "ingredient_quality": {
+            "status": "trusted",
+            "reasons": ["Explicit ingredient list in test input."],
+        },
         "nutrition": {
             "sugars_100g": 25.0,
             "saturated_fat_100g": 6.0,
@@ -231,6 +235,46 @@ def test_no_label_review_recommendation_without_verified_additive_evidence():
     result = generate_recommendations(parsed, m2_result(complete=False))
 
     assert not any(item["category"] == "label_review" for item in result["items"])
+
+
+def test_untrusted_ingredients_skip_kb_and_ingredient_recommendations(tmp_path):
+    class RecordingKnowledgeBase:
+        called = False
+
+        def lookup(self, ingredients):
+            self.called = True
+            raise AssertionError("Untrusted ingredients must not reach the knowledge base.")
+
+    parsed = nlp_result()
+    parsed["ingredient_quality"] = {
+        "status": "untrusted",
+        "reasons": ["Packaging prose contaminated the extracted section."],
+    }
+    health = m2_result()
+    health["status"] = "partial"
+    health["risk_level"] = None
+    health["ingredient_risk"] = {
+        "available": False,
+        "risk_level": None,
+        "probabilities": {},
+        "ingredient_quality": "untrusted",
+        "detail": "Ingredient-risk classification requires a trusted ingredient list.",
+    }
+    knowledge_base = RecordingKnowledgeBase()
+
+    result = M5Phase1Explainer(knowledge_base).explain(parsed, health)
+
+    assert knowledge_base.called is False
+    assert result["knowledge_base"]["status"] == "unavailable"
+    assert result["knowledge_base"]["reason"] == "ingredient_quality_untrusted"
+    categories = {item["category"] for item in result["recommendations"]["items"]}
+    assert "label_review" not in categories
+    assert "allergens" in categories
+    assert "sugar" in categories
+    assert any(
+        "Ingredient-dependent recommendations were suppressed" in item
+        for item in result["recommendations"]["omissions"]
+    )
 
 
 def test_m5_preserves_actual_m2_result_and_keeps_evidence_separate(tmp_path):

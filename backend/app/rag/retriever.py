@@ -8,6 +8,7 @@ import unicodedata
 from collections import Counter
 from typing import Any
 
+from ..nlp.ingredients import ingredient_quality_from_result, trusted_ingredients
 from .corpus import LoadedCorpus
 from .models import RetrievedPassage
 
@@ -40,11 +41,16 @@ def build_retrieval_query(
 ) -> str:
     """Build a bounded lexical query; raw OCR and free-form instructions are excluded."""
     parts: list[str] = []
-    parts.extend(_bounded_strings(nlp_result.get("ingredients")))
-    parts.extend(_bounded_strings(nlp_result.get("additives")))
+    ingredient_quality, _ = ingredient_quality_from_result(nlp_result)
+    ingredients = trusted_ingredients(nlp_result)
+    parts.extend(_bounded_strings(ingredients))
+    if ingredient_quality == "trusted":
+        parts.extend(_bounded_strings(nlp_result.get("additives")))
     parts.extend(_bounded_strings(nlp_result.get("allergens")))
     basis = str(nlp_result.get("basis") or "unknown")[:24]
-    parts.extend(["food label", "ingredient declaration", basis])
+    parts.extend(["food label", basis])
+    if ingredient_quality == "trusted":
+        parts.append("ingredient declaration")
 
     nutrition = nlp_result.get("nutrition")
     if isinstance(nutrition, dict):

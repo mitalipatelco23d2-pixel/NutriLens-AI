@@ -4,6 +4,7 @@ export const completeResponse = {
   ocr: { engine: 'tesseract', confidence: 0.91, rotation: 0 },
   analysis: {
     ingredients: ['Wheat flour', 'Sugar', 'INS 621'],
+    ingredient_quality: { status: 'trusted', reasons: ['An explicit, bounded, structurally plausible ingredient list was extracted.'] },
     additives: ['INS 621'],
     allergens: ['Milk'],
     nutrition: {
@@ -82,7 +83,13 @@ export const partialResponse = {
   ...completeResponse,
   request_id: 'request-partial',
   status: 'partial_success',
-  analysis: { ...completeResponse.analysis, basis: 'per_serving', nutrition: {}, nutrition_details: {} },
+  analysis: {
+    ...completeResponse.analysis,
+    basis: 'per_serving',
+    nutrition: {},
+    nutrition_details: {},
+    ingredient_quality: { status: 'untrusted', reasons: ['The extracted section contains unrelated packaging or prose text.'] },
+  },
   health: {
     ...completeResponse.health,
     status: 'partial',
