@@ -13,6 +13,9 @@ RISK_MODEL_SHA256 = "55397e61da7b9e6b22c88d2757c75dcd8b1b8b894f93a63ca59752bb159
 RISK_VECTORIZER_SHA256 = (
     "ca053bfc80dca02de68e21294f675a2416aa62be3377f6c0ffb8eef9affda677"
 )
+M5_KNOWLEDGE_BASE_SHA256 = (
+    "667d2fe0950183d84fc2973f9164fd2b20892d12872bb7286ff5a2661c04a046"
+)
 load_dotenv(REPOSITORY_ROOT / ".env")
 
 
@@ -69,6 +72,8 @@ class Settings:
     risk_model_sha256: str | None
     risk_vectorizer_sha256: str | None
     risk_sklearn_version: str
+    m5_knowledge_base_path: Path
+    m5_knowledge_base_sha256: str | None
     database_url: str
     jwt_secret_key: str
     jwt_algorithm: str
@@ -131,6 +136,13 @@ def get_settings() -> Settings:
         risk_sklearn_version=(
             os.getenv("NUTRILENS_RISK_SKLEARN_VERSION", "1.9.1").strip()
             or "1.9.1"
+        ),
+        m5_knowledge_base_path=_path_from_env(
+            "NUTRILENS_M5_KNOWLEDGE_BASE_PATH",
+            data_dir / "external" / "m5" / "nutrilens_knowledge_base_final.csv",
+        ),
+        m5_knowledge_base_sha256=_optional_sha256(
+            "NUTRILENS_M5_KNOWLEDGE_BASE_SHA256", M5_KNOWLEDGE_BASE_SHA256
         ),
         database_url=database_url,
         jwt_secret_key=os.getenv(

@@ -17,6 +17,7 @@ from .team_contracts import (
     predict_health,
 )
 from .m2 import get_m2_health_predictor
+from .m5 import get_m5_explainer
 
 
 class TeamAnalysisPipeline:
@@ -45,13 +46,17 @@ class TeamAnalysisPipeline:
         explanation = explain_analysis(analysis, health.get("result"), self.explainer)
         warnings = list(analysis.get("warnings") or [])
         warnings.extend(health.get("warnings") or [])
+        warnings.extend(explanation.get("warnings") or [])
         if health.get("warning"):
             warnings.append(health["warning"])
         if explanation.get("warning"):
             warnings.append(explanation["warning"])
         elif not explanation["available"]:
             warnings.append("Member 5 explanation is not configured.")
-        complete = health["available"] and explanation["available"]
+        complete = (
+            health["integration"]["status"] == "available"
+            and explanation["integration"]["status"] == "available"
+        )
         return TeamAnalysisResponse(
             request_id=str(uuid4()),
             status="success" if complete else "partial_success",
@@ -97,5 +102,8 @@ _team_pipeline: TeamAnalysisPipeline | None = None
 def get_team_analysis_pipeline() -> TeamAnalysisPipeline:
     global _team_pipeline
     if _team_pipeline is None:
-        _team_pipeline = TeamAnalysisPipeline(health_predictor=get_m2_health_predictor())
+        _team_pipeline = TeamAnalysisPipeline(
+            health_predictor=get_m2_health_predictor(),
+            explainer=get_m5_explainer(),
+        )
     return _team_pipeline

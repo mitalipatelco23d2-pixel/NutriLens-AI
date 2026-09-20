@@ -217,10 +217,15 @@ def explain_analysis(
             "integration": {"status": "not_configured", "provider": "member_5_adapter"},
         }
     try:
+        result = explainer.explain(nlp_result, health_result)
+        status = str(result.get("status") or "available")
+        if status not in {"available", "partial", "unavailable"}:
+            status = "available"
         return {
-            "available": True,
-            "result": explainer.explain(nlp_result, health_result),
-            "integration": {"status": "available", "provider": explainer.provider},
+            "available": status in {"available", "partial"},
+            "result": result,
+            "integration": {"status": status, "provider": explainer.provider},
+            "warnings": list(result.get("warnings") or []),
         }
     except Exception:
         logger.exception("Configured Member 5 explainer failed")
