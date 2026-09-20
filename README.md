@@ -82,6 +82,7 @@ do not clone into an existing NutriLens project.
 git clone https://github.com/mitalipatelco23d2-pixel/NutriLens-AI.git
 Set-Location NutriLens-AI
 
+py -3.12 --version
 py -3.12 -m venv .venv
 & .\.venv\Scripts\python.exe -m pip install --upgrade pip
 & .\.venv\Scripts\python.exe -m pip install -r backend\requirements-dev.txt
@@ -245,6 +246,14 @@ development should use the Vite server at port 5173 so its `/api` proxy remains
 active.
 
 ## Windows troubleshooting
+
+### The Python launcher cannot find Python 3.12
+
+If `py -3.12 --version` reports that no matching runtime is installed, install
+the 64-bit Python 3.12 release from python.org with the Python launcher enabled,
+open a new PowerShell terminal, and rerun the version check. Do not create the
+environment with Python 3.11, 3.13, or 3.14; the reviewed M2 runtime is Python
+3.12 with scikit-learn 1.9.1.
 
 ### PowerShell blocks virtual-environment activation
 
