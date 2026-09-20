@@ -9,7 +9,7 @@ from backend.app.core.config import get_settings
 from backend.app.core.errors import InvalidImageError, OcrProcessingError, UnsupportedMediaTypeError, UploadTooLargeError
 from backend.app.ocr import extractor
 from backend.app.ocr.extractor import OcrCandidate, OcrWord
-from backend.app.ocr.panel_detection import detect_nutrition_panels
+from backend.app.ocr.panel_detection import detect_nutrition_panels, table_row_bounds
 from backend.app.ocr.preprocessing import read_upload_limited, validate_and_preprocess_image
 
 
@@ -145,6 +145,20 @@ def test_grid_and_keyword_evidence_detects_nutrition_panel():
     panels = detect_nutrition_panels(image, words)
     assert panels
     assert panels[0].keyword_count >= 5
+
+
+def test_rectified_grid_exposes_repeated_table_row_bounds():
+    image = Image.new("L", (600, 500), "black")
+    draw = ImageDraw.Draw(image)
+    for y in range(20, 461, 55):
+        draw.line((10, y, 590, y), fill="white", width=4)
+    draw.line((10, 20, 10, 460), fill="white", width=4)
+    draw.line((590, 20, 590, 460), fill="white", width=4)
+
+    rows = table_row_bounds(image)
+
+    assert len(rows) >= 7
+    assert all(45 <= bottom - top <= 65 for top, bottom in rows)
 
 
 def test_cell_refinement_requires_repeated_numeric_ocr(monkeypatch):

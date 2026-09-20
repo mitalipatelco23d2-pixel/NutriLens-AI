@@ -49,12 +49,29 @@ def parse_ocr_nutrition(result: OcrResult) -> NutritionParseResult:
         return parse_nutrition_text(
             result.text, spatial_words=result.table_words, basis_override=global_basis
         )
+    contextual_table_bases = {
+        parsed.basis
+        for evidence in result.candidate_evidence
+        if evidence.region == "nutrition_table"
+        for parsed in [
+            parse_nutrition_text("Nutritional Information\n" + evidence.text)
+        ]
+        if parsed.basis != "unknown"
+    }
+    table_basis = (
+        next(iter(contextual_table_bases))
+        if len(contextual_table_bases) == 1
+        else None
+    )
     candidates: list[tuple[float, NutritionParseResult]] = []
     for evidence in result.candidate_evidence:
+        evidence_basis = global_basis if global_basis != "unknown" else None
+        if evidence_basis is None and evidence.region == "nutrition_table":
+            evidence_basis = table_basis
         parsed = parse_nutrition_text(
             evidence.text,
             spatial_words=evidence.words,
-            basis_override=global_basis if global_basis != "unknown" else None,
+            basis_override=evidence_basis,
         )
         rejected = sum(
             warning.startswith(("Rejected ", "Omitted "))
@@ -75,7 +92,11 @@ def parse_ocr_nutrition(result: OcrResult) -> NutritionParseResult:
     for field_name in {
         name for _, parsed in candidates for name in parsed.nutrients
     } - set(selected.nutrients):
-        proposals = [parsed.nutrients[field_name] for _, parsed in candidates if field_name in parsed.nutrients]
+        proposals = [
+            parsed.nutrients[field_name]
+            for _, parsed in candidates
+            if field_name in parsed.nutrients
+        ]
         signatures = {
             (item.source_value, item.source_unit, item.qualifier) for item in proposals
         }

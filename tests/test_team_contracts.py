@@ -1,9 +1,11 @@
 from backend.app.services.team_contracts import (
     analyze_label_text,
     explain_analysis,
+    parse_ocr_nutrition,
     predict_health,
 )
 from backend.app.nlp.parser import extract_explicit_allergens
+from backend.app.ocr.extractor import OcrEvidence, OcrResult
 from backend.app.services.team_pipeline import TeamAnalysisPipeline
 
 
@@ -63,6 +65,34 @@ def test_member1_nlp_uses_existing_backend_nutrition_parser():
         "status": "available",
         "provider": "member_1_packaged_food_nlp",
     }
+
+
+def test_table_basis_is_shared_only_across_detected_nutrition_table_passes():
+    ocr_result = OcrResult(
+        text="blurred package text",
+        engine="tesseract",
+        language="eng",
+        mean_confidence=44.0,
+        candidate_evidence=(
+            OcrEvidence(
+                "Amount per 100 g\nEnergy 313 kcal",
+                (),
+                "nutrition_table",
+            ),
+            OcrEvidence(
+                "Total Fat <0.5 g\nProtein 22 g",
+                (),
+                "nutrition_table",
+            ),
+        ),
+    )
+
+    result = parse_ocr_nutrition(ocr_result)
+
+    assert result.basis == "per_100g"
+    assert result.nutrients["fat_100g"].qualifier == "less_than"
+    assert result.nutrients["proteins_100g"].value == 22
+    assert result.nutrients["energy_100g"].source_value == 313
 
 
 def test_fallback_allergen_extraction_requires_explicit_label_text():

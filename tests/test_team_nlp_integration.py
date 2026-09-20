@@ -140,6 +140,33 @@ Allergen: CONTAINS MILK"""
     assert explainer.nlp_result is health.nlp_result
 
 
+def test_incomplete_ocr_reaches_m2_and_m5_without_fabricated_m1_fields(monkeypatch):
+    health = RecordingHealthPredictor()
+    explainer = RecordingExplainer()
+    monkeypatch.setattr(
+        team_pipeline_module,
+        "execute_ocr",
+        lambda *args, **kwargs: execution(
+            "shipping weight 100 g\nreference e100\nblurred package text",
+            confidence=31.0,
+        ),
+    )
+
+    response = TeamAnalysisPipeline(
+        health_predictor=health,
+        explainer=explainer,
+    ).analyze_image(b"synthetic-image", "image/png")
+
+    assert response.analysis["ingredients"] == []
+    assert response.analysis["additives"] == []
+    assert response.analysis["nutrition"] == {}
+    assert response.analysis["basis"] == "unknown"
+    assert health.nlp_result["ingredients"] == []
+    assert health.nlp_result["additives"] == []
+    assert health.nlp_result["nutrition"] == {}
+    assert explainer.nlp_result is health.nlp_result
+
+
 def test_member1_adapter_failure_falls_back_without_crashing_stable_api(monkeypatch):
     pipeline = TeamAnalysisPipeline(
         text_analyzer=BrokenMember1(),

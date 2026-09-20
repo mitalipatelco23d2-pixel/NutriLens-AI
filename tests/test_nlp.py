@@ -60,6 +60,30 @@ def test_additive_normalization(text, expected):
     assert extract_additives(text) == expected
 
 
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Amount per 100 g",
+        "Net weight 100 g",
+        "reference e100 for feedback",
+    ],
+)
+def test_nutrition_quantities_and_unrelated_ocr_do_not_become_e100(text):
+    assert extract_additives(text) == []
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("Ingredients: cocoa, emulsifier E 322, salt", ["Emulsifier", "E322"]),
+        ("Additives: E-100", ["E100"]),
+        ("Colour E100", ["E100"]),
+    ],
+)
+def test_genuine_e_numbers_require_clear_additive_context(text, expected):
+    assert extract_additives(text) == expected
+
+
 def test_negated_named_additive_claims_are_not_reported_as_present():
     assert extract_additives("No artificial colours or preservatives. Colour E 100") == [
         "E100"
@@ -221,6 +245,19 @@ def test_ocr_line_fallback_and_confidence_metadata_are_preserved():
     assert result["metadata"]["text_source"] == "lines"
     assert result["metadata"]["ocr_mean_confidence"] == 0.4
     assert any("OCR confidence was low" in warning for warning in result["warnings"])
+
+
+def test_low_confidence_incomplete_ocr_does_not_fabricate_structured_fields():
+    result = analyze_label_text(
+        {
+            "raw_text": "shipping weight 100 g\nreference e100\nblurred package text",
+            "mean_confidence": 0.31,
+        }
+    )
+    assert result["ingredients"] == []
+    assert result["additives"] == []
+    assert result["nutrition"] == {}
+    assert result["basis"] == "unknown"
 
 
 def test_sugar_packet_regression_fixture():

@@ -347,6 +347,17 @@ def test_less_than_value_preserves_threshold_and_qualifier():
     assert any("upper-bound" in warning for warning in result.warnings)
 
 
+@pytest.mark.parametrize("confused_unit", ["q", "9"])
+def test_ocr_confused_gram_unit_is_accepted_only_after_nutrient_label(confused_unit):
+    result = parse_nutrition_text(
+        f"Nutritional Information\nAmount per 100g\nProtein 22 {confused_unit}"
+    )
+    assert result.basis == "per_100g"
+    assert result.nutrients["proteins_100g"].value == 22
+    assert result.nutrients["proteins_100g"].source_unit == "g"
+    assert any("OCR-confused gram unit" in warning for warning in result.warnings)
+
+
 def test_split_ocr_rows_reconstruct_unit_bearing_values_conservatively():
     result = parse_nutrition_text(
         "Nutritional Information\nAmount\nper\nIonq\n"

@@ -31,6 +31,147 @@ class PanelCandidate:
     grid_density: float
 
 
+def _ordered_quad(points: np.ndarray) -> np.ndarray:
+    """Return quadrilateral points as top-left, top-right, bottom-right, bottom-left."""
+    points = points.reshape(4, 2).astype("float32")
+    ordered = np.zeros((4, 2), dtype="float32")
+    coordinate_sum = points.sum(axis=1)
+    coordinate_difference = np.diff(points, axis=1).reshape(-1)
+    ordered[0] = points[np.argmin(coordinate_sum)]
+    ordered[2] = points[np.argmax(coordinate_sum)]
+    ordered[1] = points[np.argmin(coordinate_difference)]
+    ordered[3] = points[np.argmax(coordinate_difference)]
+    return ordered
+
+
+def _foreground_binary(image: Image.Image) -> np.ndarray:
+    gray = np.asarray(ImageOps.grayscale(image))
+    _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    if cv2.countNonZero(binary) > binary.size / 2:
+        binary = cv2.bitwise_not(binary)
+    return binary
+
+
+def _horizontal_line_centers(image: Image.Image) -> list[int]:
+    """Find long table separators after a candidate has been rectified."""
+    foreground = _foreground_binary(image)
+    height, width = foreground.shape
+    kernel = cv2.getStructuringElement(
+        cv2.MORPH_RECT, (max(30, width // 6), 1)
+    )
+    horizontal = cv2.morphologyEx(foreground, cv2.MORPH_OPEN, kernel)
+    projection = np.count_nonzero(horizontal, axis=1)
+    rows = np.flatnonzero(projection >= max(40, round(width * 0.6)))
+    if not len(rows):
+        return []
+
+    bands: list[tuple[int, int]] = []
+    start = previous = int(rows[0])
+    for raw_row in rows[1:]:
+        row = int(raw_row)
+        if row > previous + 2:
+            bands.append((start, previous))
+            start = row
+        previous = row
+    bands.append((start, previous))
+    return [round((top + bottom) / 2) for top, bottom in bands]
+
+
+def table_row_bounds(image: Image.Image) -> list[tuple[int, int]]:
+    """Return plausible row bands bounded by long, repeated table separators."""
+    centers = _horizontal_line_centers(image)
+    minimum_gap = max(14, round(image.height * 0.035))
+    maximum_gap = max(minimum_gap + 1, round(image.height * 0.2))
+    return [
+        (top, bottom)
+        for top, bottom in zip(centers, centers[1:])
+        if minimum_gap <= bottom - top <= maximum_gap
+    ]
+
+
+def _perspective_panel_candidates(
+    image: Image.Image,
+    words: Iterable[PositionedWord],
+) -> list[PanelCandidate]:
+    """Rectify closed quadrilateral tables before OCRing their individual rows."""
+    gray = np.asarray(ImageOps.grayscale(image))
+    binary = cv2.adaptiveThreshold(
+        gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 31, 12
+    )
+    contours, _ = cv2.findContours(binary, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    image_area = gray.size
+    candidates: list[PanelCandidate] = []
+    for contour in contours:
+        contour_area = cv2.contourArea(contour)
+        area_ratio = contour_area / image_area
+        if not (0.008 <= area_ratio <= 0.45):
+            continue
+        x, y, width, height = cv2.boundingRect(contour)
+        if width < 180 or height < 180:
+            continue
+        extent = contour_area / max(width * height, 1)
+        if extent < 0.6:
+            continue
+        perimeter = cv2.arcLength(contour, True)
+        polygon = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
+        if len(polygon) != 4 or not cv2.isContourConvex(polygon):
+            continue
+
+        source = _ordered_quad(polygon)
+        target_width = round(
+            max(
+                np.linalg.norm(source[1] - source[0]),
+                np.linalg.norm(source[2] - source[3]),
+            )
+        )
+        target_height = round(
+            max(
+                np.linalg.norm(source[3] - source[0]),
+                np.linalg.norm(source[2] - source[1]),
+            )
+        )
+        if target_width < 180 or target_height < 180:
+            continue
+        aspect = target_width / target_height
+        if not (0.35 <= aspect <= 4.0):
+            continue
+        destination = np.float32(
+            [
+                [0, 0],
+                [target_width - 1, 0],
+                [target_width - 1, target_height - 1],
+                [0, target_height - 1],
+            ]
+        )
+        border = int(np.median(gray[[0, 0, -1, -1], [0, -1, -1, 0]]))
+        rectified = cv2.warpPerspective(
+            gray,
+            cv2.getPerspectiveTransform(source, destination),
+            (target_width, target_height),
+            borderValue=border,
+        )
+        panel = Image.fromarray(rectified)
+        row_bounds = table_row_bounds(panel)
+        if len(row_bounds) < 4:
+            continue
+        bounds = (x, y, x + width, y + height)
+        keywords = _keyword_count(words, bounds)
+        density = cv2.countNonZero(binary[y : y + height, x : x + width]) / max(
+            width * height, 1
+        )
+        score = len(row_bounds) * 30 + keywords * 28 + extent * 50
+        candidates.append(
+            PanelCandidate(
+                panel,
+                bounds,
+                round(score, 3),
+                keywords,
+                round(density, 4),
+            )
+        )
+    return candidates
+
+
 def _keyword_count(words: Iterable[PositionedWord], bounds: tuple[int, int, int, int]) -> int:
     left, top, right, bottom = bounds
     found: set[str] = set()
@@ -72,7 +213,7 @@ def detect_nutrition_panels(
     )
     contours, _ = cv2.findContours(grid, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     image_area = width * height
-    candidates: list[PanelCandidate] = []
+    candidates: list[PanelCandidate] = _perspective_panel_candidates(image, words)
     for contour in contours:
         x, y, crop_width, crop_height = cv2.boundingRect(contour)
         area = crop_width * crop_height

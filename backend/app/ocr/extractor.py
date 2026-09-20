@@ -9,7 +9,7 @@ from statistics import mean
 import cv2
 import numpy as np
 import pytesseract
-from PIL import Image
+from PIL import Image, ImageOps
 from pytesseract import Output
 
 from ..core.config import Settings, get_settings
@@ -23,7 +23,11 @@ from .nutrition_parser import (
     parse_nutrition_text,
 )
 from .geometry import NormalizedToken
-from .panel_detection import detect_nutrition_panels, table_preprocessing_variants
+from .panel_detection import (
+    detect_nutrition_panels,
+    table_preprocessing_variants,
+    table_row_bounds,
+)
 
 
 ORIENTATIONS = (0, 90, 180, 270)
@@ -321,6 +325,78 @@ def _table_candidate_score(candidate: OcrCandidate) -> float:
     )
 
 
+def _run_table_row_passes(
+    panel: Image.Image,
+    language: str,
+    rotation: int,
+) -> list[OcrCandidate]:
+    """OCR rectified table-row montages with bounded crop variations."""
+    row_bounds = table_row_bounds(panel)
+    candidates: list[OcrCandidate] = []
+    crop_variants = (
+            (0.10, 0.10, 0.83),
+            (0.04, 0.08, 0.84),
+            (0.00, 0.12, 0.72),
+            (0.02, 0.05, 0.92),
+    )
+    for variant_index, (top_inset, bottom_inset, right_fraction) in enumerate(
+        crop_variants
+    ):
+        rows: list[Image.Image] = []
+        for top, bottom in row_bounds:
+            row_height = bottom - top
+            crop_top = min(bottom - 2, top + max(1, round(row_height * top_inset)))
+            crop_bottom = max(
+                crop_top + 1,
+                bottom - max(1, round(row_height * bottom_inset)),
+            )
+            crop = panel.crop(
+                (
+                    max(0, round(panel.width * 0.007)),
+                    crop_top,
+                    max(2, round(panel.width * right_fraction)),
+                    crop_bottom,
+                )
+            )
+            if crop.width < 40 or crop.height < 8:
+                continue
+            scale = max(1.0, min(5.0, 180 / crop.height))
+            crop = crop.resize(
+                (round(crop.width * scale), round(crop.height * scale)),
+                Image.Resampling.BICUBIC,
+            )
+            pixels = np.asarray(crop.convert("L"))
+            background = 255 if float(np.median(pixels)) > 127 else 0
+            if background == 0:
+                crop = ImageOps.invert(crop.convert("L"))
+            rows.append(ImageOps.expand(crop, border=(20, 20), fill=255))
+        if not rows:
+            continue
+        width = max(row.width for row in rows)
+        montage = Image.new(
+            "L",
+            (width, sum(row.height for row in rows) + 20 * (len(rows) - 1)),
+            255,
+        )
+        y = 0
+        for row in rows:
+            montage.paste(row, (0, y))
+            y += row.height + 20
+        # Sparse-text mode is useful when the table rules still separate rows,
+        # but one bounded extra pass is enough to avoid multiplying OCR cost.
+        for psm in ((6, 11) if variant_index == 0 else (6,)):
+            candidates.append(
+                _run_tesseract_pass(
+                    montage,
+                    language,
+                    rotation,
+                    psm,
+                    region="nutrition_table",
+                )
+            )
+    return candidates
+
+
 def _refine_numeric_cells(candidate: OcrCandidate, language: str) -> OcrCandidate:
     """Re-read isolated per-100-g cells and accept only repeated OCR results."""
     if candidate.source_image is None:
@@ -451,6 +527,11 @@ def extract_text_from_image(
             )
         panels = detect_nutrition_panels(oriented_image, best_orientation.words, limit=1)
         if panels:
+            selected_candidates.extend(
+                _run_table_row_passes(
+                    panels[0].image, lang, best_orientation.rotation
+                )
+            )
             for _, variant, psm in table_preprocessing_variants(
                 panels[0].image, active_settings.max_image_pixels
             ):

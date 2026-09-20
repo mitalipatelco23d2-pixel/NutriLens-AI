@@ -35,7 +35,7 @@ LABELS: tuple[tuple[str, re.Pattern[str]], ...] = (
 )
 
 VALUE_PATTERN = re.compile(
-    r"(?<![\w])(?P<qualifier><\s*)?(?P<number>[0-9Oo]+(?:[.,][0-9Oo]+)?)\s*(?P<unit>kcal|kj|mcg|µg|ug|mg|g)\b",
+    r"(?<![\w])(?P<qualifier><\s*)?(?P<number>[0-9Oo]+(?:[.,][0-9Oo]+)?)\s*(?P<unit>kcal|kj|mcg|µg|ug|mg|g|q|(?<=\s)9)\b",
     re.I,
 )
 OCR_100G_PATTERN = re.compile(
@@ -45,7 +45,7 @@ OCR_100ML_PATTERN = re.compile(
     r"(?<!\w)[1I][0Oo][0Oo]\s*m[lIi1](?!\w)", re.I
 )
 UNIT_BEFORE_VALUE_PATTERN = re.compile(
-    r"(?:\(\s*)?(?P<unit>kcal|kj|mcg|µg|ug|mg|g)(?:\s*\))?\s*[:=\-]?\s*"
+    r"(?:\(\s*)?(?P<unit>kcal|kj|mcg|µg|ug|mg|g|q)(?:\s*\))?\s*[:=\-]?\s*"
     r"(?P<qualifier><\s*)?(?P<number>[0-9Oo]+(?:[.,][0-9Oo]+)?)\b(?!\s*%)",
     re.I,
 )
@@ -206,7 +206,7 @@ def _parse_segment(field_name: str, segment: str, basis: str) -> tuple[ParsedNut
         relevant_matches = [
             m
             for m in matches
-            if m.group("unit").lower() in {"g", "mg", "mcg", "µg", "ug"}
+            if m.group("unit").lower() in {"g", "q", "9", "mg", "mcg", "µg", "ug"}
         ]
         if not relevant_matches:
             return None, warnings
@@ -223,6 +223,8 @@ def _parse_segment(field_name: str, segment: str, basis: str) -> tuple[ParsedNut
             return None, warnings
         candidate_value, _ = _number(candidate.group("number"))
         candidate_unit = candidate.group("unit").lower()
+        if candidate_unit in {"q", "9"}:
+            candidate_unit = "g"
         if candidate_unit in {"µg", "ug"}:
             candidate_unit = "mcg"
         if candidate_unit == "mcg":
@@ -250,6 +252,9 @@ def _parse_segment(field_name: str, segment: str, basis: str) -> tuple[ParsedNut
         return None, warnings
     source_value, corrected = _number(match.group("number"))
     source_unit = match.group("unit").lower()
+    if source_unit in {"q", "9"}:
+        source_unit = "g"
+        warnings.append(f"Corrected an OCR-confused gram unit for {field_name}.")
     if source_unit in {"µg", "ug"}:
         source_unit = "mcg"
     if corrected:

@@ -225,6 +225,14 @@ def test_missing_m2_nutrition_omits_all_threshold_recommendations():
     assert "trans_fat_100g" in result["omissions"][0]
 
 
+def test_no_label_review_recommendation_without_verified_additive_evidence():
+    parsed = nlp_result()
+    parsed["additives"] = []
+    result = generate_recommendations(parsed, m2_result(complete=False))
+
+    assert not any(item["category"] == "label_review" for item in result["items"])
+
+
 def test_m5_preserves_actual_m2_result_and_keeps_evidence_separate(tmp_path):
     source = m2_result()
     before = deepcopy(source)
