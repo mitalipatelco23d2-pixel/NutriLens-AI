@@ -1,2 +1,2 @@
-# Production runtime: Tesseract/OpenCV OCR and the legacy sklearn scorer.
+# Production runtime: Tesseract/OpenCV OCR and integrated M2 components.
 -r requirements-base.txt

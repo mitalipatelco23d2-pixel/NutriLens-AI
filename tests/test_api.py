@@ -4,7 +4,7 @@ import pytest
 from backend.app.api import routes
 from backend.app.core.errors import ModelUnavailableError
 from backend.app.main import create_app
-from backend.app.schemas.common import IntegrationStatus, OcrMetadata
+from backend.app.schemas.common import DependencyStatus, IntegrationStatus, OcrMetadata
 from backend.app.schemas.nutrition import HealthScoreResult, ImageAnalysisResponse
 from backend.app.ocr.extractor import OcrResult
 from backend.app.ocr.preprocessing import PreparedImage
@@ -32,6 +32,31 @@ class UnavailableScorer:
 
 class NotReadyScorer:
     def readiness(self): return False, "missing"
+
+
+def readiness_dependency(ready: bool, *, required: bool) -> DependencyStatus:
+    return DependencyStatus(
+        ready=ready,
+        detail="ready" if ready else "unavailable",
+        metadata={"required": required, "enabled": True},
+    )
+
+
+def readiness_dependencies(*, ingredient_risk_ready: bool = True):
+    return {
+        "backend_api": readiness_dependency(True, required=True),
+        "tesseract": readiness_dependency(True, required=True),
+        "selected_ocr": readiness_dependency(True, required=False),
+        "nutrition_scoring": readiness_dependency(True, required=True),
+        "ingredient_risk": readiness_dependency(
+            ingredient_risk_ready,
+            required=True,
+        ),
+        "knowledge_base": readiness_dependency(True, required=False),
+        "shap": readiness_dependency(False, required=False),
+        "rag": readiness_dependency(False, required=False),
+        "frontend": readiness_dependency(True, required=False),
+    }
 
 
 class FakePipeline:
@@ -73,21 +98,44 @@ def test_versioned_health_endpoint():
 
 
 def test_readiness_endpoint(monkeypatch):
-    monkeypatch.setattr(routes, "get_health_score_service", lambda: ReadyScorer())
-    monkeypatch.setattr(routes, "tesseract_readiness", lambda settings: (True, "ready"))
+    monkeypatch.setattr(
+        routes,
+        "build_readiness_dependencies",
+        lambda settings: readiness_dependencies(),
+    )
     response = client.get("/api/v1/ready")
     assert response.status_code == 200
-    assert response.json()["status"] == "ready"
-    assert "easyocr" not in response.json()["dependencies"]
-    assert response.json()["dependencies"]["tesseract"]["ready"] is True
+    payload = response.json()
+    assert payload["status"] == "ready"
+    assert "model" not in payload["dependencies"]
+    assert "easyocr" not in payload["dependencies"]
+    assert payload["dependencies"]["tesseract"]["ready"] is True
+    assert payload["dependencies"]["nutrition_scoring"]["ready"] is True
+    assert payload["dependencies"]["ingredient_risk"]["ready"] is True
+    assert payload["dependencies"]["shap"]["ready"] is False
+    assert payload["dependencies"]["rag"]["ready"] is False
 
 
 def test_readiness_returns_503_when_dependency_is_missing(monkeypatch):
-    monkeypatch.setattr(routes, "get_health_score_service", lambda: NotReadyScorer())
-    monkeypatch.setattr(routes, "tesseract_readiness", lambda settings: (False, "missing"))
+    monkeypatch.setattr(
+        routes,
+        "build_readiness_dependencies",
+        lambda settings: readiness_dependencies(ingredient_risk_ready=False),
+    )
     response = client.get("/api/v1/ready")
     assert response.status_code == 503
     assert response.json()["status"] == "not_ready"
+
+
+def test_legacy_readiness_alias_uses_integrated_dependencies(monkeypatch):
+    monkeypatch.setattr(
+        routes,
+        "build_readiness_dependencies",
+        lambda settings: readiness_dependencies(),
+    )
+    response = client.get("/ready")
+    assert response.status_code == 200
+    assert response.json()["dependencies"]["ingredient_risk"]["ready"] is True
 
 
 def test_valid_manual_score(monkeypatch):

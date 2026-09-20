@@ -5,14 +5,17 @@ from fastapi.responses import JSONResponse
 from starlette.concurrency import run_in_threadpool
 
 from ..core.config import get_settings
-from ..ocr.extractor import tesseract_readiness
 from ..ocr.preprocessing import read_upload_limited
 from ..ocr.service import execute_ocr, resolve_ocr_engine
-from ..schemas.common import DependencyStatus, LivenessResponse, ReadinessResponse
+from ..schemas.common import LivenessResponse, ReadinessResponse
 from ..schemas.nutrition import ImageAnalysisResponse, ManualNutritionRequest, ManualScoreResponse, HealthScoreResult
 from ..schemas.team import AnalyzeTextRequest, TeamAnalysisResponse
 from ..scoring.predictor import get_health_score_service
 from ..services.pipeline import get_image_analysis_pipeline
+from ..services.system_readiness import (
+    build_readiness_dependencies,
+    required_dependencies_ready,
+)
 from ..services.team_pipeline import get_team_analysis_pipeline
 
 
@@ -27,23 +30,9 @@ def health() -> LivenessResponse:
 @router.get("/ready", response_model=ReadinessResponse, tags=["system"])
 def readiness() -> ReadinessResponse | JSONResponse:
     settings = get_settings()
-    model_ready, model_detail = get_health_score_service().readiness()
-    tesseract_ready, tesseract_detail = tesseract_readiness(settings)
-    frontend_ready = (settings.frontend_dir / "index.html").is_file()
-    dependencies = {
-        "model": DependencyStatus(ready=model_ready, detail=model_detail),
-        "tesseract": DependencyStatus(ready=tesseract_ready, detail=tesseract_detail),
-        "selected_ocr": DependencyStatus(
-            ready=tesseract_ready,
-            detail="Configured OCR engine: tesseract.",
-        ),
-        "frontend": DependencyStatus(
-            ready=frontend_ready,
-            detail="Demo frontend is available." if frontend_ready else "Demo frontend is unavailable.",
-        ),
-    }
+    dependencies = build_readiness_dependencies(settings)
     response = ReadinessResponse(
-        status="ready" if model_ready and tesseract_ready else "not_ready",
+        status="ready" if required_dependencies_ready(dependencies) else "not_ready",
         dependencies=dependencies,
     )
     if response.status == "not_ready":
