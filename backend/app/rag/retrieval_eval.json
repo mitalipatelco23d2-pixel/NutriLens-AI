@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "corpus_version": "2026-09-20.1",
+  "cases": [
+    {
+      "id": "ingredients-order-india",
+      "query": "ingredient list descending order food label",
+      "jurisdiction": "IN",
+      "expected_doc_ids": ["fssai_labelling_display_2020_v7"]
+    },
+    {
+      "id": "allergen-declaration-india",
+      "query": "allergen declaration milk wheat food label",
+      "jurisdiction": "IN",
+      "expected_doc_ids": ["fssai_labelling_display_2020_v7"]
+    },
+    {
+      "id": "nutrition-declaration-india",
+      "query": "nutrition information sodium sugar per 100 g",
+      "jurisdiction": "IN",
+      "expected_doc_ids": ["fssai_labelling_display_2020_v7"]
+    },
+    {
+      "id": "trans-fat-label",
+      "query": "trans fat label declaration",
+      "jurisdiction": "IN",
+      "expected_doc_ids": ["fssai_labelling_display_2020_v7", "who_trans_fat_2024"]
+    },
+    {
+      "id": "sodium-salt",
+      "query": "sodium salt reduction packaged food",
+      "jurisdiction": "IN",
+      "expected_doc_ids": ["who_sodium_reduction_2026"]
+    },
+    {
+      "id": "free-sugars",
+      "query": "free sugars healthy diet",
+      "jurisdiction": "IN",
+      "expected_doc_ids": ["who_healthy_diet_2026"]
+    },
+    {
+      "id": "unsupported-unrelated",
+      "query": "quantum battery repair orbital telemetry",
+      "jurisdiction": "IN",
+      "expected_doc_ids": []
+    }
+  ]
+}

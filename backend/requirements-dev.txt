@@ -1,0 +1,3 @@
+# Runtime plus the lightweight test dependencies.
+-r requirements-base.txt
+pytest==8.4.1

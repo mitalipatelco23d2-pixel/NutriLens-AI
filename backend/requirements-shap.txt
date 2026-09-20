@@ -1,0 +1,5 @@
+# Optional M5 Phase 2 runtime. Dynamic SHAP remains disabled by default.
+-r requirements-base.txt
+numpy==2.2.6
+scipy==1.18.0
+shap==0.49.1

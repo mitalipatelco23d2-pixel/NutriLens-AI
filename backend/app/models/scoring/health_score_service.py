@@ -1,378 +1,125 @@
-"""
-NutriLens AI - Health Score Service
+"""Deterministic M2 nutrition-health score adapted from ``origin/main``.
 
-Generates an application-level Food Health Score from 0-100.
-
-IMPORTANT:
-This is an application heuristic score.
-It is NOT a clinical diagnosis or medically validated score.
+The original service also folded ingredient-model probabilities and a knowledge
+base into one score. NutriLens exposes ingredient risk separately, so this
+module keeps only the independently explainable nutrition and additive terms.
+Missing measurements are rejected rather than interpreted as zero.
 """
 
-def clamp(value, minimum=0, maximum=100):
-    return max(minimum, min(maximum, value))
+from __future__ import annotations
+
+import math
+from typing import Any
+
+from ...core.errors import InvalidModelInputError
+
+REQUIRED_NUTRITION_FIELDS = (
+    "sugar_g",
+    "saturated_fat_g",
+    "trans_fat_g",
+    "sodium_mg",
+)
 
 
-def calculate_health_score(
-    risk_prediction,
-    nutrition=None,
-    allergens=None,
-    additives=None,
-    kb_summary=None
-):
-    nutrition = nutrition or {}
-    allergens = allergens or []
-    additives = additives or []
-    kb_summary = kb_summary or {}
-
-    breakdown = {}
-    reasons = []
-    warnings = []
-
-    # ==================================================
-    # 1. ML RISK COMPONENT
-    # ==================================================
-
-    probabilities = risk_prediction.get("probabilities", {})
-
-    high_prob = float(probabilities.get("HIGH", 0)) / 100
-    moderate_prob = float(probabilities.get("MODERATE", 0)) / 100
-
-    # Maximum ML penalty = 20
-    ml_penalty = (
-        (high_prob * 15) +
-        (moderate_prob * 5)
-    )
-
-    ml_penalty = min(ml_penalty, 20)
-
-    breakdown["ml_risk_penalty"] = round(
-        ml_penalty, 2
-    )
-
-    # ML explanation
-    if high_prob >= 0.50:
-        reasons.append(
-            "The ML model indicates a high health concern."
+def _measurement(data: dict[str, Any], field: str) -> float:
+    value = data.get(field)
+    if value is None:
+        raise InvalidModelInputError(
+            f"Missing required nutrition measurement: {field}."
         )
-    elif moderate_prob >= 0.50:
-        reasons.append(
-            "The ML model indicates a moderate health concern."
+    try:
+        number = float(value)
+    except (TypeError, ValueError) as exc:
+        raise InvalidModelInputError(
+            f"Nutrition measurement {field} must be numeric."
+        ) from exc
+    if not math.isfinite(number) or number < 0:
+        raise InvalidModelInputError(
+            f"Nutrition measurement {field} must be a finite non-negative value."
         )
+    return number
 
-    # ==================================================
-    # 2. NUTRITION COMPONENT
-    # ==================================================
 
-    nutrition_penalty = 0
+def calculate_nutrition_health_score(
+    nutrition: dict[str, Any],
+    *,
+    additives: list[str] | None = None,
+    allergens: list[str] | None = None,
+) -> dict[str, Any]:
+    """Return the M2 score for verified per-100g measurements."""
 
-    # ------------------------------
-    # Sugar
-    # ------------------------------
+    sugar = _measurement(nutrition, "sugar_g")
+    saturated_fat = _measurement(nutrition, "saturated_fat_g")
+    trans_fat = _measurement(nutrition, "trans_fat_g")
+    sodium_mg = _measurement(nutrition, "sodium_mg")
 
-    sugar = nutrition.get("sugar_g")
+    nutrition_breakdown: dict[str, float] = {}
+    reasons: list[str] = []
+    warnings: list[str] = []
 
-    if sugar is not None:
+    sugar_penalty = 12.0 if sugar >= 22.5 else 5.0 if sugar >= 5.0 else 0.0
+    if sugar_penalty:
+        reasons.append(
+            "High sugar content"
+            if sugar_penalty == 12.0
+            else "Moderate sugar content"
+        )
+    nutrition_breakdown["sugar_penalty"] = sugar_penalty
 
-        if sugar >= 22.5:
-            nutrition_penalty += 12
-            reasons.append(
-                f"High sugar content detected ({sugar} g)."
-            )
-
-        elif sugar >= 5:
-            nutrition_penalty += 5
-            reasons.append(
-                f"Moderate sugar content detected ({sugar} g)."
-            )
-
-    # ------------------------------
-    # Saturated Fat
-    # ------------------------------
-
-    saturated_fat = nutrition.get(
-        "saturated_fat_g"
+    saturated_fat_penalty = (
+        10.0 if saturated_fat >= 5.0 else 4.0 if saturated_fat >= 1.5 else 0.0
     )
+    if saturated_fat_penalty:
+        reasons.append(
+            "High saturated fat content"
+            if saturated_fat_penalty == 10.0
+            else "Moderate saturated fat content"
+        )
+    nutrition_breakdown["saturated_fat_penalty"] = saturated_fat_penalty
 
-    if saturated_fat is not None:
+    trans_fat_penalty = 10.0 if trans_fat > 0 else 0.0
+    if trans_fat_penalty:
+        reasons.append("Contains trans fat")
+    nutrition_breakdown["trans_fat_penalty"] = trans_fat_penalty
 
-        if saturated_fat >= 5:
-            nutrition_penalty += 10
-            reasons.append(
-                f"High saturated fat detected "
-                f"({saturated_fat} g)."
-            )
-
-        elif saturated_fat >= 1.5:
-            nutrition_penalty += 4
-
-    # ------------------------------
-    # Trans Fat
-    # ------------------------------
-
-    trans_fat = nutrition.get(
-        "trans_fat_g"
+    sodium_penalty = (
+        10.0 if sodium_mg >= 600.0 else 4.0 if sodium_mg >= 300.0 else 0.0
     )
+    if sodium_penalty:
+        reasons.append(
+            "High sodium content"
+            if sodium_penalty == 10.0
+            else "Moderate sodium content"
+        )
+    nutrition_breakdown["sodium_penalty"] = sodium_penalty
 
-    if trans_fat is not None:
-
-        if trans_fat > 0:
-            nutrition_penalty += 10
-            reasons.append(
-                f"Trans fat detected ({trans_fat} g)."
-            )
-
-    # ------------------------------
-    # Sodium
-    # ------------------------------
-
-    sodium = nutrition.get(
-        "sodium_mg"
-    )
-
-    if sodium is not None:
-
-        if sodium >= 600:
-            nutrition_penalty += 10
-            reasons.append(
-                f"High sodium content detected "
-                f"({sodium} mg)."
-            )
-
-        elif sodium >= 300:
-            nutrition_penalty += 4
-
-    # Maximum nutrition penalty = 35
     nutrition_penalty = min(
-        nutrition_penalty,
-        35
+        35.0,
+        sugar_penalty + saturated_fat_penalty + trans_fat_penalty + sodium_penalty,
     )
-
-    breakdown["nutrition_penalty"] = nutrition_penalty
-
-    # ==================================================
-    # 3. KNOWLEDGE BASE COMPONENT
-    # ==================================================
-
-    moderate_count = int(
-        kb_summary.get(
-            "moderate_concern_count",
-            0
-        )
-    )
-
-    context_count = int(
-        kb_summary.get(
-            "context_dependent_count",
-            0
-        )
-    )
-
-    long_term_count = int(
-        kb_summary.get(
-            "long_term_risk_count",
-            0
-        )
-    )
-
-    # Moderate concerns have stronger effect
-    kb_penalty = (
-        moderate_count * 2
-        + context_count * 0.5
-        + long_term_count * 1
-    )
-
-    # Maximum KB penalty = 15
-    kb_penalty = min(
-        kb_penalty,
-        15
-    )
-
-    breakdown["knowledge_base_penalty"] = round(
-        kb_penalty,
-        2
-    )
-
-    if moderate_count > 0:
-        reasons.append(
-            f"{moderate_count} ingredient(s) "
-            "have moderate concern in the knowledge base."
-        )
-
-    # Long-term information should be presented
-    # as evidence/warning, not automatically as disease risk.
-    if long_term_count > 0:
-        warnings.append(
-            f"{long_term_count} ingredient(s) have "
-            "long-term-risk information in the knowledge base."
-        )
-
-    # ==================================================
-    # 4. ADDITIVE COMPONENT
-    # ==================================================
-
-    additive_penalty = min(
-        len(additives) * 1,
-        5
-    )
-
-    breakdown["additive_penalty"] = additive_penalty
-
-    if additives:
-        reasons.append(
-            f"{len(additives)} food additive(s) detected."
-        )
-
-    # ==================================================
-    # 5. ALLERGENS
-    # ==================================================
-
-    # IMPORTANT:
-    # Allergens are NOT treated as general unhealthy-food
-    # penalties because they are primarily personalized risks.
-
-    allergen_penalty = 0
-
-    breakdown["allergen_penalty"] = allergen_penalty
+    additive_count = len(additives or [])
+    additive_penalty = float(min(5, additive_count))
+    if additive_penalty:
+        reasons.append(f"Contains {additive_count} detected additive(s)")
 
     if allergens:
-        warnings.append(
-            "Potential allergens detected: "
-            + ", ".join(allergens)
-        )
+        warnings.append("Contains or may contain: " + ", ".join(allergens))
 
-    # ==================================================
-    # 6. CALCULATE FINAL SCORE
-    # ==================================================
-
-    total_penalty = (
-        ml_penalty
-        + nutrition_penalty
-        + kb_penalty
-        + additive_penalty
-    )
-
-    health_score = 100 - total_penalty
-
-    health_score = round(
-        clamp(health_score),
-        1
-    )
-
-    # ==================================================
-    # 7. SCORE LEVEL
-    # ==================================================
-
-    if health_score >= 70:
-        score_level = "GOOD"
-
-    elif health_score >= 40:
-        score_level = "MODERATE"
-
-    else:
-        score_level = "POOR"
-
-    # ==================================================
-    # RESULT
-    # ==================================================
+    total_penalty = nutrition_penalty + additive_penalty
+    score = max(0.0, min(100.0, 100.0 - total_penalty))
+    score_level = "GOOD" if score >= 70.0 else "MODERATE" if score >= 40.0 else "POOR"
 
     return {
-        "health_score": health_score,
+        "health_score": round(score, 2),
         "score_level": score_level,
-        "risk_level": risk_prediction.get(
-            "risk_level",
-            "UNKNOWN"
-        ),
-        "breakdown": breakdown,
+        "breakdown": {
+            "nutrition_penalty": nutrition_penalty,
+            "additive_penalty": additive_penalty,
+            "allergen_penalty": 0.0,
+        },
+        "nutrition_breakdown": nutrition_breakdown,
         "reasons": reasons,
         "warnings": warnings,
-        "total_penalty": round(
-            total_penalty,
-            2
-        )
+        "total_penalty": round(total_penalty, 2),
+        "model_version": "m2_nutrition_rules_v1",
     }
-
-
-# ======================================================
-# TEST
-# ======================================================
-
-if __name__ == "__main__":
-
-    test_prediction = {
-        "risk_level": "LOW",
-        "probabilities": {
-            "LOW": 61.5,
-            "MODERATE": 13.5,
-            "HIGH": 25.0
-        }
-    }
-
-    test_nutrition = {
-        "energy_kcal": 480,
-        "protein_g": 6,
-        "sugar_g": 25,
-        "fat_g": 20,
-        "saturated_fat_g": 10,
-        "trans_fat_g": 0,
-        "fiber_g": 3,
-        "sodium_mg": 400
-    }
-
-    test_allergens = [
-        "wheat",
-        "milk"
-    ]
-
-    test_additives = [
-        "503",
-        "500",
-        "472E"
-    ]
-
-    test_kb = {
-        "moderate_concern_count": 4,
-        "context_dependent_count": 2,
-        "long_term_risk_count": 6
-    }
-
-    result = calculate_health_score(
-        risk_prediction=test_prediction,
-        nutrition=test_nutrition,
-        allergens=test_allergens,
-        additives=test_additives,
-        kb_summary=test_kb
-    )
-
-    print("\n================================")
-    print("NUTRILENS AI - HEALTH SCORE")
-    print("================================")
-
-    print(
-        f"\nHEALTH SCORE: "
-        f"{result['health_score']}/100"
-    )
-
-    print(
-        f"SCORE LEVEL: "
-        f"{result['score_level']}"
-    )
-
-    print(
-        f"RISK LEVEL: "
-        f"{result['risk_level']}"
-    )
-
-    print("\nBREAKDOWN:")
-
-    for key, value in result["breakdown"].items():
-        print(f"{key}: {value}")
-
-    print("\nREASONS:")
-
-    for reason in result["reasons"]:
-        print(f"- {reason}")
-
-    print("\nWARNINGS:")
-
-    for warning in result["warnings"]:
-        print(f"- {warning}")
