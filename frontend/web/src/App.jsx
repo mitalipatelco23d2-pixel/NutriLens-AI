@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { analyzeImage, formatBytes, validateImage } from './api.js'
+import { analyzeImage, formatBytes, isAnalysisEnabled, validateImage } from './api.js'
 import {
   displayBasis,
   formatNutrient,
@@ -42,13 +42,31 @@ function MetricCard({ eyebrow, value, detail, tone = 'neutral' }) {
   )
 }
 
-function UploadPanel({ file, previewUrl, busy, error, onFile, onSubmit, onClear }) {
+function UploadPanel({ analysisEnabled, file, previewUrl, busy, error, onFile, onSubmit, onClear }) {
   const inputRef = useRef(null)
   const [dragging, setDragging] = useState(false)
 
   function receiveFile(nextFile) {
     setDragging(false)
     onFile(nextFile || null)
+  }
+
+  if (!analysisEnabled) {
+    return (
+      <section className="upload-card" aria-labelledby="upload-heading">
+        <div className="section-heading compact">
+          <div>
+            <span className="step-label">Analysis unavailable</span>
+            <h2 id="upload-heading">Image analysis is currently disabled</h2>
+          </div>
+          <span className="privacy-chip">Upload disabled</span>
+        </div>
+        <div className="preview-unavailable" role="status">
+          <strong>The NutriLens interface is available, but its analysis service has been intentionally disabled.</strong>
+          <p>Image selection and upload are unavailable until analysis is enabled by the application configuration.</p>
+        </div>
+      </section>
+    )
   }
 
   return (
@@ -403,6 +421,7 @@ function Results({ result }) {
 }
 
 export default function App() {
+  const analysisEnabled = isAnalysisEnabled()
   const [file, setFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState('')
   const [busy, setBusy] = useState(false)
@@ -460,14 +479,14 @@ export default function App() {
       <header className="site-header">
         <a className="brand" href="#top" aria-label="NutriLens AI home"><BrandMark /><span>NutriLens <strong>AI</strong></span></a>
         <nav aria-label="Page navigation"><a href="#how-it-works">How it works</a><a href="#notice">About results</a></nav>
-        <span className="header-badge">Private by design</span>
+        <span className="header-badge">{analysisEnabled ? 'Private by design' : 'Analysis disabled'}</span>
       </header>
       <main id="top">
         <section className="hero">
           <div className="hero-copy">
             <span className="kicker">Food labels, made understandable</span>
             <h1>See what’s inside.<br /><em>Understand why it matters.</em></h1>
-            <p>Upload a packaged-food label to extract nutrition facts, review two separate health signals, and explore source-linked explanations when available.</p>
+            <p>{analysisEnabled ? 'Upload a packaged-food label to extract nutrition facts, review two separate health signals, and explore source-linked explanations when available.' : 'Explore the NutriLens interface while image analysis is intentionally disabled by the application configuration.'}</p>
             <div className="trust-row"><span>✓ No account required</span><span>✓ Separate score & risk outputs</span><span>✓ Limitations shown clearly</span></div>
           </div>
           <aside className="hero-note">
@@ -476,7 +495,7 @@ export default function App() {
           </aside>
         </section>
 
-        <UploadPanel file={file} previewUrl={previewUrl} busy={busy} error={error} onFile={chooseFile} onSubmit={submit} onClear={clear} />
+        <UploadPanel analysisEnabled={analysisEnabled} file={file} previewUrl={previewUrl} busy={busy} error={error} onFile={chooseFile} onSubmit={submit} onClear={clear} />
         {result && <Results result={result} />}
 
         <section className="how-it-works" id="how-it-works">

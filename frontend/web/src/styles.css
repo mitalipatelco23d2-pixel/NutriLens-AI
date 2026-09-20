@@ -108,6 +108,9 @@ h1 em { color: #52761f; font-style: normal; }
 .actions { display: flex; justify-content: flex-end; gap: .5rem; margin-top: 1.2rem; }
 .alert { margin-top: 1rem; border-radius: 9px; padding: .8rem 1rem; font-weight: 600; }
 .alert.error { background: #fbeae7; color: #852d28; border: 1px solid #edc9c4; }
+.preview-unavailable { margin-top: 1.25rem; border: 1px solid #d8cda5; border-radius: 15px; padding: 1.4rem 1.5rem; background: #fffaf0; color: #55491e; }
+.preview-unavailable strong { display: block; color: var(--ink); font-size: 1.05rem; }
+.preview-unavailable p { margin: .55rem 0 0; line-height: 1.65; }
 .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.35); border-top-color: white; border-radius: 50%; animation: spin .75s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .progress-message { margin-top: 1rem; display: flex; justify-content: space-between; background: #eef4ec; border-radius: 9px; padding: .75rem 1rem; color: #466254; font-size: .78rem; }

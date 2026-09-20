@@ -19,7 +19,29 @@ describe('NutriLens analysis UI', () => {
     global.fetch = vi.fn()
   })
 
-  afterEach(() => vi.restoreAllMocks())
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.unstubAllEnvs()
+  })
+
+  it('enables local image analysis by default', () => {
+    render(<App />)
+
+    expect(screen.getByTestId('image-input')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Browse image' })).toBeEnabled()
+    expect(screen.queryByText(/analysis is currently disabled/i)).not.toBeInTheDocument()
+  })
+
+  it('disables image selection when analysis is intentionally unavailable', () => {
+    vi.stubEnv('VITE_ANALYSIS_ENABLED', 'false')
+    render(<App />)
+
+    expect(screen.getByRole('heading', { name: 'Image analysis is currently disabled' })).toBeInTheDocument()
+    expect(screen.getByText(/disabled by the application configuration/i)).toBeInTheDocument()
+    expect(screen.queryByTestId('image-input')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Analyze nutrition label' })).not.toBeInTheDocument()
+    expect(global.fetch).not.toHaveBeenCalled()
+  })
 
   it('allows only HTTPS citation destinations', () => {
     expect(safeSourceUrl('https://www.fssai.gov.in/example')).toBe('https://www.fssai.gov.in/example')

@@ -10,6 +10,11 @@ function apiBaseUrl() {
   return String(import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
 }
 
+export function isAnalysisEnabled() {
+  const value = String(import.meta.env.VITE_ANALYSIS_ENABLED ?? 'true').trim().toLowerCase()
+  return !['false', '0', 'off', 'no'].includes(value)
+}
+
 export function validateImage(file, maximum = configuredMaximum()) {
   if (!file) return 'Choose a food-label image to continue.'
   if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
@@ -29,6 +34,9 @@ export function formatBytes(bytes) {
 }
 
 export async function analyzeImage(file, fetchImplementation = fetch) {
+  if (!isAnalysisEnabled()) {
+    throw new Error('Image analysis is disabled by the application configuration.')
+  }
   const validationError = validateImage(file)
   if (validationError) throw new Error(validationError)
 
