@@ -7,56 +7,35 @@ M1:
 - Ingredient normalization
 - Allergen detection
 - Additive / INS detection
-- Knowledge Base analysis
 
 M2:
 - Nutrition extraction
 
-Output:
-A single combined result that can later be passed
-to the ML risk prediction module.
+This module combines the structured NLP parser with the
+existing nutrition extraction service.
+
+The result can be passed to the ML health-risk model.
 """
 
-import os
-import sys
 import json
 
-# ---------------------------------------------------------
-# PATH SETUP
-# ---------------------------------------------------------
+from .parser import analyze_food_label_text
+from .nutrition_service import extract_nutrition
 
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# Add services directory to Python path
-if CURRENT_DIR not in sys.path:
-    sys.path.insert(0, CURRENT_DIR)
-
-
-# ---------------------------------------------------------
-# IMPORT M1 + M2
-# ---------------------------------------------------------
-
-from text_cleaner import process_label_text
-from nutrition_service import extract_nutrition
-
-
-# ---------------------------------------------------------
-# M1 + M2 MAIN FUNCTION
-# ---------------------------------------------------------
 
 def analyze_label_text(ocr_text):
     """
-    Complete NutriLens AI label analysis.
+    Analyze OCR text from a packaged-food label.
 
     Parameters
     ----------
     ocr_text : str
-        Raw text obtained from OCR.
+        Raw OCR text.
 
     Returns
     -------
     dict
-        Combined M1 NLP + M2 Nutrition result.
+        Combined NLP + nutrition analysis.
     """
 
     if not ocr_text or not isinstance(ocr_text, str):
@@ -68,35 +47,46 @@ def analyze_label_text(ocr_text):
             "nutrition": {}
         }
 
-    # =====================================================
-    # M1 - NLP / INGREDIENT ANALYSIS
-    # =====================================================
+    # -----------------------------------------------------
+    # M1 - Structured NLP analysis
+    # -----------------------------------------------------
 
-    cleaned_data = process_label_text(ocr_text)
+    parsed_result = analyze_food_label_text(ocr_text)
 
-    ingredients = cleaned_data.get("ingredients", [])
-    normalized_ingredients = cleaned_data.get(
+    ingredients = parsed_result.get(
+        "ingredients",
+        []
+    )
+
+    normalized_ingredients = parsed_result.get(
         "normalized_ingredients",
         []
     )
-    allergens = cleaned_data.get("allergens", [])
-    additives = cleaned_data.get("additives", [])
 
-    # =====================================================
-    # M2 - NUTRITION EXTRACTION
-    # =====================================================
+    allergens = parsed_result.get(
+        "allergens",
+        []
+    )
+
+    additives = parsed_result.get(
+        "additives",
+        []
+    )
+
+    # -----------------------------------------------------
+    # M2 - Existing nutrition extraction
+    # -----------------------------------------------------
 
     nutrition = extract_nutrition(ocr_text)
 
-    # Safety check
     if nutrition is None:
         nutrition = {}
 
-    # =====================================================
-    # COMBINED RESULT
-    # =====================================================
+    # -----------------------------------------------------
+    # Combined result
+    # -----------------------------------------------------
 
-    result = {
+    return {
         "ingredients": ingredients,
         "normalized_ingredients": normalized_ingredients,
         "allergens": allergens,
@@ -104,17 +94,10 @@ def analyze_label_text(ocr_text):
         "nutrition": nutrition
     }
 
-    return result
-
-
-# ---------------------------------------------------------
-# DISPLAY RESULT
-# ---------------------------------------------------------
 
 def print_result(result):
     """
-    Display the combined M1 + M2 result
-    in a readable format.
+    Display the combined M1 + M2 result.
     """
 
     print()
@@ -124,13 +107,16 @@ def print_result(result):
 
     print()
     print("INGREDIENTS:")
+
     for ingredient in result.get("ingredients", []):
         print(f"- {ingredient}")
 
     print()
     print("NORMALIZED INGREDIENTS:")
+
     for ingredient in result.get(
-        "normalized_ingredients", []
+        "normalized_ingredients",
+        []
     ):
         print(f"- {ingredient}")
 
@@ -187,9 +173,6 @@ def print_result(result):
 
 if __name__ == "__main__":
 
-    # Sample OCR output
-    # This is the OCR text you obtained from Parle-G.
-
     sample_ocr_text = """
     Parle G Gluco BISCUITS
 
@@ -221,18 +204,9 @@ if __name__ == "__main__":
     Trans Fat 0 g
     Dietary Fibre 3 g
     Sodium 400 mg
-
     Serving Size 50 g
     """
 
-    # -----------------------------------------------------
-    # RUN M1 + M2
-    # -----------------------------------------------------
-
     result = analyze_label_text(sample_ocr_text)
-
-    # -----------------------------------------------------
-    # DISPLAY
-    # -----------------------------------------------------
 
     print_result(result)

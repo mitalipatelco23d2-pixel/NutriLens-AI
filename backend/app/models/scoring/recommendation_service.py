@@ -599,18 +599,24 @@ def generate_recommendations(
     # 6. PROTEIN
     # ======================================================
 
-    if protein is not None:
+    if protein is not None :
 
         if protein >= 5:
+            basis = nutrition.get("basis", "serving")
+
+            if basis == "per_serving":
+                basis_text = "serving"
+            else:
+                basis_text = basis.replace("_", " ")
 
             positive_points.append(
                 f"The product provides "
-                f"{protein:g} g of protein per "
-                f"{nutrition.get('basis', 'serving')}."
+                f"{protein:g} g of protein per {basis_text}."
             )
 
 
-    # ======================================================
+
+
     # 7. FIBER
     # ======================================================
 

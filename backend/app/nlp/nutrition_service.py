@@ -1,171 +1,69 @@
+from __future__ import annotations
+
 import re
-
-
-# ============================================================
-# NUTRITION EXTRACTION SERVICE - M2
-# NutriLens AI
-# ============================================================
-
-"""
-M2 Nutrition Extraction
-
-Responsibilities:
-- Extract nutrition values from OCR text
-- Handle common OCR spelling errors
-- Support common nutrition-label formats
-- Detect nutrition basis
-- Extract serving size
-- Keep missing values missing
-- NEVER assume missing nutrition values are 0
-"""
-
-
-# ============================================================
-# NUTRIENT PATTERNS
-# ============================================================
-
-NUTRIENT_PATTERNS = {
-
-    # --------------------------------------------------------
-    # ENERGY
-    # --------------------------------------------------------
-    "energy_kcal": [
-        r"\benergy\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*k\s*c\s*a\s*l\b",
-        r"\benergy\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*kcal\b",
-        r"\benergy\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*cal\b"
-    ],
-
-    # --------------------------------------------------------
-    # PROTEIN
-    # --------------------------------------------------------
-    "protein_g": [
-        r"\bprotein\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b"
-    ],
-
-    # --------------------------------------------------------
-    # CARBOHYDRATE
-    # --------------------------------------------------------
-    "carbohydrate_g": [
-        r"\bcarbohydrates?\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b",
-        r"\bcarbs?\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b"
-    ],
-
-    # --------------------------------------------------------
-    # SUGAR
-    # --------------------------------------------------------
-    "sugar_g": [
-        r"\btotal\s+sugars?\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b",
-        r"\btotal\s+sugar\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b",
-        r"\bsugars?\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b"
-    ],
-
-    # --------------------------------------------------------
-    # TOTAL FAT
-    # --------------------------------------------------------
-    "fat_g": [
-        r"\btotal\s+fat\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b",
-        r"\bfat\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b"
-    ],
-
-    # --------------------------------------------------------
-    # SATURATED FAT
-    # --------------------------------------------------------
-    "saturated_fat_g": [
-        r"\bsaturated\s+fat\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b",
-        r"\bsaturates\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b"
-    ],
-
-    # --------------------------------------------------------
-    # TRANS FAT
-    # --------------------------------------------------------
-    "trans_fat_g": [
-        r"\btrans\s+fat\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b"
-    ],
-
-    # --------------------------------------------------------
-    # FIBER / FIBRE
-    # --------------------------------------------------------
-    "fiber_g": [
-        r"\bdietary\s+fiber\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b",
-        r"\bdietary\s+fibre\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b",
-        r"\bfiber\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b",
-        r"\bfibre\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b"
-    ],
-
-    # --------------------------------------------------------
-    # SODIUM
-    # --------------------------------------------------------
-    "sodium_mg": [
-        r"\bsodium\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*mg\b"
-    ],
-
-    # --------------------------------------------------------
-    # CHOLESTEROL
-    # --------------------------------------------------------
-    "cholesterol_mg": [
-        r"\bcholesterol\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*mg\b"
-    ]
-}
 
 
 # ============================================================
 # OCR CLEANING
 # ============================================================
 
-def clean_nutrition_text(text):
+def clean_nutrition_text(text: str) -> str:
     """
-    Clean OCR text before nutrition extraction.
+    Clean OCR text before extracting nutrition values.
 
     Important:
     - Corrects common OCR mistakes.
-    - Does NOT create missing nutrition values.
-    - Does NOT convert missing values to zero.
+    - Does not assume missing nutrients are zero.
+    - Preserves newlines because nutrition labels often use rows.
     """
 
     if not isinstance(text, str):
-        return ""
+        raise ValueError("Nutrition text must be a string.")
 
     text = text.lower()
 
     # --------------------------------------------------------
-    # Common OCR mistakes
+    # Common OCR word corrections
     # --------------------------------------------------------
 
     replacements = {
-
-        # kcal
         "kca1": "kcal",
         "kcai": "kcal",
-        "kca": "kcal",
-
-        # nutrient names
         "prote1n": "protein",
         "proteln": "protein",
-
         "carbohydrat": "carbohydrate",
         "carbohydratcs": "carbohydrates",
         "carbohydrat es": "carbohydrates",
-
         "sodlum": "sodium",
         "sodiurn": "sodium",
-        "sodlum": "sodium",
-
         "sug ars": "sugars",
-
-        # fibre / fiber
         "flbre": "fibre",
         "flber": "fiber",
-
-        # fat
         "saturat ed": "saturated",
-
-        # common OCR spelling
         "servlng": "serving",
-        "servlngs": "servings"
+        "servlngs": "servings",
     }
 
     for wrong, correct in replacements.items():
-        text = text.replace(wrong, correct)
+        text = re.sub(
+            rf"\b{re.escape(wrong)}\b",
+            correct,
+            text,
+        )
+
+    # --------------------------------------------------------
+    # Correct common OCR mistakes inside numeric values
+    # --------------------------------------------------------
+    #
+    # Examples:
+    #   4O0 -> 400
+    #   1I0 -> 110
+    #
+    # Only replace O/I when they occur between digits.
+    # --------------------------------------------------------
+
+    text = re.sub(r"(?<=\d)[oO](?=\d)", "0", text)
+    text = re.sub(r"(?<=\d)[iI](?=\d)", "1", text)
 
     # --------------------------------------------------------
     # Normalize whitespace
@@ -181,99 +79,102 @@ def clean_nutrition_text(text):
 
 
 # ============================================================
-# NUTRIENT EXTRACTION
+# NUTRIENT PATTERNS
 # ============================================================
 
-def extract_nutrient(text, patterns):
+NUTRIENT_PATTERNS = {
+    "energy_kcal": [
+        r"\benergy\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*kcal\b",
+    ],
+    "protein_g": [
+        r"\bprotein\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b",
+    ],
+    "carbohydrate_g": [
+        r"\bcarbohydrates?\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b",
+    ],
+    "sugar_g": [
+        r"\b(?:total\s+)?sugars?\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b",
+    ],
+    "fat_g": [
+        r"\b(?:total\s+)?fat\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b",
+    ],
+    "saturated_fat_g": [
+        r"\bsaturated\s+fat\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b",
+    ],
+    "trans_fat_g": [
+        r"\btrans\s+fat\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b",
+    ],
+    "fiber_g": [
+        r"\b(?:dietary\s+)?fib(?:re|er)\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b",
+    ],
+    "sodium_mg": [
+        r"\bsodium\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*mg\b",
+    ],
+    "salt_g": [
+        r"\bsalt\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b",
+    ],
+    "cholesterol_mg": [
+        r"\bcholesterol\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*mg\b",
+    ],
+    "calcium_mg": [
+        r"\bcalcium\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*mg\b",
+    ],
+}
+
+
+# ============================================================
+# EXTRACT ONE NUTRIENT
+# ============================================================
+
+def extract_nutrient(
+    text: str,
+    patterns: list[str],
+) -> float | None:
     """
-    Return the first valid numeric value found.
-
-    Missing value:
-        None
-
-    Never converts missing values to zero.
+    Extract the first valid non-negative nutrient value.
     """
 
     for pattern in patterns:
+        match = re.search(pattern, text, re.IGNORECASE)
 
-        match = re.search(
-            pattern,
-            text,
-            re.IGNORECASE
-        )
+        if not match:
+            continue
 
-        if match:
+        try:
+            value = float(match.group(1))
+        except (TypeError, ValueError):
+            continue
 
-            try:
-                value = float(match.group(1))
+        if value < 0:
+            return None
 
-                # Reject impossible negative values.
-                if value < 0:
-                    continue
-
-                return value
-
-            except (ValueError, TypeError):
-                continue
+        return value
 
     return None
 
 
 # ============================================================
-# SERVING BASIS
+# NUTRITION BASIS
 # ============================================================
 
-def detect_serving_basis(text):
+def detect_serving_basis(text: str) -> str:
     """
-    Detect nutrition basis.
-
-    Possible values:
-        per_100g
-        per_100ml
-        per_serving
-        unknown
+    Detect whether nutrition values are given per 100 g,
+    per 100 ml, or per serving.
     """
 
-    text = text.lower()
+    normalized = clean_nutrition_text(text)
 
-    # --------------------------------------------------------
-    # Per 100 g
-    # --------------------------------------------------------
-
-    if re.search(
-        r"per\s*100\s*(?:g|gm|gms|gram|grams)",
-        text
-    ):
+    if re.search(r"\bper\s*100\s*g\b", normalized):
         return "per_100g"
 
-    # --------------------------------------------------------
-    # Per 100 ml
-    # --------------------------------------------------------
-
-    if re.search(
-        r"per\s*100\s*(?:ml|milliliter|millilitres|milliliters)",
-        text
-    ):
+    if re.search(r"\bper\s*100\s*ml\b", normalized):
         return "per_100ml"
 
-    # --------------------------------------------------------
-    # Per serving
-    # --------------------------------------------------------
-
-    if re.search(
-        r"per\s*(?:serving|serve)",
-        text
-    ):
+    if re.search(r"\bper\s+serving\b", normalized):
         return "per_serving"
 
-    # --------------------------------------------------------
-    # Serving size
-    # --------------------------------------------------------
-
-    if re.search(
-        r"serving\s*size",
-        text
-    ):
+    if re.search(r"\bserving\s+size\b", normalized):
         return "per_serving"
 
     return "unknown"
@@ -283,113 +184,79 @@ def detect_serving_basis(text):
 # SERVING SIZE
 # ============================================================
 
-def extract_serving_size(text):
+def extract_serving_size(text: str) -> float | None:
     """
-    Extract serving size.
+    Extract serving size in grams when explicitly available.
+    """
 
-    Examples:
-        Serving Size 50 g
-        Serving Size: 50g
-        Serving 50 g
-    """
+    normalized = clean_nutrition_text(text)
 
     patterns = [
-
-        r"serving\s*size\s*[:\-]?\s*"
-        r"(\d+(?:\.\d+)?)\s*(?:g|gm|gms|gram|grams)\b",
-
-        r"serving\s*[:\-]?\s*"
-        r"(\d+(?:\.\d+)?)\s*(?:g|gm|gms|gram|grams)\b"
+        r"\bserving\s+size\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*g\b",
+        r"\bserving\b\s*[:\-]?\s*(\d+(?:\.\d+)?)\s*grams?\b",
     ]
 
     for pattern in patterns:
-
-        match = re.search(
-            pattern,
-            text,
-            re.IGNORECASE
-        )
+        match = re.search(pattern, normalized, re.IGNORECASE)
 
         if match:
-
             try:
                 value = float(match.group(1))
 
-                if value > 0:
+                if value >= 0:
                     return value
 
-            except (ValueError, TypeError):
-                continue
+            except (TypeError, ValueError):
+                pass
 
     return None
 
 
 # ============================================================
-# MAIN NUTRITION EXTRACTION
+# COMPLETE NUTRITION EXTRACTION
 # ============================================================
 
-def extract_nutrition(text):
+def extract_nutrition(text: str) -> dict:
     """
-    Main M2 Nutrition Extraction function.
+    Extract nutrition information from OCR text.
 
-    Parameters
-    ----------
-    text : str
-        OCR output.
-
-    Returns
-    -------
-    dict
-        Extracted nutrition information.
-
-    Important:
-    Missing nutrition values are NOT inserted as zero.
+    Missing nutrients are NOT added as zero.
+    Zero is preserved only when the label explicitly says zero.
     """
 
     if not isinstance(text, str):
-        raise ValueError(
-            "Nutrition text must be a string."
-        )
+        raise ValueError("Nutrition text must be a string.")
 
-    # --------------------------------------------------------
-    # Clean OCR text
-    # --------------------------------------------------------
+    cleaned_text = clean_nutrition_text(text)
 
-    text = clean_nutrition_text(text)
-
-    nutrition = {}
+    result = {}
 
     # --------------------------------------------------------
     # Extract nutrients
     # --------------------------------------------------------
 
-    for nutrient, patterns in NUTRIENT_PATTERNS.items():
+    for nutrient_name, patterns in NUTRIENT_PATTERNS.items():
+        value = extract_nutrient(cleaned_text, patterns)
 
-        value = extract_nutrient(
-            text,
-            patterns
-        )
-
-        # Only add the field if it was actually detected.
         if value is not None:
-            nutrition[nutrient] = value
+            result[nutrient_name] = value
 
     # --------------------------------------------------------
     # Detect nutrition basis
     # --------------------------------------------------------
 
-    nutrition["basis"] = detect_serving_basis(text)
+    result["basis"] = detect_serving_basis(cleaned_text)
 
     # --------------------------------------------------------
     # Extract serving size
     # --------------------------------------------------------
 
-    serving_size = extract_serving_size(text)
+    serving_size = extract_serving_size(cleaned_text)
 
     if serving_size is not None:
-        nutrition["serving_size_g"] = serving_size
+        result["serving_size_g"] = serving_size
 
-    return nutrition
+    return result
 
 
 # ============================================================
@@ -399,11 +266,11 @@ def extract_nutrition(text):
 if __name__ == "__main__":
 
     sample_text = """
-    NUTRITION INFORMATION
+    Nutrition Information
 
     Energy 480 kcal
     Protein 6 g
-    Carbohydrate 70 g
+    Carbohydrates 70 g
     Total Sugars 25 g
     Total Fat 20 g
     Saturated Fat 10 g
@@ -414,16 +281,12 @@ if __name__ == "__main__":
     Serving Size 50 g
     """
 
+    result = extract_nutrition(sample_text)
+
     print("================================")
     print("M2 NUTRITION EXTRACTION")
     print("================================")
-
-    result = extract_nutrition(sample_text)
-
     print()
 
     for key, value in result.items():
         print(f"{key}: {value}")
-
-    print()
-    print("================================")
