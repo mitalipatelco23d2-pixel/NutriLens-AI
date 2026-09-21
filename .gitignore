@@ -11,3 +11,5 @@ backend/models/*.pkl
 backend/models/*.joblib
 
 !.gitkeep
+backend/app/models/health_risk/*.pkl
+backend/app/models/health_risk/*.joblib

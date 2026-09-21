@@ -10,15 +10,22 @@ import re
 # ============================================================
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-BACKEND_DIR = os.path.dirname(CURRENT_DIR)
-PROJECT_DIR = os.path.dirname(BACKEND_DIR)
+
+# Project root:
+# backend/app/knowledge_base -> backend/app -> backend -> project root
+PROJECT_DIR = os.path.dirname(
+    os.path.dirname(
+        os.path.dirname(CURRENT_DIR)
+    )
+)
 
 KB_PATH = os.path.join(
     PROJECT_DIR,
-    "ml",
+    "data",
+    "external",
+    "m5",
     "nutrilens_knowledge_base_final.csv"
 )
-
 
 # ============================================================
 # GLOBAL KNOWLEDGE BASE

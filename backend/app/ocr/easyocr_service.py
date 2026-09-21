@@ -1,101 +1,173 @@
 from __future__ import annotations
 
-import io
-import logging
-from typing import Optional
+import os
+import shutil
 
-from PIL import Image
-
-logger = logging.getLogger(__name__)
+import cv2
+import numpy as np
+import pytesseract
 
 
 class EasyOCRService:
-    """OCR service using EasyOCR library for real text extraction from images.
+    """
+    Tesseract-based OCR service.
 
-    Extracts text from food-label images using pre-trained deep learning models.
-    Keeps OCR logic isolated for easy maintenance and potential future library swaps.
+    The class name is kept as EasyOCRService temporarily so that
+    existing imports do not break while we migrate the project
+    to the README architecture.
     """
 
-    def __init__(self, reader: Optional[object] = None):
-        self.reader = reader
+    def __init__(self) -> None:
+        self.tesseract_cmd = self._find_tesseract()
 
-    def extract_text(self, image_bytes: bytes, filename: str = "label.png") -> str:
-        """Extract text from an uploaded food-label image using EasyOCR.
+        pytesseract.pytesseract.tesseract_cmd = self.tesseract_cmd
 
-        Args:
-            image_bytes: Binary image data (PNG, JPEG, WEBP, etc.)
-            filename: Name of the uploaded file for error reporting
-
-        Returns:
-            Extracted text string from the image
-
-        Raises:
-            ValueError: If image cannot be processed or OCR fails
-            ImportError: If easyocr dependency is not installed
+    @staticmethod
+    def _find_tesseract() -> str:
         """
-        if not image_bytes:
-            raise ValueError("No image data provided")
+        Find the Tesseract executable.
 
-        try:
-            # Load and validate image
-            image = Image.open(io.BytesIO(image_bytes))
-            logger.info(
-                f"Processing image: {filename} (format: {image.format}, "
-                f"size: {image.size})"
+        Priority:
+        1. NUTRILENS_TESSERACT_CMD environment variable
+        2. Tesseract available on PATH
+        3. Standard Windows installation path
+        """
+
+        # ----------------------------------------------------
+        # 1. Environment variable
+        # ----------------------------------------------------
+
+        env_path = os.getenv("NUTRILENS_TESSERACT_CMD")
+
+        if env_path:
+            env_path = os.path.expandvars(
+                os.path.expanduser(env_path)
             )
 
-            # Get OCR reader and extract text
-            reader = self._get_reader()
-            text_results = reader.readtext(image, detail=0, paragraph=True)
+            if os.path.isfile(env_path):
+                return env_path
 
-            if not text_results:
-                logger.warning(f"No text detected in image: {filename}")
-                return ""
+        # ----------------------------------------------------
+        # 2. PATH
+        # ----------------------------------------------------
 
-            combined_text = "\n".join(text_results).strip()
-            logger.info(f"Successfully extracted {len(combined_text)} characters")
-            return combined_text
+        path_result = shutil.which("tesseract")
 
-        except ImportError as e:
-            logger.error("EasyOCR library not installed")
-            raise ImportError(
-                "EasyOCR dependency is not installed. "
-                "Please install it with: pip install easyocr"
-            ) from e
-        except (OSError, ValueError) as e:
-            logger.error(f"Invalid image file: {filename} - {str(e)}")
-            raise ValueError(f"Cannot process image '{filename}': {str(e)}") from e
-        except Exception as e:
-            logger.error(f"OCR processing failed for {filename}: {str(e)}")
-            raise RuntimeError(
-                f"OCR processing failed: {str(e)}. "
-                f"Please check your image file and try again."
-            ) from e
+        if path_result:
+            return path_result
 
-    def _get_reader(self):
-        """Get or initialize the EasyOCR reader with English language support.
+        # ----------------------------------------------------
+        # 3. Standard Windows installation
+        # ----------------------------------------------------
 
-        The reader is cached on first call for performance.
-        GPU acceleration is disabled for compatibility across different environments.
+        windows_paths = [
+            r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+            r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
+        ]
 
-        Returns:
-            easyocr.Reader: Initialized OCR reader instance
+        for path in windows_paths:
+            if os.path.isfile(path):
+                return path
 
-        Raises:
-            ImportError: If easyocr is not installed
+        raise FileNotFoundError(
+            "Tesseract OCR executable was not found. "
+            "Set NUTRILENS_TESSERACT_CMD or install Tesseract OCR."
+        )
+
+    def extract_text(
+        self,
+        image_data: bytes,
+        filename: str = "label.png",
+    ) -> str:
         """
-        if self.reader is not None:
-            return self.reader
+        Extract text from uploaded image bytes using Tesseract.
+        """
 
-        try: 
-            import easyocr
-        except ImportError:
-            logger.error("Failed to import easyocr")
-            raise ImportError(
-                "EasyOCR is not installed. Please install with: pip install easyocr"
+        if not isinstance(image_data, bytes):
+            raise ValueError(
+                "Image data must be provided as bytes."
             )
 
-        logger.info("Initializing EasyOCR reader for English language...")
-        self.reader = easyocr.Reader(["en"], gpu=False, verbose=False)
-        logger.info("EasyOCR reader initialized successfully")
-        return self.reader
+        if not image_data:
+            raise ValueError(
+                "Uploaded image is empty."
+            )
+
+        # ----------------------------------------------------
+        # Decode image
+        # ----------------------------------------------------
+
+        image_array = np.frombuffer(
+            image_data,
+            dtype=np.uint8,
+        )
+
+        image = cv2.imdecode(
+            image_array,
+            cv2.IMREAD_COLOR,
+        )
+
+        if image is None:
+            raise ValueError(
+                f"Could not decode image '{filename}'."
+            )
+
+        # ----------------------------------------------------
+        # Prepare image for OCR
+        # ----------------------------------------------------
+
+        gray = cv2.cvtColor(
+            image,
+            cv2.COLOR_BGR2GRAY,
+        )
+
+        # Upscale small label text.
+        height, width = gray.shape
+
+        if width < 1600:
+            scale = 1600 / width
+
+            new_width = int(width * scale)
+            new_height = int(height * scale)
+
+            gray = cv2.resize(
+                gray,
+                (new_width, new_height),
+                interpolation=cv2.INTER_CUBIC,
+            )
+
+        # ----------------------------------------------------
+        # Light noise reduction
+        # ----------------------------------------------------
+
+        gray = cv2.GaussianBlur(
+            gray,
+            (3, 3),
+            0,
+        )
+
+        # ----------------------------------------------------
+        # Tesseract OCR
+        # ----------------------------------------------------
+
+        config = "--oem 3 --psm 6"
+
+        text = pytesseract.image_to_string(
+            gray,
+            lang="eng",
+            config=config,
+        )
+
+        # ----------------------------------------------------
+        # Clean OCR output
+        # ----------------------------------------------------
+
+        lines = []
+
+        for line in text.splitlines():
+            cleaned = line.strip()
+
+            if cleaned:
+                lines.append(cleaned)
+
+        return "\n".join(lines)
