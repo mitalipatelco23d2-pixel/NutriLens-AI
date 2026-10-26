@@ -1,15 +1,122 @@
-.venv/
-__pycache__/
-*.pyc
+node_modules
+node_modules/
+.next/
+.open-next/
+.wrangler/
+out/
 .env
+.env.*
+!.env.example
+!.env.test
+__pycache__/
+.pytest_cache/
+*.pyc
+.venv/
+.venv-*/
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+.DS_Store
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+apps/mobile/.metadata
+apps/mobile/build/
+databases/faiss/*.index
+databases/faiss/*.bin
+databases/faiss/**/knowledge.index
+databases/faiss/**/manifest.json
 
-data/raw/*
-data/processed/*
-data/external/*
+# R1 dataset payloads are reproducibly acquired and never committed.
+data/raw/**/*
+!data/raw/**/
+!data/raw/**/README.md
+!data/raw/custom/**/*.csv
+!data/raw/population/faostat-fbs-grand-total-v2025-10-16.csv.gz
+data/external/**/*
+!data/external/**/
+!data/external/**/README.md
+!data/external/r3/**/acquisition-summary.json
+data/external/r3/grocery-store-dataset/repository/
+# R2 transformed payloads are reproducible and may be large; governance stays tracked.
+data/interim/**/*
+!data/interim/**/
+!data/interim/**/README.md
+data/processed/**/*
+!data/processed/**/
+!data/processed/**/README.md
+data/quality/quarantine/**/*
+!data/quality/quarantine/**/
+!data/quality/quarantine/README.md
+*.part
 
-backend/models/*.pkl
-backend/models/*.joblib
+# R3 local model and transient scan artefacts. Model weights and user images are
+# never committed; structured scan records are ephemeral by default.
+.model-cache/
+models/r3/
+data/r3/uploads/
+*.pt
+*.onnx
+*.pdparams
+runs/
+outputs/r3-nutrition-yolo/
 
-!.gitkeep
-backend/app/models/health_risk/*.pkl
-backend/app/models/health_risk/*.joblib
+# Local repository inventories and schema-search scratch output.
+project_files.txt
+project_tree.txt
+r4_schema_search.txt
+r4_tree.txt
+
+# Private/generated ML model artifacts
+.model-cache/
+*.pt
+*.pth
+
+# Generated mobile artifacts
+*.apk
+*.aab
+
+# Private local QA secrets
+/reports/recovery/private-local-qa-env.json
+/.env
+
+# Local model/runtime caches
+/.model-cache/
+/reports/recovery/
+
+# Local secrets
+/.env
+/.env.*
+!/.env.example
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+key.properties
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Local build/cache artifacts
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.dart_tool/
+**/build/
+node_modules/
+coverage/
+
+# Internal development / generated artifacts
+/reports/
+/outputs/
+/AGENTS.md
+/CLAUDE.md
+/documentation/project-management/
+/documentation/historical/
+/documentation/v1/
+/documentation/r3/

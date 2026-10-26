@@ -1,0 +1,20 @@
+{
+  "barcode_visibility_selection": {
+    "attempted_source_images": 500,
+    "matched_visible_images": 0,
+    "method": "LOCAL_OPENCV_DECODE_MATCHED_OFF_GTIN",
+    "target": 50
+  },
+  "counts": {
+    "DIFFICULT_PACKAGE": 25,
+    "GROCERY_ITEM": 100,
+    "INGREDIENT_PANEL": 100,
+    "NUTRITION_PANEL": 100,
+    "PACKAGE_FRONT": 100,
+    "PREPARED_MEAL": 100
+  },
+  "item_count": 525,
+  "myfoodrepo_multi_food_status": "MANUAL_ACCESS_REQUIRED",
+  "product_disjoint_selection": true,
+  "seed": "nutrilens-r3-real-evaluation-v1"
+}

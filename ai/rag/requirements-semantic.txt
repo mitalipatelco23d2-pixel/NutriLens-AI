@@ -1,0 +1,3 @@
+# Optional local/offline semantic retrieval only. Do not add to the 2-GiB vision worker.
+sentence-transformers==5.7.0
+faiss-cpu==1.15.0

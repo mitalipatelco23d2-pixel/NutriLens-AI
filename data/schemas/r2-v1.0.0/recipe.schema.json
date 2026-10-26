@@ -1,0 +1,240 @@
+{
+  "$defs": {
+    "Lineage": {
+      "additionalProperties": false,
+      "properties": {
+        "input_checksum": {
+          "title": "Input Checksum",
+          "type": "string"
+        },
+        "license_status": {
+          "title": "License Status",
+          "type": "string"
+        },
+        "pipeline_version": {
+          "default": "0.1.0",
+          "title": "Pipeline Version",
+          "type": "string"
+        },
+        "processing_timestamp": {
+          "format": "date-time",
+          "title": "Processing Timestamp",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": "1.0.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_dataset": {
+          "title": "Source Dataset",
+          "type": "string"
+        },
+        "source_record_id": {
+          "title": "Source Record Id",
+          "type": "string"
+        },
+        "source_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Url"
+        },
+        "source_version": {
+          "title": "Source Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_dataset",
+        "source_record_id",
+        "source_version",
+        "input_checksum",
+        "processing_timestamp",
+        "license_status"
+      ],
+      "title": "Lineage",
+      "type": "object"
+    },
+    "RecipeIngredient": {
+      "additionalProperties": false,
+      "properties": {
+        "name_normalized": {
+          "title": "Name Normalized",
+          "type": "string"
+        },
+        "quantity": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quantity"
+        },
+        "sequence": {
+          "minimum": 1,
+          "title": "Sequence",
+          "type": "integer"
+        },
+        "text_original": {
+          "title": "Text Original",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        }
+      },
+      "required": [
+        "sequence",
+        "text_original",
+        "name_normalized"
+      ],
+      "title": "RecipeIngredient",
+      "type": "object"
+    }
+  },
+  "$id": "https://nutrilens.local/schemas/1.0.0/recipe.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "cooking_minutes": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cooking Minutes"
+    },
+    "cuisine": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cuisine"
+    },
+    "dietary_tags": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Dietary Tags",
+      "type": "array"
+    },
+    "difficulty": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Difficulty"
+    },
+    "ingredients": {
+      "items": {
+        "$ref": "#/$defs/RecipeIngredient"
+      },
+      "title": "Ingredients",
+      "type": "array"
+    },
+    "lineage": {
+      "$ref": "#/$defs/Lineage"
+    },
+    "preparation_minutes": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Preparation Minutes"
+    },
+    "recipe_id": {
+      "title": "Recipe Id",
+      "type": "string"
+    },
+    "review_status": {
+      "title": "Review Status",
+      "type": "string"
+    },
+    "servings": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Servings"
+    },
+    "source_url": {
+      "title": "Source Url",
+      "type": "string"
+    },
+    "steps": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Steps",
+      "type": "array"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "title_original": {
+      "title": "Title Original",
+      "type": "string"
+    }
+  },
+  "required": [
+    "recipe_id",
+    "title_original",
+    "title",
+    "ingredients",
+    "steps",
+    "source_url",
+    "review_status",
+    "lineage"
+  ],
+  "title": "RecipeRecord",
+  "type": "object",
+  "x-nutrilens-schema-version": "1.0.0"
+}

@@ -1,0 +1,87 @@
+{
+  "$defs": {
+    "BoundingBox": {
+      "additionalProperties": false,
+      "properties": {
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "number"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "number"
+        },
+        "x": {
+          "minimum": 0,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "minimum": 0,
+          "title": "Y",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
+      "title": "BoundingBox",
+      "type": "object"
+    }
+  },
+  "$id": "https://nutrilens.local/schemas/1.0.0/detection-annotation.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "annotation_id": {
+      "title": "Annotation Id",
+      "type": "string"
+    },
+    "annotation_source": {
+      "title": "Annotation Source",
+      "type": "string"
+    },
+    "bounding_box": {
+      "$ref": "#/$defs/BoundingBox"
+    },
+    "image_id": {
+      "title": "Image Id",
+      "type": "string"
+    },
+    "label": {
+      "enum": [
+        "product",
+        "nutrition_table",
+        "ingredient_list",
+        "barcode",
+        "qr_code",
+        "brand_logo",
+        "expiry_or_date_region",
+        "food_item",
+        "plate_or_container",
+        "reference_object"
+      ],
+      "title": "Label",
+      "type": "string"
+    },
+    "review_status": {
+      "title": "Review Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "annotation_id",
+    "image_id",
+    "label",
+    "bounding_box",
+    "annotation_source",
+    "review_status"
+  ],
+  "title": "DetectionAnnotation",
+  "type": "object",
+  "x-nutrilens-schema-version": "1.0.0"
+}

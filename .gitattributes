@@ -1,1 +1,16 @@
-*.pkl filter=lfs diff=lfs merge=lfs -text
+.model-cache/r3/custom/nutrition-table-yolo11n-v1.pt filter=lfs diff=lfs merge=lfs -text
+.model-cache/r3/paddle/official_models/PP-OCRv5_mobile_det/config.json filter=lfs diff=lfs merge=lfs -text
+.model-cache/r3/paddle/official_models/PP-OCRv5_mobile_det/inference.json filter=lfs diff=lfs merge=lfs -text
+.model-cache/r3/paddle/official_models/PP-OCRv5_mobile_det/inference.pdiparams filter=lfs diff=lfs merge=lfs -text
+.model-cache/r3/paddle/official_models/PP-OCRv5_mobile_det/inference.yml filter=lfs diff=lfs merge=lfs -text
+.model-cache/r3/paddle/official_models/PP-OCRv5_mobile_rec/config.json filter=lfs diff=lfs merge=lfs -text
+.model-cache/r3/paddle/official_models/PP-OCRv5_mobile_rec/inference.json filter=lfs diff=lfs merge=lfs -text
+.model-cache/r3/paddle/official_models/PP-OCRv5_mobile_rec/inference.pdiparams filter=lfs diff=lfs merge=lfs -text
+.model-cache/r3/paddle/official_models/PP-OCRv5_mobile_rec/inference.yml filter=lfs diff=lfs merge=lfs -text
+
+# These governed manifests were byte-hashed with CRLF during training. Preserve
+# those exact artifact bytes on Linux too; do not rewrite provenance checksums.
+data/splits/r3_nutrition_detector_train.jsonl text eol=crlf
+data/splits/r3_nutrition_detector_val.jsonl text eol=crlf
+data/splits/r3_nutrition_detector_test.jsonl text eol=crlf
+scripts/build_cloudflare_linux.sh text eol=lf

@@ -1,0 +1,111 @@
+{
+  "$defs": {
+    "BoundingBox": {
+      "additionalProperties": false,
+      "properties": {
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "number"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "number"
+        },
+        "x": {
+          "minimum": 0,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "minimum": 0,
+          "title": "Y",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
+      "title": "BoundingBox",
+      "type": "object"
+    }
+  },
+  "$id": "https://nutrilens.local/schemas/1.0.0/ocr-annotation.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "annotation_source": {
+      "title": "Annotation Source",
+      "type": "string"
+    },
+    "bounding_box": {
+      "$ref": "#/$defs/BoundingBox"
+    },
+    "confidence": {
+      "anyOf": [
+        {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Confidence"
+    },
+    "image_id": {
+      "title": "Image Id",
+      "type": "string"
+    },
+    "language": {
+      "title": "Language",
+      "type": "string"
+    },
+    "region_id": {
+      "title": "Region Id",
+      "type": "string"
+    },
+    "region_type": {
+      "title": "Region Type",
+      "type": "string"
+    },
+    "review_status": {
+      "title": "Review Status",
+      "type": "string"
+    },
+    "source_annotation_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Annotation Id"
+    },
+    "transcription": {
+      "title": "Transcription",
+      "type": "string"
+    }
+  },
+  "required": [
+    "image_id",
+    "region_id",
+    "bounding_box",
+    "transcription",
+    "language",
+    "region_type",
+    "annotation_source",
+    "review_status"
+  ],
+  "title": "OCRAnnotation",
+  "type": "object",
+  "x-nutrilens-schema-version": "1.0.0"
+}

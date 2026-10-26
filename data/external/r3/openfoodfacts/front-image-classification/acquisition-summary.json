@@ -1,0 +1,40 @@
+{
+  "acquired_at": "2026-08-08T09:15:54.171415+00:00",
+  "annotation_count": 1400,
+  "artifacts": [
+    {
+      "bytes": 2461,
+      "path": ".gitattributes",
+      "sha256": "e7a120ab07b1bc5b486be249e9fc6c83d59448d0093e1dfebe95d1566d9cafc0"
+    },
+    {
+      "bytes": 95982991,
+      "path": "data/test-00000-of-00001.parquet",
+      "sha256": "fcc9238fe57890fdd853301eb7fabe5b30d5012b798c7ff3be851ee868322684"
+    },
+    {
+      "bytes": 234240461,
+      "path": "data/train-00000-of-00001.parquet",
+      "sha256": "19599c002397033d65676c5a482833b4691b52445119886b42e908810bb95222"
+    },
+    {
+      "bytes": 1768,
+      "path": "README.md",
+      "sha256": "dc19c2718008fb962e5a6ee7f32540265273e82355f198683efdef37fa3e8be8"
+    }
+  ],
+  "dataset_id": "OFF-R3-FRONT-IMAGE-CLASSIFICATION",
+  "dataset_version": "HF commit pinned",
+  "extracted_image_bytes": 330471890,
+  "image_count": 1400,
+  "license": "AGPL-3.0 dataset card; OFF images CC-BY-SA-3.0",
+  "payload_manifest": "data/external/r3/openfoodfacts/front-image-classification/manifests/source-images.jsonl",
+  "payload_tree_sha256": "b49ab86dadf1b51a1af18d16bcc1aefda8dd23ecbadc12ed489ac9b12c26e0ce",
+  "repo_id": "openfoodfacts/front_image_classification",
+  "source_revision": "872e9daf55358396d1e50952bbec7e3c0b0ef8d9",
+  "split_counts": {
+    "test": 400,
+    "train": 1000
+  },
+  "status": "DOWNLOADED_AND_VALIDATED"
+}

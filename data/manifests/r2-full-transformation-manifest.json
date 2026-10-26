@@ -1,0 +1,462 @@
+{
+  "blocked_sources": {
+    "CUSTOM-INDIAN-LABEL-OCR": "BLOCKED_BY_DATA_AVAILABILITY",
+    "CUSTOM-INDIAN-PRODUCT-IMAGES": "BLOCKED_BY_DATA_AVAILABILITY",
+    "OFF-PRODUCTS-CSV": "AVAILABLE_NOT_DOWNLOADED",
+    "RECIPE1M": "REGISTRATION_REQUIRED",
+    "RECIPEDB": "MANUAL_DOWNLOAD_REQUIRED",
+    "WHO-GHO-NUTRITION": "LICENSE_REVIEW_REQUIRED"
+  },
+  "execution_timestamp": "2026-08-07T21:30:24+00:00",
+  "inputs": [
+    {
+      "dataset_id": "FAO-DENSITY",
+      "license_status": "VERIFIED",
+      "path": "data/external/population_sources/fao_infoods_density/density_DB_v2_0.xlsx",
+      "sha256": "329caaecbaa2031a73dd50c32e0cee8453d85655342829d80a3cd92053854227",
+      "version": "FAO/INFOODS Density Database v2.0"
+    },
+    {
+      "dataset_id": "FOODON",
+      "license_status": "VERIFIED",
+      "path": "data/external/foodon/foodon.owl",
+      "sha256": "1e11fc50283c6498697a7aca9606c9d914f1cda71cc5510e006d949c32df7db0",
+      "version": "stable PURL snapshot 2026-08-08"
+    },
+    {
+      "dataset_id": "OFF-TAX-ADDITIVES",
+      "license_status": "VERIFIED",
+      "path": "data/external/open_food_facts/taxonomies/additives.txt",
+      "sha256": "8b17d6268e5e9533aa655ba41e6285b991e4bbf36b3ece07ebb117d9daf57200",
+      "version": "openfoodfacts-server main snapshot 2026-08-08"
+    },
+    {
+      "dataset_id": "OFF-TAX-ALLERGENS",
+      "license_status": "VERIFIED",
+      "path": "data/external/open_food_facts/taxonomies/allergens.txt",
+      "sha256": "13eebad611f1cb135e398bacf2c591adf2688176d9a41aeadb2693a84f9cb6a4",
+      "version": "openfoodfacts-server main snapshot 2026-08-08"
+    },
+    {
+      "dataset_id": "OFF-TAX-CATEGORIES",
+      "license_status": "VERIFIED",
+      "path": "data/external/open_food_facts/taxonomies/categories.txt",
+      "sha256": "c2f122e72c3f9307d5e1b6f404e03f7a4d1ab65bed6943fc5cec1e31ac37293f",
+      "version": "openfoodfacts-server main snapshot 2026-08-08"
+    },
+    {
+      "dataset_id": "OFF-TAX-COUNTRIES",
+      "license_status": "VERIFIED",
+      "path": "data/external/open_food_facts/taxonomies/countries.txt",
+      "sha256": "8226a0d0a9e9767808a56e9f28e56f773a11d239e091bef42f35b6feb624a14c",
+      "version": "openfoodfacts-server main snapshot 2026-08-08"
+    },
+    {
+      "dataset_id": "OFF-TAX-INGREDIENTS",
+      "license_status": "VERIFIED",
+      "path": "data/external/open_food_facts/taxonomies/ingredients.txt",
+      "sha256": "97d42cfc2c4a71bf8c7535ba0d85fe67bb9b336573761899b35fb718ebe16821",
+      "version": "openfoodfacts-server main snapshot 2026-08-08"
+    },
+    {
+      "dataset_id": "OFF-TAX-LABELS",
+      "license_status": "VERIFIED",
+      "path": "data/external/open_food_facts/taxonomies/labels.txt",
+      "sha256": "1c50a1cecb7c099df6780512b009ca845e8f2d68f92334d59da18ba53457950b",
+      "version": "openfoodfacts-server main snapshot 2026-08-08"
+    },
+    {
+      "dataset_id": "OFF-TAX-NOVA",
+      "license_status": "VERIFIED",
+      "path": "data/external/open_food_facts/taxonomies/nova_groups.txt",
+      "sha256": "4b99f9c192e0c71da4be5987c9ede81324d02d588719c8646954742756571528",
+      "version": "openfoodfacts-server main snapshot 2026-08-08"
+    },
+    {
+      "dataset_id": "USDA-FOUNDATION",
+      "license_status": "VERIFIED",
+      "path": "data/external/usda/foundation/FoodData_Central_foundation_food_csv_2026-04-30.zip",
+      "sha256": "d6d4f41dcd19a46abcdd67775379cb6f0292ff08daa7e0680fdd0982830bf57b",
+      "version": "April 2026"
+    },
+    {
+      "dataset_id": "WHO-HEALTHY-DIET",
+      "license_status": "VERIFIED_RESTRICTED",
+      "path": "data/raw/scientific/who/healthy-diet-fact-sheet-394.pdf",
+      "sha256": "91adea09f42b2a1525a4336819d57244adfc4bcc18c0515d1bec41e5f0a56480",
+      "version": "Fact sheet 394; accessed 2026-08-08"
+    }
+  ],
+  "mode": "full",
+  "outputs": [
+    {
+      "path": "data/interim/r2-v0.1.0/full/nutrition/usda_foundation_foods.jsonl",
+      "record_count": 395,
+      "role": "INTERIM",
+      "sha256": "a48cac2a7832805cad2f66229153048c8c0b706075e5ceb79fa756d98090181a",
+      "size_bytes": 297200
+    },
+    {
+      "path": "data/interim/r2-v0.1.0/full/nutrition/usda_nutrients_long.jsonl",
+      "record_count": 16965,
+      "role": "INTERIM",
+      "sha256": "e9d61bc2126484b83229eec4e79194fdbbd3e9a885642ff03c24f31bfde4a542",
+      "size_bytes": 11358391
+    },
+    {
+      "path": "data/interim/r2-v0.1.0/full/ontology/foodon_edges.jsonl",
+      "record_count": 46027,
+      "role": "INTERIM",
+      "sha256": "772c70d0ccecd039366c4d62f3f90468e7d22b102254875c2c84939c2c195973",
+      "size_bytes": 36095227
+    },
+    {
+      "path": "data/interim/r2-v0.1.0/full/ontology/foodon_nodes.jsonl",
+      "record_count": 39682,
+      "role": "INTERIM",
+      "sha256": "8966cccf614c67ea20cd62002971348724226710d2305e7ad7bcd30cd5e7627d",
+      "size_bytes": 27050434
+    },
+    {
+      "path": "data/processed/r2-v0.1.0/full/evidence/evidence_documents.jsonl",
+      "record_count": 1,
+      "role": "PROCESSED",
+      "sha256": "f3020b42daab7fd81f429eee5355f2e00d5c57a0f1136f2250eced2f3dcc82b2",
+      "size_bytes": 1380
+    },
+    {
+      "path": "data/processed/r2-v0.1.0/full/ingredients/off_additive.jsonl",
+      "record_count": 668,
+      "role": "PROCESSED",
+      "sha256": "7c9832bc3efebb991d185c89f38e058d808d204e52f51519fcb09d450905a8e2",
+      "size_bytes": 4348143
+    },
+    {
+      "path": "data/processed/r2-v0.1.0/full/ingredients/off_allergen.jsonl",
+      "record_count": 27,
+      "role": "PROCESSED",
+      "sha256": "c714774f1e19c1f34cdd9e8440fc9f9389c8b728329a098c2a2e15f294149093",
+      "size_bytes": 381263
+    },
+    {
+      "path": "data/processed/r2-v0.1.0/full/ingredients/off_category.jsonl",
+      "record_count": 14575,
+      "role": "PROCESSED",
+      "sha256": "26acf38ccf454f54c57667b52bc5924a2e3f8a41ea28a06f86d7594ae122d4b6",
+      "size_bytes": 18554191
+    },
+    {
+      "path": "data/processed/r2-v0.1.0/full/ingredients/off_country.jsonl",
+      "record_count": 268,
+      "role": "PROCESSED",
+      "sha256": "61f695ba11e225da8e5b74f4af4bca2d938c3c1c8a36d0ff6cfd28ec27ed7fad",
+      "size_bytes": 4098639
+    },
+    {
+      "path": "data/processed/r2-v0.1.0/full/ingredients/off_ingredient.jsonl",
+      "record_count": 5616,
+      "role": "PROCESSED",
+      "sha256": "8024846d2f3a32a6fb8cb8e9145bb064de47ac41c9d15c37c149cf8f63ccb154",
+      "size_bytes": 10600258
+    },
+    {
+      "path": "data/processed/r2-v0.1.0/full/ingredients/off_label.jsonl",
+      "record_count": 3023,
+      "role": "PROCESSED",
+      "sha256": "acdcf20a53b832df42aca6cb4ca4437c5b65c869e6682b13ad543dd8fd1df266",
+      "size_bytes": 3463411
+    },
+    {
+      "path": "data/processed/r2-v0.1.0/full/ingredients/off_nova_group.jsonl",
+      "record_count": 6,
+      "role": "PROCESSED",
+      "sha256": "c9f0ed7240418420dc0f7dba221a9ef7d848503f85443a3adb03d215e5ae97cd",
+      "size_bytes": 36418
+    },
+    {
+      "path": "data/processed/r2-v0.1.0/full/nutrition/fao_infoods_density.jsonl",
+      "record_count": 665,
+      "role": "PROCESSED",
+      "sha256": "e3df81cd7492873465217572c7d0083277b55f1062be93c3979c6e4e47ce5c78",
+      "size_bytes": 518662
+    },
+    {
+      "path": "data/processed/r2-v0.1.0/full/nutrition/usda_nutrition.jsonl",
+      "record_count": 395,
+      "role": "PROCESSED",
+      "sha256": "a7e5381f49d3795ed8487523c7520ee90ce7a329d5ac730cbd609dda1ea1e6da",
+      "size_bytes": 1737205
+    },
+    {
+      "path": "data/processed/r2-v0.1.0/full/nutrition/usda_servings.jsonl",
+      "record_count": 123,
+      "role": "PROCESSED",
+      "sha256": "6dfe478c484377fa2a0eb5d786a3b571651b0f788a32aa5716bf30b5945a6a0e",
+      "size_bytes": 82490
+    },
+    {
+      "path": "data/quality/quarantine/r2-v0.1.0/full/fao_density.jsonl",
+      "record_count": 0,
+      "role": "QUARANTINE",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "data/quality/quarantine/r2-v0.1.0/full/foodon.jsonl",
+      "record_count": 0,
+      "role": "QUARANTINE",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "data/quality/quarantine/r2-v0.1.0/full/off_additive.jsonl",
+      "record_count": 0,
+      "role": "QUARANTINE",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "data/quality/quarantine/r2-v0.1.0/full/off_allergen.jsonl",
+      "record_count": 0,
+      "role": "QUARANTINE",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "data/quality/quarantine/r2-v0.1.0/full/off_category.jsonl",
+      "record_count": 23,
+      "role": "QUARANTINE",
+      "sha256": "c31cb530c9c17d303579594e0ac3df18ebab63fd07a73e34f3a0b4df0f37a4c8",
+      "size_bytes": 8986
+    },
+    {
+      "path": "data/quality/quarantine/r2-v0.1.0/full/off_country.jsonl",
+      "record_count": 0,
+      "role": "QUARANTINE",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "data/quality/quarantine/r2-v0.1.0/full/off_ingredient.jsonl",
+      "record_count": 13,
+      "role": "QUARANTINE",
+      "sha256": "77eba3822825cea001498780a9c5a0f0fa9a511f39942f895c54098df47cf2f3",
+      "size_bytes": 4555
+    },
+    {
+      "path": "data/quality/quarantine/r2-v0.1.0/full/off_label.jsonl",
+      "record_count": 6,
+      "role": "QUARANTINE",
+      "sha256": "fc5902a3c1fdc919dde782feabc525a5f70ee26a276c26fee736d52395e14a49",
+      "size_bytes": 2278
+    },
+    {
+      "path": "data/quality/quarantine/r2-v0.1.0/full/off_nova_group.jsonl",
+      "record_count": 0,
+      "role": "QUARANTINE",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "data/quality/quarantine/r2-v0.1.0/full/usda_foundation.jsonl",
+      "record_count": 43,
+      "role": "QUARANTINE",
+      "sha256": "ac0e93fa8c39c86b3c57d2c227b1541c6493963a0f6760d40ea87ebea14753bd",
+      "size_bytes": 19894
+    },
+    {
+      "path": "data/splits/usda-foundation-full.csv",
+      "record_count": 395,
+      "role": "SPLIT_MANIFEST",
+      "sha256": "682d501fa7d493f03eb323869560f3adb7570b83ee8458565665d8e55694ffd7",
+      "size_bytes": 14288
+    }
+  ],
+  "parameters": {
+    "record_limit_per_source": null,
+    "split_seed": 20260808
+  },
+  "pipeline_version": "0.1.0",
+  "raw_immutability": "PASS",
+  "split_counts": {
+    "TEST": 52,
+    "TRAIN": 281,
+    "VALIDATION": 62
+  },
+  "split_leakage_groups": [],
+  "stages": {
+    "FAO-DENSITY": {
+      "details": {
+        "category_headers": 59,
+        "input_records": 665,
+        "measurements": 500,
+        "missing_density_rate": 0.24812,
+        "output_records": 665,
+        "partial_references": 106,
+        "quarantined": 0
+      },
+      "duplicate_records": 0,
+      "input_records": 665,
+      "output_paths": [
+        "data/processed/r2-v0.1.0/full/nutrition/fao_infoods_density.jsonl"
+      ],
+      "output_records": 665,
+      "rejected_records": 0,
+      "warnings": [
+        "Category headers and specific-gravity-only rows are retained with explicit statuses"
+      ]
+    },
+    "FOODON": {
+      "details": {
+        "edges": 46027,
+        "missing_labels": 404,
+        "nodes": 39682,
+        "quarantined": 0
+      },
+      "duplicate_records": 0,
+      "input_records": 39682,
+      "output_paths": [
+        "data/interim/r2-v0.1.0/full/ontology/foodon_nodes.jsonl",
+        "data/interim/r2-v0.1.0/full/ontology/foodon_edges.jsonl"
+      ],
+      "output_records": 39682,
+      "rejected_records": 0,
+      "warnings": [
+        "404 classes have no direct label"
+      ]
+    },
+    "OFF-TAX-ADDITIVES": {
+      "duplicate_records": 0,
+      "input_records": 668,
+      "output_paths": [
+        "data/processed/r2-v0.1.0/full/ingredients/off_additive.jsonl"
+      ],
+      "output_records": 668,
+      "rejected_records": 0,
+      "warnings": []
+    },
+    "OFF-TAX-ALLERGENS": {
+      "duplicate_records": 0,
+      "input_records": 27,
+      "output_paths": [
+        "data/processed/r2-v0.1.0/full/ingredients/off_allergen.jsonl"
+      ],
+      "output_records": 27,
+      "rejected_records": 0,
+      "warnings": []
+    },
+    "OFF-TAX-CATEGORIES": {
+      "duplicate_records": 23,
+      "input_records": 14598,
+      "output_paths": [
+        "data/processed/r2-v0.1.0/full/ingredients/off_category.jsonl"
+      ],
+      "output_records": 14575,
+      "rejected_records": 23,
+      "warnings": []
+    },
+    "OFF-TAX-COUNTRIES": {
+      "duplicate_records": 0,
+      "input_records": 268,
+      "output_paths": [
+        "data/processed/r2-v0.1.0/full/ingredients/off_country.jsonl"
+      ],
+      "output_records": 268,
+      "rejected_records": 0,
+      "warnings": []
+    },
+    "OFF-TAX-INGREDIENTS": {
+      "duplicate_records": 13,
+      "input_records": 5629,
+      "output_paths": [
+        "data/processed/r2-v0.1.0/full/ingredients/off_ingredient.jsonl"
+      ],
+      "output_records": 5616,
+      "rejected_records": 13,
+      "warnings": []
+    },
+    "OFF-TAX-LABELS": {
+      "duplicate_records": 6,
+      "input_records": 3029,
+      "output_paths": [
+        "data/processed/r2-v0.1.0/full/ingredients/off_label.jsonl"
+      ],
+      "output_records": 3023,
+      "rejected_records": 6,
+      "warnings": []
+    },
+    "OFF-TAX-NOVA": {
+      "duplicate_records": 0,
+      "input_records": 6,
+      "output_paths": [
+        "data/processed/r2-v0.1.0/full/ingredients/off_nova_group.jsonl"
+      ],
+      "output_records": 6,
+      "rejected_records": 0,
+      "warnings": []
+    },
+    "USDA-FOUNDATION": {
+      "details": {
+        "canonical_nutrient_coverage": {
+          "calcium_mg": 367,
+          "carbohydrates_g": 312,
+          "cholesterol_mg": 89,
+          "energy_kcal": 95,
+          "energy_kj": 95,
+          "fiber_g": 198,
+          "iron_mg": 367,
+          "potassium_mg": 367,
+          "protein_g": 353,
+          "salt_g": 349,
+          "saturated_fat_g": 124,
+          "sodium_mg": 349,
+          "sugars_g": 149,
+          "total_fat_g": 341
+        },
+        "foods": 395,
+        "input_foundation_foods": 395,
+        "nutrients_long": 16965,
+        "nutrition": 395,
+        "outlier_records": 2,
+        "quarantined": 43,
+        "servings": 123
+      },
+      "duplicate_records": 0,
+      "input_records": 395,
+      "output_paths": [
+        "data/interim/r2-v0.1.0/full/nutrition/usda_foundation_foods.jsonl",
+        "data/processed/r2-v0.1.0/full/nutrition/usda_nutrition.jsonl",
+        "data/processed/r2-v0.1.0/full/nutrition/usda_servings.jsonl",
+        "data/interim/r2-v0.1.0/full/nutrition/usda_nutrients_long.jsonl"
+      ],
+      "output_records": 395,
+      "rejected_records": 43,
+      "warnings": [
+        "2 nutrition records carry review-only outlier flags"
+      ]
+    },
+    "WHO-HEALTHY-DIET": {
+      "details": {
+        "input_documents": 1,
+        "output_documents": 1,
+        "text_extracted": 0
+      },
+      "duplicate_records": 0,
+      "input_records": 1,
+      "output_paths": [
+        "data/processed/r2-v0.1.0/full/evidence/evidence_documents.jsonl"
+      ],
+      "output_records": 1,
+      "rejected_records": 0,
+      "warnings": [
+        "PDF text extraction intentionally deferred pending reuse/RAG review"
+      ]
+    }
+  },
+  "warnings": [
+    "2 nutrition records carry review-only outlier flags",
+    "404 classes have no direct label",
+    "Category headers and specific-gravity-only rows are retained with explicit statuses",
+    "PDF text extraction intentionally deferred pending reuse/RAG review"
+  ]
+}

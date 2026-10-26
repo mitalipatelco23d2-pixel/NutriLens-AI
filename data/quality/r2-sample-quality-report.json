@@ -1,0 +1,211 @@
+{
+  "blocked_sources": {
+    "CUSTOM-INDIAN-LABEL-OCR": "BLOCKED_BY_DATA_AVAILABILITY",
+    "CUSTOM-INDIAN-PRODUCT-IMAGES": "BLOCKED_BY_DATA_AVAILABILITY",
+    "OFF-PRODUCTS-CSV": "AVAILABLE_NOT_DOWNLOADED",
+    "RECIPE1M": "REGISTRATION_REQUIRED",
+    "RECIPEDB": "MANUAL_DOWNLOAD_REQUIRED",
+    "WHO-GHO-NUTRITION": "LICENSE_REVIEW_REQUIRED"
+  },
+  "created_at": "2026-08-07T21:30:00+00:00",
+  "dataset_quality_scores": {
+    "FAO-DENSITY": 96.0,
+    "FOODON": 100,
+    "OFF-TAX-ADDITIVES": 100,
+    "OFF-TAX-ALLERGENS": 100,
+    "OFF-TAX-CATEGORIES": 100,
+    "OFF-TAX-COUNTRIES": 100,
+    "OFF-TAX-INGREDIENTS": 100,
+    "OFF-TAX-LABELS": 100,
+    "OFF-TAX-NOVA": 100,
+    "USDA-FOUNDATION": 96.0,
+    "WHO-HEALTHY-DIET": 100
+  },
+  "datasets": {
+    "FAO-DENSITY": {
+      "details": {
+        "category_headers": 14,
+        "input_records": 200,
+        "measurements": 101,
+        "missing_density_rate": 0.495,
+        "output_records": 200,
+        "partial_references": 85,
+        "quarantined": 0
+      },
+      "duplicate_records": 0,
+      "input_records": 200,
+      "output_paths": [
+        "data/processed/r2-v0.1.0/sample/nutrition/fao_infoods_density.jsonl"
+      ],
+      "output_records": 200,
+      "rejected_records": 0,
+      "warnings": [
+        "Category headers and specific-gravity-only rows are retained with explicit statuses"
+      ]
+    },
+    "FOODON": {
+      "details": {
+        "edges": 228,
+        "missing_labels": 0,
+        "nodes": 200,
+        "quarantined": 0
+      },
+      "duplicate_records": 0,
+      "input_records": 200,
+      "output_paths": [
+        "data/interim/r2-v0.1.0/sample/ontology/foodon_nodes.jsonl",
+        "data/interim/r2-v0.1.0/sample/ontology/foodon_edges.jsonl"
+      ],
+      "output_records": 200,
+      "rejected_records": 0,
+      "warnings": [
+        "0 classes have no direct label"
+      ]
+    },
+    "OFF-TAX-ADDITIVES": {
+      "duplicate_records": 0,
+      "input_records": 200,
+      "output_paths": [
+        "data/processed/r2-v0.1.0/sample/ingredients/off_additive.jsonl"
+      ],
+      "output_records": 200,
+      "rejected_records": 0,
+      "warnings": []
+    },
+    "OFF-TAX-ALLERGENS": {
+      "duplicate_records": 0,
+      "input_records": 27,
+      "output_paths": [
+        "data/processed/r2-v0.1.0/sample/ingredients/off_allergen.jsonl"
+      ],
+      "output_records": 27,
+      "rejected_records": 0,
+      "warnings": []
+    },
+    "OFF-TAX-CATEGORIES": {
+      "duplicate_records": 0,
+      "input_records": 200,
+      "output_paths": [
+        "data/processed/r2-v0.1.0/sample/ingredients/off_category.jsonl"
+      ],
+      "output_records": 200,
+      "rejected_records": 0,
+      "warnings": []
+    },
+    "OFF-TAX-COUNTRIES": {
+      "duplicate_records": 0,
+      "input_records": 200,
+      "output_paths": [
+        "data/processed/r2-v0.1.0/sample/ingredients/off_country.jsonl"
+      ],
+      "output_records": 200,
+      "rejected_records": 0,
+      "warnings": []
+    },
+    "OFF-TAX-INGREDIENTS": {
+      "duplicate_records": 0,
+      "input_records": 200,
+      "output_paths": [
+        "data/processed/r2-v0.1.0/sample/ingredients/off_ingredient.jsonl"
+      ],
+      "output_records": 200,
+      "rejected_records": 0,
+      "warnings": []
+    },
+    "OFF-TAX-LABELS": {
+      "duplicate_records": 0,
+      "input_records": 200,
+      "output_paths": [
+        "data/processed/r2-v0.1.0/sample/ingredients/off_label.jsonl"
+      ],
+      "output_records": 200,
+      "rejected_records": 0,
+      "warnings": []
+    },
+    "OFF-TAX-NOVA": {
+      "duplicate_records": 0,
+      "input_records": 6,
+      "output_paths": [
+        "data/processed/r2-v0.1.0/sample/ingredients/off_nova_group.jsonl"
+      ],
+      "output_records": 6,
+      "rejected_records": 0,
+      "warnings": []
+    },
+    "USDA-FOUNDATION": {
+      "details": {
+        "canonical_nutrient_coverage": {
+          "calcium_mg": 188,
+          "carbohydrates_g": 172,
+          "cholesterol_mg": 50,
+          "energy_kcal": 95,
+          "energy_kj": 95,
+          "fiber_g": 102,
+          "iron_mg": 188,
+          "potassium_mg": 188,
+          "protein_g": 189,
+          "salt_g": 170,
+          "saturated_fat_g": 79,
+          "sodium_mg": 170,
+          "sugars_g": 86,
+          "total_fat_g": 191
+        },
+        "foods": 200,
+        "input_foundation_foods": 200,
+        "nutrients_long": 11505,
+        "nutrition": 200,
+        "outlier_records": 1,
+        "quarantined": 13,
+        "servings": 123
+      },
+      "duplicate_records": 0,
+      "input_records": 200,
+      "output_paths": [
+        "data/interim/r2-v0.1.0/sample/nutrition/usda_foundation_foods.jsonl",
+        "data/processed/r2-v0.1.0/sample/nutrition/usda_nutrition.jsonl",
+        "data/processed/r2-v0.1.0/sample/nutrition/usda_servings.jsonl",
+        "data/interim/r2-v0.1.0/sample/nutrition/usda_nutrients_long.jsonl"
+      ],
+      "output_records": 200,
+      "rejected_records": 13,
+      "warnings": [
+        "1 nutrition records carry review-only outlier flags"
+      ]
+    },
+    "WHO-HEALTHY-DIET": {
+      "details": {
+        "input_documents": 1,
+        "output_documents": 1,
+        "text_extracted": 0
+      },
+      "duplicate_records": 0,
+      "input_records": 1,
+      "output_paths": [
+        "data/processed/r2-v0.1.0/sample/evidence/evidence_documents.jsonl"
+      ],
+      "output_records": 1,
+      "rejected_records": 0,
+      "warnings": [
+        "PDF text extraction intentionally deferred pending reuse/RAG review"
+      ]
+    }
+  },
+  "formula": {
+    "component_range": "0.0 to 1.0",
+    "score_range": "0 to 100",
+    "weights": {
+      "completeness": 20,
+      "licensing": 15,
+      "provenance": 20,
+      "schema_compliance": 25,
+      "uniqueness": 10,
+      "unit_validity": 10
+    }
+  },
+  "licence_validation": "PASS_ONLY_R1_DOWNLOADED_SOURCES",
+  "mode": "sample",
+  "pipeline_version": "0.1.0",
+  "privacy_validation": "PASS_NO_PERSON_LEVEL_DATA",
+  "total_output_records": 1634,
+  "total_rejected_records": 13
+}

@@ -1,0 +1,11 @@
+# Optional R3 pretrained model runtimes. The core scanner and CI do not require
+# these large packages or model downloads. Install explicitly when running real
+# local-model smoke tests; model downloads remain disabled by default.
+-r requirements.txt
+torch>=2.7,<3
+torchvision>=0.22,<1
+ultralytics>=8.3,<9
+paddlepaddle==3.3.1
+paddleocr==3.7.0
+easyocr>=1.7,<2
+transformers>=4.53,<5

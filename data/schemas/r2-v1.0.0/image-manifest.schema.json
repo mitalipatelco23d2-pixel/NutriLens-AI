@@ -1,0 +1,138 @@
+{
+  "$id": "https://nutrilens.local/schemas/1.0.0/image-manifest.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "annotation_status": {
+      "title": "Annotation Status",
+      "type": "string"
+    },
+    "capture_source": {
+      "title": "Capture Source",
+      "type": "string"
+    },
+    "checksum": {
+      "title": "Checksum",
+      "type": "string"
+    },
+    "format": {
+      "title": "Format",
+      "type": "string"
+    },
+    "height": {
+      "exclusiveMinimum": 0,
+      "title": "Height",
+      "type": "integer"
+    },
+    "image_id": {
+      "title": "Image Id",
+      "type": "string"
+    },
+    "image_type": {
+      "title": "Image Type",
+      "type": "string"
+    },
+    "language": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Language"
+    },
+    "local_path": {
+      "title": "Local Path",
+      "type": "string"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "orientation": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Orientation"
+    },
+    "product_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Product Id"
+    },
+    "rights_status": {
+      "title": "Rights Status",
+      "type": "string"
+    },
+    "source_dataset": {
+      "title": "Source Dataset",
+      "type": "string"
+    },
+    "source_record_id": {
+      "title": "Source Record Id",
+      "type": "string"
+    },
+    "split": {
+      "anyOf": [
+        {
+          "enum": [
+            "TRAIN",
+            "VALIDATION",
+            "TEST"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Split"
+    },
+    "width": {
+      "exclusiveMinimum": 0,
+      "title": "Width",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "image_id",
+    "source_dataset",
+    "source_record_id",
+    "local_path",
+    "image_type",
+    "width",
+    "height",
+    "format",
+    "rights_status",
+    "capture_source",
+    "checksum",
+    "annotation_status"
+  ],
+  "title": "ImageManifestRecord",
+  "type": "object",
+  "x-nutrilens-schema-version": "1.0.0"
+}

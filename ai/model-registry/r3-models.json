@@ -1,0 +1,166 @@
+{
+  "registry_version": "1.0.0",
+  "release": "R3",
+  "download_policy": "OPT_IN_ONLY",
+  "cache": ".model-cache/r3",
+  "models": [
+    {
+      "model_id": "nutrilens-r3-nutrition-yolo11n-v1",
+      "name": "NutriLens nutrition-table YOLO11n",
+      "version": "1.0.0",
+      "base_model": "Ultralytics YOLO11n pretrained checkpoint",
+      "source": "NutriLens custom fine-tune on reviewed Open Food Facts nutrition-table boxes",
+      "task": "nutrition-table region detection",
+      "framework": "Ultralytics 8.4.116 / PyTorch 2.11.0+cu128",
+      "local_file": ".model-cache/r3/custom/nutrition-table-yolo11n-v1.pt",
+      "checksum": "af30081551e4f9c5dfae3c6d28515ec848c2559e27c15c31e363d474d00bd16b",
+      "weights_bytes": 5444762,
+      "device": "auto/cpu/cuda; trained on CUDA under WSL2",
+      "training_dataset": "OFF-R3-NUTRITION-TABLE-DETECTION",
+      "dataset_version": "r3-nutrition-yolo-v1 / OFF snapshot d59dcee85ecb44831831a85f7b345501db2b4071",
+      "train_manifest": {
+        "path": "data/splits/r3_nutrition_detector_train.jsonl",
+        "sha256": "ed9ad255d5cb823a20f9c09bda74e83fb6684b8205923102a5ce491cf4159c28"
+      },
+      "validation_manifest": {
+        "path": "data/splits/r3_nutrition_detector_val.jsonl",
+        "sha256": "6e7464860fc9ba2e7409df7e55c3131754c82f78a28f3f79f1087efd503876af"
+      },
+      "test_manifest": {
+        "path": "data/splits/r3_nutrition_detector_test.jsonl",
+        "sha256": "bf85df13e6931d36fb52c4eee7ad1f79512ad23962e1e891d210b8c6887515a1"
+      },
+      "pipeline_version": "0.3.0",
+      "configuration": {
+        "confidence": 0.3,
+        "image_size": 640,
+        "nms_iou": 0.5,
+        "max_detections": 3,
+        "cardinal_retry_on_miss": [90, 180, 270]
+      },
+      "training_parameters": {
+        "epochs": 20,
+        "best_epoch": 20,
+        "batch_size": 8,
+        "optimizer": "AdamW",
+        "learning_rate_selected_by_ultralytics": 0.002,
+        "patience": 5,
+        "seed": 42,
+        "device": "NVIDIA GeForce RTX 2050 4096 MiB via WSL2",
+        "augmentation": {
+          "degrees": 7.0,
+          "translate": 0.05,
+          "scale": 0.2,
+          "perspective": 0.001,
+          "hsv_v": 0.18,
+          "mosaic": 0.1,
+          "erasing": 0.15,
+          "horizontal_flip": 0.0
+        }
+      },
+      "metrics": {
+        "validation_selected_threshold": {
+          "precision": 0.8766233766,
+          "recall": 0.8333333333,
+          "f1": 0.8544303797,
+          "mean_matched_iou": 0.8594568569,
+          "map50": 0.8639024349,
+          "map50_95": 0.6092048579
+        },
+        "held_out_test": {
+          "images": 151,
+          "annotations": 159,
+          "precision": 0.8774193548,
+          "recall": 0.8553459119,
+          "f1": 0.8662420382,
+          "mean_matched_iou": 0.8626899105,
+          "map50": 0.8803948898,
+          "map50_95": 0.6276959584
+        }
+      },
+      "license": "AGPL-3.0 Ultralytics runtime; training images retain Open Food Facts CC BY-SA 3.0 obligations",
+      "training_status": "CUSTOM_FINE_TUNED",
+      "created_at": "2026-08-08T15:22:03.0763239Z",
+      "required": false
+    },
+    {
+      "name": "YOLO11n",
+      "version": "YOLO11",
+      "source": "Ultralytics pretrained COCO checkpoint",
+      "task": "general object detection",
+      "framework": "Ultralytics/PyTorch",
+      "local_file": ".model-cache/r3/yolo11n.pt",
+      "checksum": null,
+      "device": "auto/cpu/cuda",
+      "configuration": { "confidence": 0.25, "image_size": 640 },
+      "license": "AGPL-3.0 open-source distribution; verify deployment obligations",
+      "training_status": "PRETRAINED",
+      "required": false
+    },
+    {
+      "name": "PaddleOCR",
+      "version": "PaddleOCR 3.7.0 / PaddlePaddle 3.3.1",
+      "source": "PaddleOCR official pretrained models",
+      "task": "primary multilingual OCR",
+      "framework": "PaddlePaddle/PaddleOCR",
+      "local_file": ".model-cache/r3/paddle",
+      "checksum": "e478b505f009868f98abdfbc081600d9d9f3d10a46b9bc96a4b7cf0d30ec9ad0",
+      "device": "cpu",
+      "configuration": {
+        "lazy_loading": true,
+        "detection_model": "PP-OCRv5_mobile_det",
+        "recognition_model": "PP-OCRv5_mobile_rec",
+        "language_evaluated": "en",
+        "enable_mkldnn": false,
+        "doc_orientation_model": false,
+        "doc_unwarping_model": false,
+        "textline_orientation_model": false
+      },
+      "license": "Apache-2.0 project; model-specific metadata must also be reviewed",
+      "training_status": "PRETRAINED",
+      "required": false
+    },
+    {
+      "name": "EasyOCR",
+      "version": "1.7.x runtime-resolved",
+      "source": "EasyOCR official pretrained models",
+      "task": "OCR fallback",
+      "framework": "PyTorch/EasyOCR",
+      "local_file": ".model-cache/r3/easyocr",
+      "checksum": null,
+      "device": "cpu/gpu",
+      "configuration": { "lazy_loading": true },
+      "license": "Apache-2.0 project; model-specific metadata must also be reviewed",
+      "training_status": "PRETRAINED",
+      "required": false
+    },
+    {
+      "name": "TrOCR small printed",
+      "version": "microsoft/trocr-small-printed",
+      "source": "Hugging Face model hub / Microsoft",
+      "task": "experimental selected-region OCR",
+      "framework": "Transformers/PyTorch",
+      "local_file": ".model-cache/r3/huggingface",
+      "checksum": null,
+      "device": "cpu/gpu",
+      "configuration": { "enabled_by_default": false },
+      "license": "Model-card licence must be reviewed before enabling",
+      "training_status": "PRETRAINED",
+      "required": false
+    },
+    {
+      "name": "OpenCV barcode and QR detectors",
+      "version": "OpenCV 4.x runtime-resolved",
+      "source": "OpenCV contrib",
+      "task": "local barcode and QR detection/decoding",
+      "framework": "OpenCV",
+      "local_file": null,
+      "checksum": null,
+      "device": "cpu",
+      "configuration": { "open_urls": false },
+      "license": "Apache-2.0",
+      "training_status": "NOT_APPLICABLE",
+      "required": true
+    }
+  ]
+}

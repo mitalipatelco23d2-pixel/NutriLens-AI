@@ -1,0 +1,123 @@
+name: NutriLens X v1 CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run public browser journey
+        run: npx playwright test
+      - run: npm audit --audit-level=high
+      - run: npm run cf:build
+        env:
+          PUBLIC_API_URL: https://api.nutrilensx.tech
+          NEXT_PUBLIC_API_URL: https://api.nutrilensx.tech
+      - name: Package the Linux-built Cloudflare bundle
+        run: tar -czf "${{ runner.temp }}/cloudflare-${GITHUB_SHA}.tar.gz" .open-next
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cloudflare-${{ github.sha }}
+          path: ${{ runner.temp }}/cloudflare-${{ github.sha }}.tar.gz
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
+
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: nutrilens_ci
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432/tcp
+        options: >-
+          --health-cmd "pg_isready -U postgres -d nutrilens_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r backend/requirements-dev.txt
+      - name: Audit production Python dependencies
+        run: pip-audit -r backend/requirements.txt
+      - name: Audit development Python dependencies
+        run: pip-audit -r backend/requirements-dev.txt
+      - run: ruff check ai backend scripts tests
+      - run: ruff format --check ai backend scripts tests
+      - run: mypy ai backend scripts
+      - run: python scripts/validate_r1.py --governance-only
+      - run: python scripts/validate_r2.py --governance-only
+      - run: python scripts/data_engineering/run_fixture_pipeline.py --output "${{ runner.temp }}/r2-fixture.json"
+      - run: python scripts/ml/r3/validate_r3_model_registry.py --metadata-only
+      # Full raw FoodOn intermediates are intentionally not checked into Git.
+      # CI verifies reviewed artifact bytes + the tracked R4 source binding;
+      # release data updates still require the full local --check rebuild.
+      - run: python scripts/build_foodon_runtime_links.py --verify-artifact
+      - run: python scripts/build_faostat_country_runtime.py --check
+      - run: python scripts/validate_public_config.py --template .env.example
+      - run: pytest
+        env:
+          # This disposable runner-only DB contains test records, never production data.
+          # Each integration test uses a generated schema and removes it afterward.
+          NUTRILENS_TEST_POSTGRES_URL: postgresql://postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/nutrilens_ci
+
+  mobile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          # Match the SDK used for the physical-device and local release tests.
+          flutter-version: "3.44.4"
+          channel: stable
+          cache: true
+      - working-directory: apps/mobile
+        run: flutter pub get
+      - working-directory: apps/mobile
+        run: dart format --output=none --set-exit-if-changed lib test
+      - working-directory: apps/mobile
+        run: flutter analyze
+      - working-directory: apps/mobile
+        run: flutter test
+
+  compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: cp .env.example .env
+      - name: Validate Compose with generated CI-only credentials
+        run: |
+          export POSTGRES_PASSWORD="$(openssl rand -hex 24)"
+          export MONGO_INITDB_ROOT_PASSWORD="$(openssl rand -hex 24)"
+          export NEO4J_PASSWORD="$(openssl rand -hex 24)"
+          export REDIS_PASSWORD="$(openssl rand -hex 24)"
+          docker compose config --quiet
+      - run: docker build -f infrastructure/docker/api.Dockerfile -t nutrilens-api:test .
+      - run: docker build -f infrastructure/docker/web.Dockerfile -t nutrilens-web:test .
+      - run: docker build -f infrastructure/docker/ai-worker.Dockerfile -t nutrilens-ai-worker:test .

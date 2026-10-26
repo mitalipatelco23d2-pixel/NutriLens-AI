@@ -1,0 +1,156 @@
+{
+  "$defs": {
+    "Lineage": {
+      "additionalProperties": false,
+      "properties": {
+        "input_checksum": {
+          "title": "Input Checksum",
+          "type": "string"
+        },
+        "license_status": {
+          "title": "License Status",
+          "type": "string"
+        },
+        "pipeline_version": {
+          "default": "0.1.0",
+          "title": "Pipeline Version",
+          "type": "string"
+        },
+        "processing_timestamp": {
+          "format": "date-time",
+          "title": "Processing Timestamp",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": "1.0.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_dataset": {
+          "title": "Source Dataset",
+          "type": "string"
+        },
+        "source_record_id": {
+          "title": "Source Record Id",
+          "type": "string"
+        },
+        "source_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Url"
+        },
+        "source_version": {
+          "title": "Source Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_dataset",
+        "source_record_id",
+        "source_version",
+        "input_checksum",
+        "processing_timestamp",
+        "license_status"
+      ],
+      "title": "Lineage",
+      "type": "object"
+    }
+  },
+  "$id": "https://nutrilens.local/schemas/1.0.0/serving.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "amount": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Amount"
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Description"
+    },
+    "food_id": {
+      "title": "Food Id",
+      "type": "string"
+    },
+    "geographic_context": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Geographic Context"
+    },
+    "gram_weight": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Gram Weight"
+    },
+    "lineage": {
+      "$ref": "#/$defs/Lineage"
+    },
+    "measure_unit": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Measure Unit"
+    },
+    "method": {
+      "title": "Method",
+      "type": "string"
+    },
+    "serving_id": {
+      "title": "Serving Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "serving_id",
+    "food_id",
+    "method",
+    "lineage"
+  ],
+  "title": "ServingRecord",
+  "type": "object",
+  "x-nutrilens-schema-version": "1.0.0"
+}

@@ -1,0 +1,17 @@
+{
+  "acquired_at": "2026-08-08T06:58:27.416476+00:00",
+  "annotation_count": 5421,
+  "dataset_id": "GROCERY-STORE-R3",
+  "image_count": 5421,
+  "license": "MIT repository; third-party/depicted image rights require review",
+  "payload_manifest": "data/external/r3/grocery-store-dataset/manifests/source-images.jsonl",
+  "payload_tree_sha256": "5ca71758a6e377aeb25396332b750b1df9ca2091c125c8845676baf46791a17d",
+  "repository": "https://github.com/marcusklasson/GroceryStoreDataset.git",
+  "source_revision": "fc80ba90f803d79d0383df52c5a4ac5de99ff6fc",
+  "split_counts": {
+    "test": 2485,
+    "train": 2640,
+    "val": 296
+  },
+  "status": "DOWNLOADED_AND_VALIDATED"
+}

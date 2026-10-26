@@ -1,0 +1,9 @@
+{
+  "detection_annotations": 0,
+  "meal_annotations": 0,
+  "ocr_annotations": 0,
+  "reason": "R1 contains no rights-cleared local image payload; no annotations fabricated",
+  "schema_version": "1.0.0",
+  "source_images": 0,
+  "status": "BLOCKED_BY_DATA_AVAILABILITY"
+}

@@ -1,0 +1,94 @@
+{
+  "OFF-TAX-INGREDIENTS": {
+    "url": "https://raw.githubusercontent.com/openfoodfacts/openfoodfacts-server/main/taxonomies/food/ingredients.txt",
+    "destination": "data/external/open_food_facts/taxonomies/ingredients.txt",
+    "version": "openfoodfacts-server main snapshot 2026-08-08",
+    "storage_class": "SMALL",
+    "max_bytes": 10000000,
+    "expected_sha256": "97d42cfc2c4a71bf8c7535ba0d85fe67bb9b336573761899b35fb718ebe16821"
+  },
+  "OFF-TAX-ADDITIVES": {
+    "url": "https://raw.githubusercontent.com/openfoodfacts/openfoodfacts-server/main/taxonomies/additives.txt",
+    "destination": "data/external/open_food_facts/taxonomies/additives.txt",
+    "version": "openfoodfacts-server main snapshot 2026-08-08",
+    "storage_class": "SMALL",
+    "max_bytes": 10000000,
+    "expected_sha256": "8b17d6268e5e9533aa655ba41e6285b991e4bbf36b3ece07ebb117d9daf57200"
+  },
+  "OFF-TAX-ALLERGENS": {
+    "url": "https://raw.githubusercontent.com/openfoodfacts/openfoodfacts-server/main/taxonomies/allergens.txt",
+    "destination": "data/external/open_food_facts/taxonomies/allergens.txt",
+    "version": "openfoodfacts-server main snapshot 2026-08-08",
+    "storage_class": "SMALL",
+    "max_bytes": 10000000,
+    "expected_sha256": "13eebad611f1cb135e398bacf2c591adf2688176d9a41aeadb2693a84f9cb6a4"
+  },
+  "OFF-TAX-CATEGORIES": {
+    "url": "https://raw.githubusercontent.com/openfoodfacts/openfoodfacts-server/main/taxonomies/food/categories.txt",
+    "destination": "data/external/open_food_facts/taxonomies/categories.txt",
+    "version": "openfoodfacts-server main snapshot 2026-08-08",
+    "storage_class": "SMALL",
+    "max_bytes": 10000000,
+    "expected_sha256": "c2f122e72c3f9306d5e1b6f404e03f7a4d1ab65bed6943fc5cec1e31ac37293f"
+  },
+  "OFF-TAX-LABELS": {
+    "url": "https://raw.githubusercontent.com/openfoodfacts/openfoodfacts-server/main/taxonomies/labels.txt",
+    "destination": "data/external/open_food_facts/taxonomies/labels.txt",
+    "version": "openfoodfacts-server main snapshot 2026-08-08",
+    "storage_class": "SMALL",
+    "max_bytes": 10000000,
+    "expected_sha256": "1c50a1cecb7c099df6780512b009ca845e8f2d68f92334d59da18ba53457950b"
+  },
+  "OFF-TAX-NOVA": {
+    "url": "https://raw.githubusercontent.com/openfoodfacts/openfoodfacts-server/main/taxonomies/nova_groups.txt",
+    "destination": "data/external/open_food_facts/taxonomies/nova_groups.txt",
+    "version": "openfoodfacts-server main snapshot 2026-08-08",
+    "storage_class": "SMALL",
+    "max_bytes": 10000000,
+    "expected_sha256": "4b99f9c192e0c71da4be5987c9ede81324d02d588719c8646954742756571528"
+  },
+  "OFF-TAX-COUNTRIES": {
+    "url": "https://raw.githubusercontent.com/openfoodfacts/openfoodfacts-server/main/taxonomies/countries.txt",
+    "destination": "data/external/open_food_facts/taxonomies/countries.txt",
+    "version": "openfoodfacts-server main snapshot 2026-08-08",
+    "storage_class": "SMALL",
+    "max_bytes": 10000000,
+    "expected_sha256": "8226a0d0a9e9767808a56e9f28e56f773a11d239e091bef42f35b6feb624a14c"
+  },
+  "USDA-FOUNDATION": {
+    "url": "https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_foundation_food_csv_2026-04-30.zip",
+    "destination": "data/external/usda/foundation/FoodData_Central_foundation_food_csv_2026-04-30.zip",
+    "version": "April 2026",
+    "storage_class": "SMALL",
+    "max_bytes": 20000000,
+    "expected_magic_hex": "504b",
+    "expected_sha256": "d6d4f41dcd19a46abcdd67775379cb6f0292ff08daa7e0680fdd0982830bf57b"
+  },
+  "FOODON": {
+    "url": "https://purl.obolibrary.org/obo/foodon.owl",
+    "destination": "data/external/foodon/foodon.owl",
+    "version": "stable PURL snapshot 2026-08-08",
+    "storage_class": "MEDIUM",
+    "max_bytes": 150000000,
+    "expected_magic_hex": "3c3f786d6c",
+    "expected_sha256": "1e11fc50283c6498697a7aca9606c9d914f1cda71cc5510e006d949c32df7db0"
+  },
+  "WHO-HEALTHY-DIET": {
+    "url": "https://www.who.int/docs/default-source/healthy-diet/healthy-diet-fact-sheet-394.pdf",
+    "destination": "data/raw/scientific/who/healthy-diet-fact-sheet-394.pdf",
+    "version": "Fact sheet 394; accessed 2026-08-08",
+    "storage_class": "SMALL",
+    "max_bytes": 5000000,
+    "expected_magic_hex": "25504446",
+    "expected_sha256": "91adea09f42b2a1525a4336819d57244adfc4bcc18c0515d1bec41e5f0a56480"
+  },
+  "FAO-DENSITY": {
+    "url": "https://www.fao.org/fileadmin/templates/food_composition/documents/density_DB_v2_0_final-1__1_.xlsx",
+    "destination": "data/external/population_sources/fao_infoods_density/density_DB_v2_0.xlsx",
+    "version": "FAO/INFOODS Density Database v2.0",
+    "storage_class": "SMALL",
+    "max_bytes": 10000000,
+    "expected_magic_hex": "504b",
+    "expected_sha256": "329caaecbaa2031a73dd50c32e0cee8453d85655342829d80a3cd92053854227"
+  }
+}

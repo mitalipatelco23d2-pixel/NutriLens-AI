@@ -1,0 +1,44 @@
+{
+  "schema_version": "0.1.0",
+  "purpose": "Bounded retrieval evaluation over governed ingredient, additive and allergen records.",
+  "cases": [
+    {
+      "case_id": "soy-emulsifier",
+      "query": "soybean lecithin used as an emulsifying ingredient",
+      "expected_document_ids": ["off:ingredient:soya-lecithin"],
+      "top_k": 5
+    },
+    {
+      "case_id": "egg-enzyme",
+      "query": "lysozyme enzyme derived from egg on a food label",
+      "expected_document_ids": ["off:ingredient:lysozyme-from-eggs"],
+      "top_k": 5
+    },
+    {
+      "case_id": "citrus-gelling-agent",
+      "query": "a pectin derived from citrus rather than apple",
+      "expected_document_ids": ["off:ingredient:citrus-pectin"],
+      "top_k": 5
+    },
+    {
+      "case_id": "animal-gelling-protein",
+      "query": "animal-derived gelatin ingredient used for gelling",
+      "expected_document_ids": ["off:ingredient:gelatin"],
+      "top_k": 5
+    },
+    {
+      "case_id": "paprika-colour",
+      "query": "paprika-derived red colouring ingredient",
+      "expected_document_ids": ["off:ingredient:paprika-extract", "off:ingredient:paprika-oleoresin"],
+      "top_k": 5
+    },
+    {
+      "case_id": "explicit-unknown",
+      "query": "quuxylophone orbital neutrino",
+      "expected_document_ids": [],
+      "expect_no_hits": true,
+      "min_score": 0.35,
+      "top_k": 5
+    }
+  ]
+}

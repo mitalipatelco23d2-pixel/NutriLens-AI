@@ -1,0 +1,76 @@
+services:
+  - type: web
+    name: nutrilens-x-api
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./infrastructure/docker/api.Dockerfile
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: APP_ENVIRONMENT
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: CORS_ORIGINS
+        sync: false
+      - key: POSTGRES_URL
+        sync: false
+      - key: PERSISTENCE_BACKEND
+        value: postgres
+      - key: AUTO_MIGRATE
+        value: true
+      - key: RATE_LIMIT_BACKEND
+        value: redis
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: PUBLIC_WEB_URL
+        value: "https://nutrilensx.tech"
+      - key: EMAIL_AUTH_ENABLED
+        value: true
+      - key: EMAIL_PROVIDER
+        value: resend
+      - key: EMAIL_FROM
+        value: "NutriLens X <auth@nutrilensx.tech>"
+      - key: RESEND_API_KEY
+        sync: false
+      - key: LLM_PROVIDER
+        value: none
+      - key: LLM_BASE_URL
+        sync: false
+      - key: LLM_MODEL
+        sync: false
+      - key: LLM_SERVICE_TOKEN
+        sync: false
+      - key: AI_WORKER_PROVIDER
+        value: none
+      - key: AI_WORKER_URL
+        sync: false
+      - key: AI_WORKER_TOKEN
+        sync: false
+      - key: AI_RUNTIME_PUBLIC_VALIDATED
+        value: true
+      - key: RAZORPAY_MODE
+        value: test
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+      - key: RAZORPAY_PLAN_PLUS_MONTHLY
+        sync: false
+      - key: RAZORPAY_PLAN_PLUS_ANNUAL
+        sync: false
+      - key: RAZORPAY_PLAN_PRO_MONTHLY
+        sync: false
+      - key: RAZORPAY_PLAN_PRO_ANNUAL
+        sync: false
+      - key: RAZORPAY_PLAN_MAX_MONTHLY
+        sync: false
+      - key: RAZORPAY_PLAN_MAX_ANNUAL
+        sync: false

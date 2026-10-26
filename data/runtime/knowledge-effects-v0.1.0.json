@@ -1,0 +1,151 @@
+{
+  "schema_version": "1.0.0",
+  "dataset_version": "0.1.0",
+  "method": "CURATED_PRIMARY_AUTHORITY_REFERENCE_ROLES_V1",
+  "records": [
+    {
+      "nutrient_id": "protein",
+      "names": ["protein", "proteins", "amino acid", "amino acids", "why is protein needed", "what does protein do"],
+      "role_summary": "Protein is an essential macronutrient needed to build, repair, and maintain tissues, muscles, hormones, and enzymes throughout the body.",
+      "authority": "NIH / USDA Dietary Guidelines",
+      "title": "Protein and Amino Acids — Dietary Reference Intakes",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK234922/"
+    },
+    {
+      "nutrient_id": "carbohydrates",
+      "names": ["carbohydrate", "carbohydrates", "carbs", "complex carbohydrates"],
+      "role_summary": "Carbohydrates are the body's primary energy source, fueling the brain, central nervous system, and physical activity. Quality sources include whole grains and dietary fiber.",
+      "authority": "NIH / USDA Dietary Guidelines",
+      "title": "Carbohydrates — Dietary Reference Intakes",
+      "url": "https://www.ncbi.nlm.nih.gov/books/NBK218761/"
+    },
+    {
+      "nutrient_id": "fat",
+      "names": ["fat", "total fat", "dietary fats", "lipids", "saturated fat", "unsaturated fat"],
+      "role_summary": "Dietary fats provide concentrated energy, support cellular structure, help absorb fat-soluble vitamins (A, D, E, K), and supply essential fatty acids.",
+      "authority": "Dietary Guidelines for Americans",
+      "title": "Dietary Fats — Dietary Guidelines for Americans",
+      "url": "https://www.dietaryguidelines.gov/"
+    },
+    {
+      "nutrient_id": "fiber",
+      "names": ["fiber", "dietary fiber", "roughage", "soluble fiber", "insoluble fiber"],
+      "role_summary": "Dietary fiber supports digestive health, promotes bowel regularity, aids in blood sugar and cholesterol management, and increases meal satiety.",
+      "authority": "FDA / NIH",
+      "title": "Dietary Fiber on the Nutrition Facts Label",
+      "url": "https://www.fda.gov/food/nutrition-facts-label/dietary-fiber-nutrition-facts-label"
+    },
+    {
+      "nutrient_id": "calories",
+      "names": ["calorie", "calories", "energy", "kcal"],
+      "role_summary": "Calories measure the energy provided by food and beverages. Energy balance—matching calories consumed to energy expended—is fundamental to health maintenance.",
+      "authority": "FDA",
+      "title": "Calories on the Nutrition Facts Label",
+      "url": "https://www.fda.gov/food/nutrition-facts-label/calories-nutrition-facts-label"
+    },
+    {
+      "nutrient_id": "sugar",
+      "names": ["sugar", "total sugar", "sugars", "simple sugar"],
+      "role_summary": "Total sugars include both naturally occurring sugars (such as in milk and fruit) and sugars added during processing or preparation.",
+      "authority": "FDA",
+      "title": "Total Sugars on the Nutrition Facts Label",
+      "url": "https://www.fda.gov/food/nutrition-facts-label/total-sugars"
+    },
+    {
+      "nutrient_id": "added-sugar",
+      "names": ["added sugar", "added sugars", "what is added sugar"],
+      "role_summary": "Added sugars are sugars and syrups incorporated into foods during processing or preparation. Moderating added sugars helps maintain nutrient-dense dietary patterns.",
+      "authority": "FDA",
+      "title": "Added Sugars on the Nutrition Facts Label",
+      "url": "https://www.fda.gov/food/nutrition-facts-label/added-sugars-nutrition-facts-label"
+    },
+    {
+      "nutrient_id": "serving-size",
+      "names": ["serving size", "per serving", "what does per serving mean", "serving", "portion size"],
+      "role_summary": "Serving size on a nutrition label reflects a standardized amount typically consumed, not a dietary recommendation. All listed nutrient amounts apply specifically to that serving.",
+      "authority": "FDA",
+      "title": "Serving Size on the Nutrition Facts Label",
+      "url": "https://www.fda.gov/food/nutrition-facts-label/serving-size-nutrition-facts-label"
+    },
+    {
+      "nutrient_id": "per-100-g-ml",
+      "names": ["per 100g", "per 100 g", "per 100ml", "per 100 ml", "100g basis", "100ml basis"],
+      "role_summary": "Per 100 g or 100 ml values provide a normalized nutrient density standard, enabling direct nutritional comparison across different products regardless of serving or package size.",
+      "authority": "Codex Alimentarius / FSSAI",
+      "title": "Guidelines on Nutrition Labelling",
+      "url": "https://www.fao.org/fao-who-codexalimentarius/standards/"
+    },
+    {
+      "nutrient_id": "reading-nutrition-labels",
+      "names": ["reading nutrition labels", "how should i read a nutrition label", "how to read a nutrition label", "reading a nutrition label", "nutrition label guidance", "how to read nutrition label"],
+      "role_summary": "To read a nutrition label effectively: start with the serving size and servings per container, check total calories, monitor nutrients to limit (saturated fat, sodium, added sugars), and check nutrients to get enough of (fiber, vitamins, and minerals).",
+      "authority": "FDA",
+      "title": "How to Understand and Use the Nutrition Facts Label",
+      "url": "https://www.fda.gov/food/nutrition-facts-label/how-understand-and-use-nutrition-facts-label"
+    },
+    {
+      "nutrient_id": "vitamin-a",
+      "names": ["vitamin a", "retinol", "vitamin_a_mcg"],
+      "role_summary": "Vitamin A has established roles in normal vision, immune function, cellular communication, growth and development.",
+      "authority": "NIH Office of Dietary Supplements",
+      "title": "Vitamin A and Carotenoids — Health Professional Fact Sheet",
+      "url": "https://ods.od.nih.gov/factsheets/VitaminA-HealthProfessional/"
+    },
+    {
+      "nutrient_id": "vitamin-c",
+      "names": ["vitamin c", "ascorbic acid", "vitamin_c_mg"],
+      "role_summary": "Vitamin C is required for collagen biosynthesis, has antioxidant functions, supports immune function, and improves absorption of nonheme iron.",
+      "authority": "NIH Office of Dietary Supplements",
+      "title": "Vitamin C — Health Professional Fact Sheet",
+      "url": "https://ods.od.nih.gov/factsheets/VitaminC-HealthProfessional/"
+    },
+    {
+      "nutrient_id": "vitamin-d",
+      "names": ["vitamin d", "cholecalciferol", "vitamin_d_mcg"],
+      "role_summary": "Vitamin D supports calcium absorption and maintenance of bone health; a label value alone cannot establish vitamin D status.",
+      "authority": "NIH Office of Dietary Supplements",
+      "title": "Vitamin D — Health Professional Fact Sheet",
+      "url": "https://ods.od.nih.gov/factsheets/VitaminD-HealthProfessional/"
+    },
+    {
+      "nutrient_id": "calcium",
+      "names": ["calcium", "calcium_mg"],
+      "role_summary": "Calcium contributes to the structure of bones and teeth and participates in muscle function, nerve transmission, blood clotting, and other physiological processes.",
+      "authority": "NIH Office of Dietary Supplements",
+      "title": "Calcium — Health Professional Fact Sheet",
+      "url": "https://ods.od.nih.gov/factsheets/Calcium-HealthProfessional/"
+    },
+    {
+      "nutrient_id": "iron",
+      "names": ["iron", "iron_mg"],
+      "role_summary": "Iron is a component of hemoglobin and supports oxygen transport; an individual food-label value cannot diagnose iron status or anemia.",
+      "authority": "NIH Office of Dietary Supplements",
+      "title": "Iron — Health Professional Fact Sheet",
+      "url": "https://ods.od.nih.gov/factsheets/Iron-HealthProfessional/"
+    },
+    {
+      "nutrient_id": "potassium",
+      "names": ["potassium", "potassium_mg"],
+      "role_summary": "Potassium has roles in cellular, muscle, and nerve function and in blood-pressure regulation; personal intake advice depends on health and medication context.",
+      "authority": "NIH Office of Dietary Supplements",
+      "title": "Potassium — Health Professional Fact Sheet",
+      "url": "https://ods.od.nih.gov/factsheets/Potassium-HealthProfessional/"
+    },
+    {
+      "nutrient_id": "zinc",
+      "names": ["zinc", "zinc_mg"],
+      "role_summary": "Zinc supports many cellular processes, including immune function and wound healing; food-label evidence does not establish zinc status.",
+      "authority": "NIH Office of Dietary Supplements",
+      "title": "Zinc — Health Professional Fact Sheet",
+      "url": "https://ods.od.nih.gov/factsheets/Zinc-HealthProfessional/"
+    },
+    {
+      "nutrient_id": "sodium",
+      "names": ["sodium", "salt", "sodium_mg"],
+      "role_summary": "High-sodium dietary patterns are associated with raised blood pressure; one product or diary entry is not a diagnosis or a complete diet assessment.",
+      "authority": "World Health Organization",
+      "title": "Sodium reduction",
+      "url": "https://www.who.int/news-room/fact-sheets/detail/sodium-reduction"
+    }
+  ]
+}

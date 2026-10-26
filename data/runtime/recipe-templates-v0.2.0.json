@@ -1,0 +1,1666 @@
+{
+  "schema_version": "0.2.0",
+  "source": "NUTRILENS_CURATED_RECIPE_TEMPLATE",
+  "method": "DETERMINISTIC_PANTRY_COVERAGE_WITH_FUNCTIONAL_SUBSTITUTIONS_V2",
+  "substitutions": [
+    {
+      "ingredient": "oats",
+      "alternatives": [
+        "quinoa"
+      ],
+      "function": "cooked grain base",
+      "limitation": "Cooking time and liquid ratio differ."
+    },
+    {
+      "ingredient": "yogurt",
+      "alternatives": [
+        "unsweetened plant yogurt"
+      ],
+      "function": "cold creamy component",
+      "limitation": "Flavor, allergens, fermentation and nutrient composition may differ."
+    },
+    {
+      "ingredient": "spinach",
+      "alternatives": [
+        "kale"
+      ],
+      "function": "leafy vegetable component",
+      "limitation": "Texture and cooking time differ."
+    },
+    {
+      "ingredient": "tomato",
+      "alternatives": [
+        "bell pepper"
+      ],
+      "function": "fresh vegetable component",
+      "limitation": "Flavor, acidity and cooking behavior differ."
+    },
+    {
+      "ingredient": "chickpea",
+      "alternatives": [
+        "white beans"
+      ],
+      "function": "cooked legume base",
+      "limitation": "Texture, flavor and label-reported nutrients differ."
+    },
+    {
+      "ingredient": "bread",
+      "alternatives": [
+        "roti",
+        "tortilla"
+      ],
+      "function": "serving base",
+      "limitation": "Size, ingredients, allergens and nutrient composition differ."
+    },
+    {
+      "ingredient": "dal",
+      "alternatives": [
+        "lentils",
+        "moong dal",
+        "toor dal"
+      ],
+      "function": "cooked legume base",
+      "limitation": "Cooking time and texture differ."
+    },
+    {
+      "ingredient": "paneer",
+      "alternatives": [
+        "tofu"
+      ],
+      "function": "high-protein curd component",
+      "limitation": "Flavor, texture and nutrient profile differ."
+    },
+    {
+      "ingredient": "milk",
+      "alternatives": [
+        "soy milk",
+        "oat milk",
+        "almond milk"
+      ],
+      "function": "liquid base",
+      "limitation": "Protein content, flavor and calcium absorption differ."
+    },
+    {
+      "ingredient": "rice",
+      "alternatives": [
+        "quinoa",
+        "millet"
+      ],
+      "function": "grain base",
+      "limitation": "Cooking liquid ratio and nutrient density differ."
+    },
+    {
+      "ingredient": "onion",
+      "alternatives": [
+        "shallot",
+        "leek"
+      ],
+      "function": "allium aromatic base",
+      "limitation": "Moisture content and sweetness differ."
+    }
+  ],
+  "templates": [
+    {
+      "id": "savory-oat-bowl",
+      "title": "Savory oat bowl",
+      "required": [
+        "oats",
+        "yogurt"
+      ],
+      "optional": [
+        "spinach",
+        "tomato"
+      ],
+      "ingredient_details": [
+        {
+          "name": "oats",
+          "quantity": 40,
+          "unit": "g"
+        },
+        {
+          "name": "yogurt",
+          "quantity": 100,
+          "unit": "g"
+        }
+      ],
+      "steps": [
+        "Bring 150 ml water to a boil over medium heat with a pinch of salt; stir in 40 g rolled oats and simmer for 3–4 minutes until tender.",
+        "Remove from heat, allow to cool briefly, then fold in 100 g yogurt and garnish with toasted cumin seeds."
+      ],
+      "complete_ingredients": [
+        {
+          "name": "oats",
+          "category": "Grain Base",
+          "quantity": 40,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "yogurt",
+          "category": "Dairy / Base",
+          "quantity": 100,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "water",
+          "category": "Liquid",
+          "quantity": 150,
+          "unit": "ml",
+          "is_staple": true
+        },
+        {
+          "name": "salt",
+          "category": "Spice / Masala",
+          "quantity": 0.5,
+          "unit": "pinch",
+          "is_staple": true
+        },
+        {
+          "name": "cumin seeds",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "pinch",
+          "is_staple": true
+        }
+      ],
+      "nutrients_per_serving": {
+        "calories": 218.5,
+        "protein_g": 10.35,
+        "carbs_g": 31.44,
+        "fat_g": 6.17,
+        "fiber_g": 4.29,
+        "sugar_g": 4.71,
+        "sodium_mg": 144.5
+      }
+    },
+    {
+      "id": "chickpea-tomato-salad",
+      "title": "Chickpea and tomato salad",
+      "required": [
+        "chickpea",
+        "tomato"
+      ],
+      "optional": [
+        "spinach",
+        "yogurt"
+      ],
+      "ingredient_details": [
+        {
+          "name": "chickpea",
+          "quantity": 150,
+          "unit": "g"
+        },
+        {
+          "name": "tomato",
+          "quantity": 1,
+          "unit": "unit"
+        }
+      ],
+      "steps": [
+        "Drain and rinse 150 g cooked chickpeas thoroughly and place in a mixing bowl.",
+        "Finely dice 1 fresh tomato and half a green chili, then add to the bowl.",
+        "Warm 3 g cooking oil in a small pan, crackle cumin seeds for 20 seconds, pour over salad, season with salt, and toss well."
+      ],
+      "complete_ingredients": [
+        {
+          "name": "chickpea",
+          "category": "Protein",
+          "quantity": 150,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "tomato",
+          "category": "Vegetable",
+          "quantity": 1,
+          "unit": "unit",
+          "is_staple": false
+        },
+        {
+          "name": "green chili",
+          "category": "Aromatic",
+          "quantity": 0.5,
+          "unit": "unit",
+          "is_staple": true
+        },
+        {
+          "name": "cooking oil",
+          "category": "Oil / Fat",
+          "quantity": 3,
+          "unit": "g",
+          "is_staple": true
+        },
+        {
+          "name": "salt",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "pinch",
+          "is_staple": true
+        },
+        {
+          "name": "cumin seeds",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "pinch",
+          "is_staple": true
+        }
+      ],
+      "nutrients_per_serving": {
+        "calories": 316.4,
+        "protein_g": 15.54,
+        "carbs_g": 50.62,
+        "fat_g": 7.31,
+        "fiber_g": 13.7,
+        "sugar_g": 12.91,
+        "sodium_mg": 214.6
+      }
+    },
+    {
+      "id": "pantry-toast",
+      "title": "Pantry vegetable toast",
+      "required": [
+        "bread"
+      ],
+      "optional": [
+        "spinach",
+        "tomato",
+        "yogurt"
+      ],
+      "ingredient_details": [
+        {
+          "name": "bread",
+          "quantity": 2,
+          "unit": "unit"
+        }
+      ],
+      "steps": [
+        "Heat a heavy skillet or tawa over medium heat and lightly brush with 4 g cooking oil.",
+        "Place 2 slices of bread on the pan and toast for 2 minutes per side until golden brown and crisp.",
+        "Season with a light pinch of salt and serve immediately warm."
+      ],
+      "complete_ingredients": [
+        {
+          "name": "bread",
+          "category": "Grain Base",
+          "quantity": 2,
+          "unit": "unit",
+          "is_staple": false
+        },
+        {
+          "name": "cooking oil",
+          "category": "Oil / Fat",
+          "quantity": 4,
+          "unit": "g",
+          "is_staple": true
+        },
+        {
+          "name": "salt",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "pinch",
+          "is_staple": true
+        }
+      ],
+      "nutrients_per_serving": {
+        "calories": 193.4,
+        "protein_g": 5.4,
+        "carbs_g": 30.0,
+        "fat_g": 6.0,
+        "fiber_g": 1.6,
+        "sugar_g": 2.8,
+        "sodium_mg": 473.8
+      }
+    },
+    {
+      "id": "dal-tadka",
+      "title": "Yellow Dal Tadka",
+      "required": [
+        "dal",
+        "tomato",
+        "onion"
+      ],
+      "optional": [
+        "garlic",
+        "spinach"
+      ],
+      "ingredient_details": [
+        {
+          "name": "dal",
+          "quantity": 100,
+          "unit": "g"
+        },
+        {
+          "name": "tomato",
+          "quantity": 1,
+          "unit": "unit"
+        },
+        {
+          "name": "onion",
+          "quantity": 1,
+          "unit": "unit"
+        }
+      ],
+      "steps": [
+        "Rinse 100 g dal until water runs clear; simmer with 350 ml water, 1 tsp turmeric, and 1 tsp salt for 18\u201320 minutes until soft and creamy.",
+        "Heat 5 g cooking oil in a pan over medium heat; add 1 tsp cumin seeds and let splutter for 30 seconds.",
+        "Add finely chopped onion and saut\u00e9 for 4 minutes until golden; add chopped tomato and cook 3 minutes until softened.",
+        "Pour the hot aromatic tadka into the cooked dal, stir well, and simmer together on low heat for 3 minutes."
+      ],
+      "complete_ingredients": [
+        {
+          "name": "dal",
+          "category": "Protein / Legume",
+          "quantity": 100,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "tomato",
+          "category": "Vegetable",
+          "quantity": 1,
+          "unit": "unit",
+          "is_staple": false
+        },
+        {
+          "name": "onion",
+          "category": "Aromatic",
+          "quantity": 1,
+          "unit": "unit",
+          "is_staple": false
+        },
+        {
+          "name": "water",
+          "category": "Liquid",
+          "quantity": 350,
+          "unit": "ml",
+          "is_staple": true
+        },
+        {
+          "name": "cooking oil",
+          "category": "Oil / Fat",
+          "quantity": 5,
+          "unit": "g",
+          "is_staple": true
+        },
+        {
+          "name": "turmeric",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "cumin seeds",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "salt",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "tsp",
+          "is_staple": true
+        }
+      ],
+      "nutrients_per_serving": {
+        "calories": 473.8,
+        "protein_g": 27.12,
+        "carbs_g": 80.24,
+        "fat_g": 7.27,
+        "fiber_g": 19.4,
+        "sugar_g": 10.06,
+        "sodium_mg": 1184.6
+      }
+    },
+    {
+      "id": "paneer-bhurji",
+      "title": "Spiced Paneer Bhurji",
+      "required": [
+        "paneer",
+        "onion",
+        "tomato"
+      ],
+      "optional": [
+        "spinach",
+        "bread"
+      ],
+      "ingredient_details": [
+        {
+          "name": "paneer",
+          "quantity": 200,
+          "unit": "g"
+        },
+        {
+          "name": "onion",
+          "quantity": 1,
+          "unit": "unit"
+        },
+        {
+          "name": "tomato",
+          "quantity": 1,
+          "unit": "unit"
+        }
+      ],
+      "steps": [
+        "Heat 6 g cooking oil in a wide pan over medium heat; add diced onions and saut\u00e9 for 3\u20134 minutes until translucent.",
+        "Add diced tomatoes, turmeric, coriander powder, and salt; cook for 3 minutes until oil separates slightly.",
+        "Crumble 200 g fresh paneer into the pan and toss gently for 2\u20133 minutes on medium-low heat until heated through; do not overcook."
+      ],
+      "complete_ingredients": [
+        {
+          "name": "paneer",
+          "category": "Protein",
+          "quantity": 200,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "onion",
+          "category": "Aromatic",
+          "quantity": 1,
+          "unit": "unit",
+          "is_staple": false
+        },
+        {
+          "name": "tomato",
+          "category": "Vegetable",
+          "quantity": 1,
+          "unit": "unit",
+          "is_staple": false
+        },
+        {
+          "name": "cooking oil",
+          "category": "Oil / Fat",
+          "quantity": 6,
+          "unit": "g",
+          "is_staple": true
+        },
+        {
+          "name": "turmeric",
+          "category": "Spice / Masala",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "coriander powder",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "salt",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "tsp",
+          "is_staple": true
+        }
+      ],
+      "nutrients_per_serving": {
+        "calories": 724.7,
+        "protein_g": 39.41,
+        "carbs_g": 26.56,
+        "fat_g": 51.86,
+        "fiber_g": 4.97,
+        "sugar_g": 12.95,
+        "sodium_mg": 1218.2
+      }
+    },
+    {
+      "id": "masala-oats",
+      "title": "Vegetable Masala Oats",
+      "required": [
+        "oats",
+        "onion",
+        "tomato"
+      ],
+      "optional": [
+        "spinach",
+        "carrot"
+      ],
+      "ingredient_details": [
+        {
+          "name": "oats",
+          "quantity": 50,
+          "unit": "g"
+        },
+        {
+          "name": "onion",
+          "quantity": 1,
+          "unit": "unit"
+        },
+        {
+          "name": "tomato",
+          "quantity": 1,
+          "unit": "unit"
+        }
+      ],
+      "steps": [
+        "Heat 4 g cooking oil in a pot over medium flame; saut\u00e9 chopped onions and tomatoes for 3 minutes until softened.",
+        "Add 0.5 tsp turmeric, 1 tsp salt, and 250 ml water; bring to a rolling boil.",
+        "Stir in 50 g oats, lower heat to medium-low, and simmer for 3\u20134 minutes stirring occasionally until rich and porridge-like."
+      ],
+      "complete_ingredients": [
+        {
+          "name": "oats",
+          "category": "Grain Base",
+          "quantity": 50,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "onion",
+          "category": "Aromatic",
+          "quantity": 1,
+          "unit": "unit",
+          "is_staple": false
+        },
+        {
+          "name": "tomato",
+          "category": "Vegetable",
+          "quantity": 1,
+          "unit": "unit",
+          "is_staple": false
+        },
+        {
+          "name": "cooking oil",
+          "category": "Oil / Fat",
+          "quantity": 4,
+          "unit": "g",
+          "is_staple": true
+        },
+        {
+          "name": "water",
+          "category": "Liquid",
+          "quantity": 250,
+          "unit": "ml",
+          "is_staple": true
+        },
+        {
+          "name": "turmeric",
+          "category": "Spice / Masala",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "salt",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "tsp",
+          "is_staple": true
+        }
+      ],
+      "nutrients_per_serving": {
+        "calories": 300.5,
+        "protein_g": 10.9,
+        "carbs_g": 49.06,
+        "fat_g": 7.8,
+        "fiber_g": 9.04,
+        "sugar_g": 7.95,
+        "sodium_mg": 1174.1
+      }
+    },
+    {
+      "id": "moong-dal-khichdi",
+      "title": "Comforting Moong Dal Khichdi",
+      "required": [
+        "rice",
+        "dal"
+      ],
+      "optional": [
+        "tomato",
+        "spinach",
+        "ghee"
+      ],
+      "ingredient_details": [
+        {
+          "name": "rice",
+          "quantity": 100,
+          "unit": "g"
+        },
+        {
+          "name": "dal",
+          "quantity": 50,
+          "unit": "g"
+        }
+      ],
+      "steps": [
+        "Wash 100 g rice and 50 g dal together until water runs clear; drain well.",
+        "Heat 5 g cooking oil in a pressure cooker or heavy pot over medium heat; sizzle 1 tsp cumin seeds for 20 seconds.",
+        "Add the rice-dal mix, 450 ml water, 0.5 tsp turmeric, and 1 tsp salt; cover and pressure cook for 3 whistles (or simmer covered 20 minutes) until soft and comforting."
+      ],
+      "complete_ingredients": [
+        {
+          "name": "rice",
+          "category": "Grain Base",
+          "quantity": 100,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "dal",
+          "category": "Protein / Legume",
+          "quantity": 50,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "water",
+          "category": "Liquid",
+          "quantity": 450,
+          "unit": "ml",
+          "is_staple": true
+        },
+        {
+          "name": "cooking oil",
+          "category": "Oil / Fat",
+          "quantity": 5,
+          "unit": "g",
+          "is_staple": true
+        },
+        {
+          "name": "cumin seeds",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "turmeric",
+          "category": "Spice / Masala",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "salt",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "tsp",
+          "is_staple": true
+        }
+      ],
+      "nutrients_per_serving": {
+        "calories": 596.6,
+        "protein_g": 19.78,
+        "carbs_g": 113.33,
+        "fat_g": 7.02,
+        "fiber_g": 9.46,
+        "sugar_g": 1.21,
+        "sodium_mg": 1176.2
+      }
+    },
+    {
+      "id": "vegetable-pulao",
+      "title": "Pantry Vegetable Pulao",
+      "required": [
+        "rice",
+        "onion"
+      ],
+      "optional": [
+        "tomato",
+        "carrot",
+        "spinach"
+      ],
+      "ingredient_details": [
+        {
+          "name": "rice",
+          "quantity": 150,
+          "unit": "g"
+        },
+        {
+          "name": "onion",
+          "quantity": 1,
+          "unit": "unit"
+        }
+      ],
+      "steps": [
+        "Rinse 150 g rice and soak in water for 15 minutes; drain completely.",
+        "Heat 6 g cooking oil in a pot over medium heat; add 1 tsp cumin seeds and thinly sliced onion, saut\u00e9ing 5 minutes until caramelized.",
+        "Add drained rice, 300 ml water, 1 tsp salt, and 0.5 tsp garam masala; bring to a boil, then cover tightly and simmer on low for 12 minutes until grains are fluffy."
+      ],
+      "complete_ingredients": [
+        {
+          "name": "rice",
+          "category": "Grain Base",
+          "quantity": 150,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "onion",
+          "category": "Aromatic",
+          "quantity": 1,
+          "unit": "unit",
+          "is_staple": false
+        },
+        {
+          "name": "cooking oil",
+          "category": "Oil / Fat",
+          "quantity": 6,
+          "unit": "g",
+          "is_staple": true
+        },
+        {
+          "name": "water",
+          "category": "Liquid",
+          "quantity": 300,
+          "unit": "ml",
+          "is_staple": true
+        },
+        {
+          "name": "cumin seeds",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "salt",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "garam masala",
+          "category": "Spice / Masala",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "is_staple": true
+        }
+      ],
+      "nutrients_per_serving": {
+        "calories": 661.5,
+        "protein_g": 12.61,
+        "carbs_g": 132.33,
+        "fat_g": 8.04,
+        "fiber_g": 4.54,
+        "sugar_g": 4.95,
+        "sodium_mg": 1180.3
+      }
+    },
+    {
+      "id": "chana-masala",
+      "title": "Pantry Chana Masala",
+      "required": [
+        "chickpea",
+        "onion",
+        "tomato"
+      ],
+      "optional": [
+        "spinach",
+        "garlic"
+      ],
+      "ingredient_details": [
+        {
+          "name": "chickpea",
+          "quantity": 200,
+          "unit": "g"
+        },
+        {
+          "name": "onion",
+          "quantity": 1,
+          "unit": "unit"
+        },
+        {
+          "name": "tomato",
+          "quantity": 2,
+          "unit": "unit"
+        }
+      ],
+      "steps": [
+        "Heat 6 g cooking oil in a pan over medium heat; saut\u00e9 chopped onion and 5 g ginger garlic paste for 4 minutes until fragrant.",
+        "Add pureed or diced tomatoes, turmeric, coriander powder, garam masala, and salt; cook for 4 minutes until oil glistens.",
+        "Add 200 g cooked chickpeas and 150 ml water; lightly mash a spoonful against the pan sides and simmer for 8 minutes until gravy thickens."
+      ],
+      "complete_ingredients": [
+        {
+          "name": "chickpea",
+          "category": "Protein / Legume",
+          "quantity": 200,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "onion",
+          "category": "Aromatic",
+          "quantity": 1,
+          "unit": "unit",
+          "is_staple": false
+        },
+        {
+          "name": "tomato",
+          "category": "Vegetable",
+          "quantity": 2,
+          "unit": "unit",
+          "is_staple": false
+        },
+        {
+          "name": "cooking oil",
+          "category": "Oil / Fat",
+          "quantity": 6,
+          "unit": "g",
+          "is_staple": true
+        },
+        {
+          "name": "water",
+          "category": "Liquid",
+          "quantity": 150,
+          "unit": "ml",
+          "is_staple": true
+        },
+        {
+          "name": "ginger garlic paste",
+          "category": "Aromatic",
+          "quantity": 5,
+          "unit": "g",
+          "is_staple": true
+        },
+        {
+          "name": "turmeric",
+          "category": "Spice / Masala",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "coriander powder",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "garam masala",
+          "category": "Spice / Masala",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "salt",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "tsp",
+          "is_staple": true
+        }
+      ],
+      "nutrients_per_serving": {
+        "calories": 491.8,
+        "protein_g": 22.08,
+        "carbs_g": 78.81,
+        "fat_g": 12.51,
+        "fiber_g": 22.15,
+        "sugar_g": 20.88,
+        "sodium_mg": 1197.7
+      }
+    },
+    {
+      "id": "palak-paneer",
+      "title": "Homestyle Palak Paneer",
+      "required": [
+        "spinach",
+        "paneer"
+      ],
+      "optional": [
+        "onion",
+        "tomato"
+      ],
+      "ingredient_details": [
+        {
+          "name": "spinach",
+          "quantity": 200,
+          "unit": "g"
+        },
+        {
+          "name": "paneer",
+          "quantity": 150,
+          "unit": "g"
+        }
+      ],
+      "steps": [
+        "Blanch 200 g spinach in boiling water for 2 minutes, plunge into cold water to preserve color, and blend with 100 ml water into a smooth vibrant puree.",
+        "Heat 5 g cooking oil in a pan over medium heat; splutter cumin seeds for 20 seconds and add turmeric and salt.",
+        "Pour in the spinach puree, bring to a gentle simmer for 3 minutes, then add 150 g paneer cubes and simmer on low for 3\u20134 minutes until tender."
+      ],
+      "complete_ingredients": [
+        {
+          "name": "spinach",
+          "category": "Vegetable",
+          "quantity": 200,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "paneer",
+          "category": "Protein",
+          "quantity": 150,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "cooking oil",
+          "category": "Oil / Fat",
+          "quantity": 5,
+          "unit": "g",
+          "is_staple": true
+        },
+        {
+          "name": "water",
+          "category": "Liquid",
+          "quantity": 100,
+          "unit": "ml",
+          "is_staple": true
+        },
+        {
+          "name": "cumin seeds",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "turmeric",
+          "category": "Spice / Masala",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "salt",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "tsp",
+          "is_staple": true
+        }
+      ],
+      "nutrients_per_serving": {
+        "calories": 550.1,
+        "protein_g": 33.93,
+        "carbs_g": 16.28,
+        "fat_g": 40.27,
+        "fiber_g": 5.06,
+        "sugar_g": 4.66,
+        "sodium_mg": 1359.2
+      }
+    },
+    {
+      "id": "veggie-stir-fry",
+      "title": "Crisp Vegetable Stir-Fry",
+      "required": [
+        "onion",
+        "tomato"
+      ],
+      "optional": [
+        "spinach",
+        "oats"
+      ],
+      "ingredient_details": [
+        {
+          "name": "onion",
+          "quantity": 1,
+          "unit": "unit"
+        },
+        {
+          "name": "tomato",
+          "quantity": 1,
+          "unit": "unit"
+        }
+      ],
+      "steps": [
+        "Heat 5 g cooking oil in a wok or skillet over high heat; pop 0.5 tsp mustard seeds for 15 seconds.",
+        "Toss in sliced onions and stir-fry vigorously for 2 minutes over high heat until edges blister lightly.",
+        "Add sliced tomatoes, a pinch of turmeric, and salt; stir-fry for 1 minute so tomatoes soften but stay crisp-tender."
+      ],
+      "complete_ingredients": [
+        {
+          "name": "onion",
+          "category": "Aromatic",
+          "quantity": 1,
+          "unit": "unit",
+          "is_staple": false
+        },
+        {
+          "name": "tomato",
+          "category": "Vegetable",
+          "quantity": 1,
+          "unit": "unit",
+          "is_staple": false
+        },
+        {
+          "name": "cooking oil",
+          "category": "Oil / Fat",
+          "quantity": 5,
+          "unit": "g",
+          "is_staple": true
+        },
+        {
+          "name": "mustard seeds",
+          "category": "Spice / Masala",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "salt",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "pinch",
+          "is_staple": true
+        },
+        {
+          "name": "turmeric",
+          "category": "Spice / Masala",
+          "quantity": 0.5,
+          "unit": "pinch",
+          "is_staple": true
+        }
+      ],
+      "nutrients_per_serving": {
+        "calories": 118.6,
+        "protein_g": 2.71,
+        "carbs_g": 15.49,
+        "fat_g": 5.85,
+        "fiber_g": 3.64,
+        "sugar_g": 8.01,
+        "sodium_mg": 204.1
+      }
+    },
+    {
+      "id": "cucumber-tomato-raita",
+      "title": "Fresh Vegetable Raita",
+      "required": [
+        "yogurt",
+        "tomato"
+      ],
+      "optional": [
+        "cucumber",
+        "onion"
+      ],
+      "ingredient_details": [
+        {
+          "name": "yogurt",
+          "quantity": 150,
+          "unit": "g"
+        },
+        {
+          "name": "tomato",
+          "quantity": 1,
+          "unit": "unit"
+        }
+      ],
+      "steps": [
+        "Whisk 150 g plain yogurt in a chilled bowl until velvety and smooth.",
+        "Finely dice 1 tomato and 1 cucumber; fold into the whipped yogurt.",
+        "Sprinkle with roasted cumin powder and a pinch of salt; chill for 10 minutes before serving."
+      ],
+      "complete_ingredients": [
+        {
+          "name": "yogurt",
+          "category": "Dairy / Base",
+          "quantity": 150,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "tomato",
+          "category": "Vegetable",
+          "quantity": 1,
+          "unit": "unit",
+          "is_staple": false
+        },
+        {
+          "name": "cucumber",
+          "category": "Vegetable",
+          "quantity": 1,
+          "unit": "unit",
+          "is_staple": false
+        },
+        {
+          "name": "cumin seeds",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "pinch",
+          "is_staple": true
+        },
+        {
+          "name": "salt",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "pinch",
+          "is_staple": true
+        }
+      ],
+      "nutrients_per_serving": {
+        "calories": 131.4,
+        "protein_g": 7.14,
+        "carbs_g": 15.67,
+        "fat_g": 5.36,
+        "fiber_g": 2.05,
+        "sugar_g": 11.96,
+        "sodium_mg": 271.6
+      }
+    },
+    {
+      "id": "spinach-dal",
+      "title": "Nutritious Palak Dal",
+      "required": [
+        "dal",
+        "spinach"
+      ],
+      "optional": [
+        "tomato",
+        "onion"
+      ],
+      "ingredient_details": [
+        {
+          "name": "dal",
+          "quantity": 100,
+          "unit": "g"
+        },
+        {
+          "name": "spinach",
+          "quantity": 100,
+          "unit": "g"
+        }
+      ],
+      "steps": [
+        "Simmer 100 g dal with 350 ml water, turmeric, and salt for 18 minutes until tender.",
+        "Add 100 g washed, chopped spinach leaves directly into the simmering dal; cook for 4 minutes until wilted and incorporated.",
+        "Heat 5 g cooking oil in a small pan, toast 1 tsp cumin seeds for 25 seconds until nutty, and pour over dal."
+      ],
+      "complete_ingredients": [
+        {
+          "name": "dal",
+          "category": "Protein / Legume",
+          "quantity": 100,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "spinach",
+          "category": "Vegetable",
+          "quantity": 100,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "water",
+          "category": "Liquid",
+          "quantity": 350,
+          "unit": "ml",
+          "is_staple": true
+        },
+        {
+          "name": "cooking oil",
+          "category": "Oil / Fat",
+          "quantity": 5,
+          "unit": "g",
+          "is_staple": true
+        },
+        {
+          "name": "turmeric",
+          "category": "Spice / Masala",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "cumin seeds",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "salt",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "tsp",
+          "is_staple": true
+        }
+      ],
+      "nutrients_per_serving": {
+        "calories": 426.1,
+        "protein_g": 27.58,
+        "carbs_g": 67.93,
+        "fat_g": 7.32,
+        "fiber_g": 17.86,
+        "sugar_g": 2.51,
+        "sodium_mg": 1253.2
+      }
+    },
+    {
+      "id": "pantry-curry-rice",
+      "title": "Quick Pantry Curry with Rice",
+      "required": [
+        "rice",
+        "chickpea"
+      ],
+      "optional": [
+        "tomato",
+        "onion",
+        "spinach"
+      ],
+      "ingredient_details": [
+        {
+          "name": "rice",
+          "quantity": 120,
+          "unit": "g"
+        },
+        {
+          "name": "chickpea",
+          "quantity": 150,
+          "unit": "g"
+        }
+      ],
+      "steps": [
+        "Cook 120 g rice with 240 ml water in a covered pot on low heat for 12 minutes until fluffy; keep covered.",
+        "In a separate pan, warm 5 g cooking oil over medium heat; add turmeric, garam masala, salt, and 150 g chickpeas with 100 ml water.",
+        "Simmer chickpeas for 5 minutes until coated in rich sauce, then spoon generously over the warm fluffy rice."
+      ],
+      "complete_ingredients": [
+        {
+          "name": "rice",
+          "category": "Grain Base",
+          "quantity": 120,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "chickpea",
+          "category": "Protein / Legume",
+          "quantity": 150,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "water",
+          "category": "Liquid",
+          "quantity": 250,
+          "unit": "ml",
+          "is_staple": true
+        },
+        {
+          "name": "cooking oil",
+          "category": "Oil / Fat",
+          "quantity": 5,
+          "unit": "g",
+          "is_staple": true
+        },
+        {
+          "name": "turmeric",
+          "category": "Spice / Masala",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "garam masala",
+          "category": "Spice / Masala",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "salt",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "tsp",
+          "is_staple": true
+        }
+      ],
+      "nutrients_per_serving": {
+        "calories": 738.6,
+        "protein_g": 22.24,
+        "carbs_g": 139.01,
+        "fat_g": 10.01,
+        "fiber_g": 13.68,
+        "sugar_g": 7.4,
+        "sodium_mg": 1180.7
+      }
+    },
+    {
+      "id": "tomato-onion-omelette",
+      "title": "Vegetable Omelette / Scramble",
+      "required": [
+        "onion",
+        "tomato"
+      ],
+      "optional": [
+        "spinach",
+        "bread"
+      ],
+      "ingredient_details": [
+        {
+          "name": "onion",
+          "quantity": 1,
+          "unit": "unit"
+        },
+        {
+          "name": "tomato",
+          "quantity": 1,
+          "unit": "unit"
+        }
+      ],
+      "steps": [
+        "Finely mince 1 onion, 1 tomato, and half green chili.",
+        "Heat 5 g cooking oil in a 9-inch non-stick skillet over medium-high heat; saut\u00e9 onions for 2 minutes until translucent.",
+        "Add tomatoes, green chili, turmeric, and salt; toss for 2 minutes to create a spiced savory scramble base."
+      ],
+      "complete_ingredients": [
+        {
+          "name": "onion",
+          "category": "Aromatic",
+          "quantity": 1,
+          "unit": "unit",
+          "is_staple": false
+        },
+        {
+          "name": "tomato",
+          "category": "Vegetable",
+          "quantity": 1,
+          "unit": "unit",
+          "is_staple": false
+        },
+        {
+          "name": "cooking oil",
+          "category": "Oil / Fat",
+          "quantity": 5,
+          "unit": "g",
+          "is_staple": true
+        },
+        {
+          "name": "green chili",
+          "category": "Aromatic",
+          "quantity": 0.5,
+          "unit": "unit",
+          "is_staple": true
+        },
+        {
+          "name": "salt",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "pinch",
+          "is_staple": true
+        },
+        {
+          "name": "turmeric",
+          "category": "Spice / Masala",
+          "quantity": 0.5,
+          "unit": "pinch",
+          "is_staple": true
+        }
+      ],
+      "nutrients_per_serving": {
+        "calories": 131.0,
+        "protein_g": 3.32,
+        "carbs_g": 19.57,
+        "fat_g": 5.41,
+        "fiber_g": 4.21,
+        "sugar_g": 10.41,
+        "sodium_mg": 207.4
+      }
+    },
+    {
+      "id": "spinach-pantry-toast",
+      "title": "Toasted Bread with Saut\u00e9ed Spinach",
+      "required": [
+        "bread",
+        "spinach"
+      ],
+      "optional": [
+        "paneer",
+        "tomato",
+        "yogurt"
+      ],
+      "ingredient_details": [
+        {
+          "name": "bread",
+          "quantity": 2,
+          "unit": "unit"
+        },
+        {
+          "name": "spinach",
+          "quantity": 80,
+          "unit": "g"
+        }
+      ],
+      "steps": [
+        "Toast 2 slices of bread in a hot pan or toaster until crunchy and golden.",
+        "Warm 4 g cooking oil in a pan over medium heat; add 80 g clean spinach and a pinch of salt, tossing for 90 seconds until collapsed and bright green.",
+        "Mound the warm wilted spinach atop the toasted bread slices and serve immediately."
+      ],
+      "complete_ingredients": [
+        {
+          "name": "bread",
+          "category": "Grain Base",
+          "quantity": 2,
+          "unit": "unit",
+          "is_staple": false
+        },
+        {
+          "name": "spinach",
+          "category": "Vegetable",
+          "quantity": 80,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "cooking oil",
+          "category": "Oil / Fat",
+          "quantity": 4,
+          "unit": "g",
+          "is_staple": true
+        },
+        {
+          "name": "salt",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "pinch",
+          "is_staple": true
+        }
+      ],
+      "nutrients_per_serving": {
+        "calories": 211.8,
+        "protein_g": 7.72,
+        "carbs_g": 32.88,
+        "fat_g": 6.32,
+        "fiber_g": 3.36,
+        "sugar_g": 3.12,
+        "sodium_mg": 537.0
+      }
+    },
+    {
+      "id": "paneer-rice-bowl",
+      "title": "Warm Paneer & Rice Bowl",
+      "required": [
+        "paneer",
+        "rice"
+      ],
+      "optional": [
+        "onion",
+        "tomato",
+        "spinach"
+      ],
+      "ingredient_details": [
+        {
+          "name": "paneer",
+          "quantity": 100,
+          "unit": "g"
+        },
+        {
+          "name": "rice",
+          "quantity": 100,
+          "unit": "g"
+        }
+      ],
+      "steps": [
+        "Cook 100 g rice with 200 ml water and half tsp salt on low heat for 12 minutes until tender; rest 5 minutes.",
+        "Heat 5 g cooking oil in a frying pan over medium-high heat; pan-sear 100 g paneer cubes seasoned with turmeric and salt for 2 minutes until crisp golden edges form.",
+        "Layer the warm rice into a bowl, arrange seared paneer over top, and serve warm."
+      ],
+      "complete_ingredients": [
+        {
+          "name": "paneer",
+          "category": "Protein",
+          "quantity": 100,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "rice",
+          "category": "Grain Base",
+          "quantity": 100,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "water",
+          "category": "Liquid",
+          "quantity": 200,
+          "unit": "ml",
+          "is_staple": true
+        },
+        {
+          "name": "cooking oil",
+          "category": "Oil / Fat",
+          "quantity": 5,
+          "unit": "g",
+          "is_staple": true
+        },
+        {
+          "name": "turmeric",
+          "category": "Spice / Masala",
+          "quantity": 0.5,
+          "unit": "pinch",
+          "is_staple": true
+        },
+        {
+          "name": "salt",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "tsp",
+          "is_staple": true
+        }
+      ],
+      "nutrients_per_serving": {
+        "calories": 706.0,
+        "protein_g": 25.42,
+        "carbs_g": 84.67,
+        "fat_g": 28.21,
+        "fiber_g": 1.36,
+        "sugar_g": 2.61,
+        "sodium_mg": 1189.8
+      }
+    },
+    {
+      "id": "chickpea-spinach-stew",
+      "title": "Hearty Chickpea & Spinach Stew",
+      "required": [
+        "chickpea",
+        "spinach",
+        "tomato"
+      ],
+      "optional": [
+        "onion",
+        "garlic"
+      ],
+      "ingredient_details": [
+        {
+          "name": "chickpea",
+          "quantity": 150,
+          "unit": "g"
+        },
+        {
+          "name": "spinach",
+          "quantity": 100,
+          "unit": "g"
+        },
+        {
+          "name": "tomato",
+          "quantity": 1,
+          "unit": "unit"
+        }
+      ],
+      "steps": [
+        "Heat 5 g cooking oil in a saucepan over medium heat; toast 1 tsp cumin seeds for 20 seconds, then stir in 1 chopped tomato, turmeric, and salt.",
+        "Cook tomato for 3 minutes until pulpy, then add 150 g cooked chickpeas and 200 ml water; simmer for 6 minutes.",
+        "Stir in 100 g chopped spinach leaves and simmer gently for 3 minutes until greens are tender and stew is comforting and thick."
+      ],
+      "complete_ingredients": [
+        {
+          "name": "chickpea",
+          "category": "Protein / Legume",
+          "quantity": 150,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "spinach",
+          "category": "Vegetable",
+          "quantity": 100,
+          "unit": "g",
+          "is_staple": false
+        },
+        {
+          "name": "tomato",
+          "category": "Vegetable",
+          "quantity": 1,
+          "unit": "unit",
+          "is_staple": false
+        },
+        {
+          "name": "cooking oil",
+          "category": "Oil / Fat",
+          "quantity": 5,
+          "unit": "g",
+          "is_staple": true
+        },
+        {
+          "name": "water",
+          "category": "Liquid",
+          "quantity": 200,
+          "unit": "ml",
+          "is_staple": true
+        },
+        {
+          "name": "cumin seeds",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "turmeric",
+          "category": "Spice / Masala",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "is_staple": true
+        },
+        {
+          "name": "salt",
+          "category": "Spice / Masala",
+          "quantity": 1,
+          "unit": "tsp",
+          "is_staple": true
+        }
+      ],
+      "nutrients_per_serving": {
+        "calories": 351.1,
+        "protein_g": 18.03,
+        "carbs_g": 51.83,
+        "fat_g": 10.22,
+        "fiber_g": 15.76,
+        "sugar_g": 10.91,
+        "sodium_mg": 1263.7
+      }
+    }
+  ]
+}

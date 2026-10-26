@@ -1,0 +1,1360 @@
+{
+  "client_inference_contract_version": "1.0.0",
+  "platform": "ANDROID",
+  "app_version": "1.0.0+1",
+  "source": "CLIENT_ANDROID_MLKIT",
+  "ocr_provider": "ML_KIT_TEXT_RECOGNITION_V2",
+  "ocr_provider_version": "16.0.1",
+  "detector_provider": null,
+  "detector_provider_version": null,
+  "cold_start": false,
+  "elapsed_ms": 673,
+  "image_width": 899,
+  "image_height": 1599,
+  "source_image_sha256": "b9d666b15cda6a30da7b8adf050d0b93a804ec591e75544c18d639938d9871c7",
+  "orientation_degrees": 0,
+  "text": "LOw Fat Cow Milk\nIngredients:\npasteurized Cow Milk\nft 150% Max., SNF 10.50% Min.\nAlergen:- CONTAINS MILK\nyer Quantity:\noring Size 250 mt\nerings per pack- 2\nlories\nPotein\nrient Information 100 D ml\nDarbohydrates\nLive better\nTotal Sugar\nNutrition Facts\nAided Sugar\notal Fat\nSaturated Fat\nTrans Fat\nDolesterol\nodium\nPer\n3.6g\n50 kcal125 kcal\n5.5 g\n5.5 g\n0g\n15 g\n0.9g\n450 ml\n0g\n4 mg\n\"Per\nServe\n9g\n14g\n14g\n0g\n4g\n2.3 g\n0g\n10 mg\n45 mg 112 mg\n200 mg 500 mg\n1% RDĀ per\nServe\n6%\n18%\n5%\n0%\n6%\n10%\n0%\n6%\n50%\num\npproxdimate Values\n2e Recommended Dietary Allowance (RDA) are based\naO kcal diet. your daily needs may be higher or lower\neding on your calorie needs.\nBatch No., USE BY DATE, MRP ?\ncl of all taxes), USP R see stamp\nCountry Delight - Live Better, County Delight logo are\nstered trademark of Beelapuri Dairy Pvt Ltd",
+  "blocks": [
+    {
+      "text": "LOw Fat Cow Milk",
+      "bounds": {
+        "left": 169,
+        "top": 167,
+        "right": 555,
+        "bottom": 261
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "LOw Fat Cow Milk",
+          "bounds": {
+            "left": 169,
+            "top": 167,
+            "right": 555,
+            "bottom": 261
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "Ingredients:\npasteurized Cow Milk",
+      "bounds": {
+        "left": 195,
+        "top": 232,
+        "right": 485,
+        "bottom": 301
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "Ingredients:",
+          "bounds": {
+            "left": 255,
+            "top": 234,
+            "right": 419,
+            "bottom": 264
+          },
+          "recognized_languages": [],
+          "confidence": null
+        },
+        {
+          "text": "pasteurized Cow Milk",
+          "bounds": {
+            "left": 196,
+            "top": 261,
+            "right": 485,
+            "bottom": 300
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "ft 150% Max., SNF 10.50% Min.\nAlergen:- CONTAINS MILK",
+      "bounds": {
+        "left": 164,
+        "top": 253,
+        "right": 565,
+        "bottom": 406
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "ft 150% Max., SNF 10.50% Min.",
+          "bounds": {
+            "left": 166,
+            "top": 254,
+            "right": 561,
+            "bottom": 384
+          },
+          "recognized_languages": [],
+          "confidence": null
+        },
+        {
+          "text": "Alergen:- CONTAINS MILK",
+          "bounds": {
+            "left": 185,
+            "top": 305,
+            "right": 542,
+            "bottom": 390
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "yer Quantity:",
+      "bounds": {
+        "left": 167,
+        "top": 395,
+        "right": 345,
+        "bottom": 466
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "yer Quantity:",
+          "bounds": {
+            "left": 167,
+            "top": 395,
+            "right": 345,
+            "bottom": 466
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "oring Size 250 mt\nerings per pack- 2",
+      "bounds": {
+        "left": 159,
+        "top": 523,
+        "right": 310,
+        "bottom": 590
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "oring Size 250 mt",
+          "bounds": {
+            "left": 169,
+            "top": 523,
+            "right": 306,
+            "bottom": 567
+          },
+          "recognized_languages": [],
+          "confidence": null
+        },
+        {
+          "text": "erings per pack- 2",
+          "bounds": {
+            "left": 163,
+            "top": 544,
+            "right": 299,
+            "bottom": 589
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "lories",
+      "bounds": {
+        "left": 159,
+        "top": 634,
+        "right": 198,
+        "bottom": 657
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "lories",
+          "bounds": {
+            "left": 159,
+            "top": 634,
+            "right": 198,
+            "bottom": 657
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "Potein",
+      "bounds": {
+        "left": 159,
+        "top": 662,
+        "right": 194,
+        "bottom": 685
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "Potein",
+          "bounds": {
+            "left": 159,
+            "top": 662,
+            "right": 194,
+            "bottom": 685
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "rient Information 100 D ml",
+      "bounds": {
+        "left": 180,
+        "top": 571,
+        "right": 383,
+        "bottom": 633
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "rient Information 100 D ml",
+          "bounds": {
+            "left": 180,
+            "top": 571,
+            "right": 383,
+            "bottom": 633
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "Darbohydrates",
+      "bounds": {
+        "left": 159,
+        "top": 682,
+        "right": 244,
+        "bottom": 709
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "Darbohydrates",
+          "bounds": {
+            "left": 159,
+            "top": 682,
+            "right": 244,
+            "bottom": 709
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "Live better",
+      "bounds": {
+        "left": 248,
+        "top": 9,
+        "right": 427,
+        "bottom": 76
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "Live better",
+          "bounds": {
+            "left": 248,
+            "top": 9,
+            "right": 427,
+            "bottom": 76
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "Total Sugar",
+      "bounds": {
+        "left": 169,
+        "top": 709,
+        "right": 222,
+        "bottom": 736
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "Total Sugar",
+          "bounds": {
+            "left": 169,
+            "top": 709,
+            "right": 222,
+            "bottom": 736
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "Nutrition Facts",
+      "bounds": {
+        "left": 218,
+        "top": 475,
+        "right": 455,
+        "bottom": 521
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "Nutrition Facts",
+          "bounds": {
+            "left": 218,
+            "top": 475,
+            "right": 455,
+            "bottom": 521
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "Aided Sugar",
+      "bounds": {
+        "left": 169,
+        "top": 736,
+        "right": 233,
+        "bottom": 763
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "Aided Sugar",
+          "bounds": {
+            "left": 169,
+            "top": 736,
+            "right": 233,
+            "bottom": 763
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "otal Fat",
+      "bounds": {
+        "left": 162,
+        "top": 766,
+        "right": 199,
+        "bottom": 787
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "otal Fat",
+          "bounds": {
+            "left": 162,
+            "top": 766,
+            "right": 199,
+            "bottom": 787
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "Saturated Fat",
+      "bounds": {
+        "left": 166,
+        "top": 792,
+        "right": 236,
+        "bottom": 812
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "Saturated Fat",
+          "bounds": {
+            "left": 166,
+            "top": 792,
+            "right": 236,
+            "bottom": 812
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "Trans Fat",
+      "bounds": {
+        "left": 165,
+        "top": 820,
+        "right": 209,
+        "bottom": 840
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "Trans Fat",
+          "bounds": {
+            "left": 165,
+            "top": 820,
+            "right": 209,
+            "bottom": 840
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "Dolesterol",
+      "bounds": {
+        "left": 164,
+        "top": 849,
+        "right": 221,
+        "bottom": 866
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "Dolesterol",
+          "bounds": {
+            "left": 164,
+            "top": 849,
+            "right": 221,
+            "bottom": 866
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "odium",
+      "bounds": {
+        "left": 163,
+        "top": 879,
+        "right": 196,
+        "bottom": 891
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "odium",
+          "bounds": {
+            "left": 163,
+            "top": 879,
+            "right": 196,
+            "bottom": 891
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "Per",
+      "bounds": {
+        "left": 333,
+        "top": 577,
+        "right": 372,
+        "bottom": 594
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "Per",
+          "bounds": {
+            "left": 333,
+            "top": 577,
+            "right": 372,
+            "bottom": 594
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "3.6g",
+      "bounds": {
+        "left": 335,
+        "top": 650,
+        "right": 380,
+        "bottom": 671
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "3.6g",
+          "bounds": {
+            "left": 335,
+            "top": 650,
+            "right": 380,
+            "bottom": 671
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "50 kcal125 kcal",
+      "bounds": {
+        "left": 324,
+        "top": 617,
+        "right": 461,
+        "bottom": 640
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "50 kcal125 kcal",
+          "bounds": {
+            "left": 324,
+            "top": 617,
+            "right": 461,
+            "bottom": 640
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "5.5 g",
+      "bounds": {
+        "left": 336,
+        "top": 678,
+        "right": 376,
+        "bottom": 697
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "5.5 g",
+          "bounds": {
+            "left": 336,
+            "top": 678,
+            "right": 376,
+            "bottom": 697
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "5.5 g",
+      "bounds": {
+        "left": 337,
+        "top": 705,
+        "right": 377,
+        "bottom": 725
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "5.5 g",
+          "bounds": {
+            "left": 337,
+            "top": 705,
+            "right": 377,
+            "bottom": 725
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "0g",
+      "bounds": {
+        "left": 353,
+        "top": 733,
+        "right": 373,
+        "bottom": 754
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "0g",
+          "bounds": {
+            "left": 353,
+            "top": 733,
+            "right": 373,
+            "bottom": 754
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "15 g",
+      "bounds": {
+        "left": 339,
+        "top": 759,
+        "right": 377,
+        "bottom": 778
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "15 g",
+          "bounds": {
+            "left": 339,
+            "top": 759,
+            "right": 377,
+            "bottom": 778
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "0.9g",
+      "bounds": {
+        "left": 339,
+        "top": 783,
+        "right": 378,
+        "bottom": 806
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "0.9g",
+          "bounds": {
+            "left": 339,
+            "top": 783,
+            "right": 378,
+            "bottom": 806
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "450 ml",
+      "bounds": {
+        "left": 422,
+        "top": 388,
+        "right": 562,
+        "bottom": 440
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "450 ml",
+          "bounds": {
+            "left": 422,
+            "top": 388,
+            "right": 562,
+            "bottom": 440
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "0g",
+      "bounds": {
+        "left": 345,
+        "top": 815,
+        "right": 371,
+        "bottom": 834
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "0g",
+          "bounds": {
+            "left": 345,
+            "top": 815,
+            "right": 371,
+            "bottom": 834
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "4 mg",
+      "bounds": {
+        "left": 340,
+        "top": 845,
+        "right": 379,
+        "bottom": 862
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "4 mg",
+          "bounds": {
+            "left": 340,
+            "top": 845,
+            "right": 379,
+            "bottom": 862
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "\"Per\nServe",
+      "bounds": {
+        "left": 406,
+        "top": 577,
+        "right": 451,
+        "bottom": 610
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "\"Per",
+          "bounds": {
+            "left": 411,
+            "top": 577,
+            "right": 447,
+            "bottom": 592
+          },
+          "recognized_languages": [],
+          "confidence": null
+        },
+        {
+          "text": "Serve",
+          "bounds": {
+            "left": 406,
+            "top": 595,
+            "right": 451,
+            "bottom": 610
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "9g",
+      "bounds": {
+        "left": 419,
+        "top": 650,
+        "right": 442,
+        "bottom": 669
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "9g",
+          "bounds": {
+            "left": 419,
+            "top": 650,
+            "right": 442,
+            "bottom": 669
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "14g",
+      "bounds": {
+        "left": 416,
+        "top": 675,
+        "right": 449,
+        "bottom": 694
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "14g",
+          "bounds": {
+            "left": 416,
+            "top": 675,
+            "right": 449,
+            "bottom": 694
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "14g",
+      "bounds": {
+        "left": 417,
+        "top": 703,
+        "right": 449,
+        "bottom": 722
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "14g",
+          "bounds": {
+            "left": 417,
+            "top": 703,
+            "right": 449,
+            "bottom": 722
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "0g",
+      "bounds": {
+        "left": 421,
+        "top": 731,
+        "right": 446,
+        "bottom": 750
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "0g",
+          "bounds": {
+            "left": 421,
+            "top": 731,
+            "right": 446,
+            "bottom": 750
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "4g",
+      "bounds": {
+        "left": 422,
+        "top": 759,
+        "right": 447,
+        "bottom": 777
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "4g",
+          "bounds": {
+            "left": 422,
+            "top": 759,
+            "right": 447,
+            "bottom": 777
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "2.3 g",
+      "bounds": {
+        "left": 413,
+        "top": 782,
+        "right": 450,
+        "bottom": 805
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "2.3 g",
+          "bounds": {
+            "left": 413,
+            "top": 782,
+            "right": 450,
+            "bottom": 805
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "0g",
+      "bounds": {
+        "left": 424,
+        "top": 813,
+        "right": 448,
+        "bottom": 830
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "0g",
+          "bounds": {
+            "left": 424,
+            "top": 813,
+            "right": 448,
+            "bottom": 830
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "10 mg",
+      "bounds": {
+        "left": 412,
+        "top": 842,
+        "right": 461,
+        "bottom": 860
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "10 mg",
+          "bounds": {
+            "left": 412,
+            "top": 842,
+            "right": 461,
+            "bottom": 860
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "45 mg 112 mg\n200 mg 500 mg",
+      "bounds": {
+        "left": 329,
+        "top": 863,
+        "right": 467,
+        "bottom": 918
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "45 mg 112 mg",
+          "bounds": {
+            "left": 335,
+            "top": 864,
+            "right": 466,
+            "bottom": 890
+          },
+          "recognized_languages": [],
+          "confidence": null
+        },
+        {
+          "text": "200 mg 500 mg",
+          "bounds": {
+            "left": 330,
+            "top": 890,
+            "right": 465,
+            "bottom": 917
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "1% RDĀ per",
+      "bounds": {
+        "left": 475,
+        "top": 570,
+        "right": 572,
+        "bottom": 597
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "1% RDĀ per",
+          "bounds": {
+            "left": 475,
+            "top": 570,
+            "right": 572,
+            "bottom": 597
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "Serve",
+      "bounds": {
+        "left": 504,
+        "top": 598,
+        "right": 546,
+        "bottom": 610
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "Serve",
+          "bounds": {
+            "left": 504,
+            "top": 598,
+            "right": 546,
+            "bottom": 610
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "6%",
+      "bounds": {
+        "left": 516,
+        "top": 623,
+        "right": 537,
+        "bottom": 638
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "6%",
+          "bounds": {
+            "left": 516,
+            "top": 623,
+            "right": 537,
+            "bottom": 638
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "18%",
+      "bounds": {
+        "left": 512,
+        "top": 650,
+        "right": 542,
+        "bottom": 665
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "18%",
+          "bounds": {
+            "left": 512,
+            "top": 650,
+            "right": 542,
+            "bottom": 665
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "5%",
+      "bounds": {
+        "left": 518,
+        "top": 677,
+        "right": 539,
+        "bottom": 693
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "5%",
+          "bounds": {
+            "left": 518,
+            "top": 677,
+            "right": 539,
+            "bottom": 693
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "0%",
+      "bounds": {
+        "left": 519,
+        "top": 731,
+        "right": 540,
+        "bottom": 747
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "0%",
+          "bounds": {
+            "left": 519,
+            "top": 731,
+            "right": 540,
+            "bottom": 747
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "6%",
+      "bounds": {
+        "left": 520,
+        "top": 759,
+        "right": 539,
+        "bottom": 774
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "6%",
+          "bounds": {
+            "left": 520,
+            "top": 759,
+            "right": 539,
+            "bottom": 774
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "10%",
+      "bounds": {
+        "left": 517,
+        "top": 784,
+        "right": 544,
+        "bottom": 800
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "10%",
+          "bounds": {
+            "left": 517,
+            "top": 784,
+            "right": 544,
+            "bottom": 800
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "0%",
+      "bounds": {
+        "left": 521,
+        "top": 811,
+        "right": 542,
+        "bottom": 826
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "0%",
+          "bounds": {
+            "left": 521,
+            "top": 811,
+            "right": 542,
+            "bottom": 826
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "6%",
+      "bounds": {
+        "left": 520,
+        "top": 863,
+        "right": 542,
+        "bottom": 879
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "6%",
+          "bounds": {
+            "left": 520,
+            "top": 863,
+            "right": 542,
+            "bottom": 879
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "50%",
+      "bounds": {
+        "left": 517,
+        "top": 890,
+        "right": 546,
+        "bottom": 905
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "50%",
+          "bounds": {
+            "left": 517,
+            "top": 890,
+            "right": 546,
+            "bottom": 905
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "um\npproxdimate Values\n2e Recommended Dietary Allowance (RDA) are based\naO kcal diet. your daily needs may be higher or lower\neding on your calorie needs.",
+      "bounds": {
+        "left": 161,
+        "top": 896,
+        "right": 572,
+        "bottom": 1015
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "um",
+          "bounds": {
+            "left": 183,
+            "top": 907,
+            "right": 199,
+            "bottom": 918
+          },
+          "recognized_languages": [],
+          "confidence": null
+        },
+        {
+          "text": "pproxdimate Values",
+          "bounds": {
+            "left": 162,
+            "top": 931,
+            "right": 287,
+            "bottom": 947
+          },
+          "recognized_languages": [],
+          "confidence": null
+        },
+        {
+          "text": "2e Recommended Dietary Allowance (RDA) are based",
+          "bounds": {
+            "left": 174,
+            "top": 931,
+            "right": 572,
+            "bottom": 973
+          },
+          "recognized_languages": [],
+          "confidence": null
+        },
+        {
+          "text": "aO kcal diet. your daily needs may be higher or lower",
+          "bounds": {
+            "left": 174,
+            "top": 952,
+            "right": 566,
+            "bottom": 995
+          },
+          "recognized_languages": [],
+          "confidence": null
+        },
+        {
+          "text": "eding on your calorie needs.",
+          "bounds": {
+            "left": 166,
+            "top": 987,
+            "right": 386,
+            "bottom": 1014
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "Batch No., USE BY DATE, MRP ?\ncl of all taxes), USP R see stamp\nCountry Delight - Live Better, County Delight logo are",
+      "bounds": {
+        "left": 158,
+        "top": 1010,
+        "right": 575,
+        "bottom": 1131
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "Batch No., USE BY DATE, MRP ?",
+          "bounds": {
+            "left": 193,
+            "top": 1011,
+            "right": 570,
+            "bottom": 1069
+          },
+          "recognized_languages": [],
+          "confidence": null
+        },
+        {
+          "text": "cl of all taxes), USP R see stamp",
+          "bounds": {
+            "left": 200,
+            "top": 1039,
+            "right": 559,
+            "bottom": 1096
+          },
+          "recognized_languages": [],
+          "confidence": null
+        },
+        {
+          "text": "Country Delight - Live Better, County Delight logo are",
+          "bounds": {
+            "left": 162,
+            "top": 1058,
+            "right": 564,
+            "bottom": 1131
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    },
+    {
+      "text": "stered trademark of Beelapuri Dairy Pvt Ltd",
+      "bounds": {
+        "left": 188,
+        "top": 1083,
+        "right": 537,
+        "bottom": 1150
+      },
+      "recognized_languages": [],
+      "lines": [
+        {
+          "text": "stered trademark of Beelapuri Dairy Pvt Ltd",
+          "bounds": {
+            "left": 188,
+            "top": 1083,
+            "right": 537,
+            "bottom": 1150
+          },
+          "recognized_languages": [],
+          "confidence": null
+        }
+      ]
+    }
+  ],
+  "confidence": null
+}

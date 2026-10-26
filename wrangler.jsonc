@@ -1,0 +1,32 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "nutrilens-x-web",
+  "main": ".open-next/worker.js",
+  "workers_dev": true,
+  "preview_urls": true,
+  "routes": [
+    {
+      "pattern": "nutrilensx.tech",
+      "custom_domain": true,
+    },
+    {
+      "pattern": "www.nutrilensx.tech",
+      "custom_domain": true,
+    },
+  ],
+  "compatibility_date": "2026-08-25",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS",
+  },
+  "vars": {
+    "PUBLIC_WEBSITE_URL": "https://nutrilensx.tech",
+    "PUBLIC_API_URL": "https://api.nutrilensx.tech",
+    "BACKEND_INTERNAL_URL": "https://api.nutrilensx.tech",
+    "NEXT_PUBLIC_API_URL": "https://api.nutrilensx.tech",
+  },
+  "observability": {
+    "enabled": true,
+  },
+}

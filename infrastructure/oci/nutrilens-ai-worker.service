@@ -1,0 +1,35 @@
+[Unit]
+Description=NutriLens X private OCI ARM64 AI worker
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=10
+TimeoutStartSec=240
+TimeoutStopSec=45
+EnvironmentFile=/etc/nutrilens/worker-service.env
+ExecStartPre=-/usr/bin/docker rm -f nutrilens-ai-worker
+ExecStart=/usr/bin/docker run --name nutrilens-ai-worker \
+  --pull=never \
+  --read-only \
+  --tmpfs /tmp:rw,noexec,nosuid,size=512m \
+  --tmpfs /home/nutrilens/.cache:rw,noexec,nosuid,size=256m \
+  --security-opt no-new-privileges:true \
+  --cap-drop ALL \
+  --pids-limit 512 \
+  --cpus ${WORKER_CPUS} \
+  --memory ${WORKER_MEMORY} \
+  --env-file /etc/nutrilens/worker.env \
+  --publish 127.0.0.1:8000:8000 \
+  --log-driver local \
+  --log-opt max-size=10m \
+  --log-opt max-file=5 \
+  ${WORKER_IMAGE}
+ExecStop=/usr/bin/docker stop --time 30 nutrilens-ai-worker
+ExecStopPost=-/usr/bin/docker rm -f nutrilens-ai-worker
+
+[Install]
+WantedBy=multi-user.target

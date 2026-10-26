@@ -1,0 +1,154 @@
+{
+  "$defs": {
+    "Lineage": {
+      "additionalProperties": false,
+      "properties": {
+        "input_checksum": {
+          "title": "Input Checksum",
+          "type": "string"
+        },
+        "license_status": {
+          "title": "License Status",
+          "type": "string"
+        },
+        "pipeline_version": {
+          "default": "0.1.0",
+          "title": "Pipeline Version",
+          "type": "string"
+        },
+        "processing_timestamp": {
+          "format": "date-time",
+          "title": "Processing Timestamp",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": "1.0.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_dataset": {
+          "title": "Source Dataset",
+          "type": "string"
+        },
+        "source_record_id": {
+          "title": "Source Record Id",
+          "type": "string"
+        },
+        "source_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Url"
+        },
+        "source_version": {
+          "title": "Source Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_dataset",
+        "source_record_id",
+        "source_version",
+        "input_checksum",
+        "processing_timestamp",
+        "license_status"
+      ],
+      "title": "Lineage",
+      "type": "object"
+    },
+    "MissingReason": {
+      "enum": [
+        "UNKNOWN",
+        "NOT_REPORTED",
+        "NOT_APPLICABLE",
+        "INVALID"
+      ],
+      "title": "MissingReason",
+      "type": "string"
+    }
+  },
+  "$id": "https://nutrilens.local/schemas/1.0.0/population.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "country": {
+      "title": "Country",
+      "type": "string"
+    },
+    "indicator": {
+      "title": "Indicator",
+      "type": "string"
+    },
+    "lineage": {
+      "$ref": "#/$defs/Lineage"
+    },
+    "missing_reason": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/MissingReason"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "population_group": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Population Group"
+    },
+    "quality_flag": {
+      "title": "Quality Flag",
+      "type": "string"
+    },
+    "record_id": {
+      "title": "Record Id",
+      "type": "string"
+    },
+    "unit": {
+      "title": "Unit",
+      "type": "string"
+    },
+    "value": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Value"
+    },
+    "year": {
+      "title": "Year",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "record_id",
+    "country",
+    "year",
+    "indicator",
+    "value",
+    "unit",
+    "quality_flag",
+    "lineage"
+  ],
+  "title": "PopulationRecord",
+  "type": "object",
+  "x-nutrilens-schema-version": "1.0.0"
+}

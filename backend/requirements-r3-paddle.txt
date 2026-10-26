@@ -1,0 +1,6 @@
+-r requirements.txt
+
+# Frozen primary R3 OCR runtime. Keep separate from the general optional-model
+# environment on Windows to avoid OpenCV/NumPy resolver conflicts.
+paddlepaddle==3.3.1
+paddleocr==3.7.0

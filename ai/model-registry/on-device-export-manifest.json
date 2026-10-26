@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0.0",
+  "status": "BETA_CANDIDATE_NOT_DISTRIBUTED",
+  "model_id": "nutrilens-r3-nutrition-yolo11n-v1-onnx",
+  "task": "nutrition-table region detection",
+  "source_checkpoint": {
+    "path": ".model-cache/r3/custom/nutrition-table-yolo11n-v1.pt",
+    "bytes": 5444762,
+    "sha256": "af30081551e4f9c5dfae3c6d28515ec848c2559e27c15c31e363d474d00bd16b"
+  },
+  "export": {
+    "format": "ONNX",
+    "path": ".model-cache/r3/custom/nutrition-table-yolo11n-v1.onnx",
+    "bytes": 10565052,
+    "sha256": "6e65b84a391b2220107d929bcda71d7042e7896bc40ef51bda9cbf1467d2a162",
+    "opset": 17,
+    "input_shape": [1, 3, 640, 640],
+    "dynamic": false,
+    "quantized": false,
+    "class_names": ["nutrition_table"]
+  },
+  "held_out_test": {
+    "images": 151,
+    "annotations": 159,
+    "threshold": 0.3,
+    "precision": 0.8774193548387097,
+    "recall": 0.8553459119496856,
+    "f1": 0.8662420382165605,
+    "map50": 0.8728204767576113,
+    "map50_95": 0.6248608293747717,
+    "mean_matched_iou": 0.8626907763322358
+  },
+  "distribution": {
+    "bundled_in_app": false,
+    "public_download": false,
+    "decision": "BLOCKED_PENDING_LICENSE_AND_IP_REVIEW",
+    "server_use": "LEGAL_REVIEW_REQUIRED",
+    "android_distribution": "BLOCKED_DISTRIBUTION",
+    "web_distribution": "BLOCKED_DISTRIBUTION",
+    "attribution": "ATTRIBUTION_REQUIRED",
+    "source": "SOURCE_OBLIGATION",
+    "review": "docs/legal/model-distribution-review.md",
+    "reason": "Ultralytics expressly applies AGPL-3.0 to trained and fine-tuned models and directs proprietary/commercial users to an Enterprise License. Open Food Facts training images are CC BY-SA 3.0. Do not put the weights in a public app asset or web bundle until counsel/owner chooses and implements a compliant distribution model."
+  },
+  "evidence": [
+    "reports/on-device/yolo11n-onnx-cpu-equivalence.json",
+    "reports/on-device/nutrition-yolo11n-onnx-final-test.json",
+    "reports/on-device/local-owner-worker-milk.json",
+    "reports/on-device/local-owner-worker-milk-resources.json"
+  ]
+}

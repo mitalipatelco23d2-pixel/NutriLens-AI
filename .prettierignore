@@ -1,0 +1,7 @@
+.next
+.venv
+node_modules
+apps/mobile/.dart_tool
+apps/mobile/build
+package-lock.json
+documentation/project-management/capability-register.csv

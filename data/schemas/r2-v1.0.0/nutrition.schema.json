@@ -1,0 +1,401 @@
+{
+  "$defs": {
+    "Lineage": {
+      "additionalProperties": false,
+      "properties": {
+        "input_checksum": {
+          "title": "Input Checksum",
+          "type": "string"
+        },
+        "license_status": {
+          "title": "License Status",
+          "type": "string"
+        },
+        "pipeline_version": {
+          "default": "0.1.0",
+          "title": "Pipeline Version",
+          "type": "string"
+        },
+        "processing_timestamp": {
+          "format": "date-time",
+          "title": "Processing Timestamp",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": "1.0.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_dataset": {
+          "title": "Source Dataset",
+          "type": "string"
+        },
+        "source_record_id": {
+          "title": "Source Record Id",
+          "type": "string"
+        },
+        "source_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Url"
+        },
+        "source_version": {
+          "title": "Source Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_dataset",
+        "source_record_id",
+        "source_version",
+        "input_checksum",
+        "processing_timestamp",
+        "license_status"
+      ],
+      "title": "Lineage",
+      "type": "object"
+    },
+    "MissingReason": {
+      "enum": [
+        "UNKNOWN",
+        "NOT_REPORTED",
+        "NOT_APPLICABLE",
+        "INVALID"
+      ],
+      "title": "MissingReason",
+      "type": "string"
+    },
+    "NutrientValue": {
+      "additionalProperties": false,
+      "properties": {
+        "missing_reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MissingReason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "normalization_method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Normalization Method"
+        },
+        "normalized_unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Normalized Unit"
+        },
+        "normalized_value": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Normalized Value"
+        },
+        "original_unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Original Unit"
+        },
+        "original_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Original Value"
+        },
+        "quality_flag": {
+          "default": "VALID",
+          "title": "Quality Flag",
+          "type": "string"
+        },
+        "source_nutrient_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Nutrient Id"
+        },
+        "value_origin": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ValueOrigin"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "NutrientValue",
+      "type": "object"
+    },
+    "ValueOrigin": {
+      "enum": [
+        "REPORTED",
+        "CONVERTED",
+        "DERIVED",
+        "ESTIMATED"
+      ],
+      "title": "ValueOrigin",
+      "type": "string"
+    }
+  },
+  "$id": "https://nutrilens.local/schemas/1.0.0/nutrition.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "basis": {
+      "default": "PER_100_G",
+      "enum": [
+        "PER_100_G",
+        "PER_100_ML",
+        "PER_SERVING"
+      ],
+      "title": "Basis",
+      "type": "string"
+    },
+    "calcium_mg": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NutrientValue"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "carbohydrates_g": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NutrientValue"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "cholesterol_mg": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NutrientValue"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "data_quality_score": {
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Data Quality Score",
+      "type": "number"
+    },
+    "energy_kcal": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NutrientValue"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "energy_kj": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NutrientValue"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "fiber_g": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NutrientValue"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "food_id": {
+      "title": "Food Id",
+      "type": "string"
+    },
+    "food_name": {
+      "title": "Food Name",
+      "type": "string"
+    },
+    "iron_mg": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NutrientValue"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "lineage": {
+      "$ref": "#/$defs/Lineage"
+    },
+    "outlier_flags": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Outlier Flags",
+      "type": "array"
+    },
+    "potassium_mg": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NutrientValue"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "protein_g": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NutrientValue"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "salt_g": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NutrientValue"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "saturated_fat_g": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NutrientValue"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "sodium_mg": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NutrientValue"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "sugars_g": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NutrientValue"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "total_fat_g": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/NutrientValue"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "vitamins": {
+      "additionalProperties": {
+        "$ref": "#/$defs/NutrientValue"
+      },
+      "title": "Vitamins",
+      "type": "object"
+    }
+  },
+  "required": [
+    "food_id",
+    "food_name",
+    "data_quality_score",
+    "lineage"
+  ],
+  "title": "NutritionRecord",
+  "type": "object",
+  "x-nutrilens-schema-version": "1.0.0"
+}

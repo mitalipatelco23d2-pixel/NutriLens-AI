@@ -1,0 +1,176 @@
+{
+  "$defs": {
+    "Lineage": {
+      "additionalProperties": false,
+      "properties": {
+        "input_checksum": {
+          "title": "Input Checksum",
+          "type": "string"
+        },
+        "license_status": {
+          "title": "License Status",
+          "type": "string"
+        },
+        "pipeline_version": {
+          "default": "0.1.0",
+          "title": "Pipeline Version",
+          "type": "string"
+        },
+        "processing_timestamp": {
+          "format": "date-time",
+          "title": "Processing Timestamp",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": "1.0.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_dataset": {
+          "title": "Source Dataset",
+          "type": "string"
+        },
+        "source_record_id": {
+          "title": "Source Record Id",
+          "type": "string"
+        },
+        "source_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Url"
+        },
+        "source_version": {
+          "title": "Source Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_dataset",
+        "source_record_id",
+        "source_version",
+        "input_checksum",
+        "processing_timestamp",
+        "license_status"
+      ],
+      "title": "Lineage",
+      "type": "object"
+    },
+    "LocalizedText": {
+      "additionalProperties": false,
+      "properties": {
+        "is_english_fallback": {
+          "default": false,
+          "title": "Is English Fallback",
+          "type": "boolean"
+        },
+        "language": {
+          "title": "Language",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "language",
+        "text"
+      ],
+      "title": "LocalizedText",
+      "type": "object"
+    }
+  },
+  "$id": "https://nutrilens.local/schemas/1.0.0/taxonomy.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "canonical_name": {
+      "title": "Canonical Name",
+      "type": "string"
+    },
+    "external_code": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "External Code"
+    },
+    "functional_category": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Functional Category"
+    },
+    "lineage": {
+      "$ref": "#/$defs/Lineage"
+    },
+    "localized_names": {
+      "items": {
+        "$ref": "#/$defs/LocalizedText"
+      },
+      "title": "Localized Names",
+      "type": "array"
+    },
+    "parent_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Parent Ids",
+      "type": "array"
+    },
+    "record_status": {
+      "default": "VALID",
+      "title": "Record Status",
+      "type": "string"
+    },
+    "source_line": {
+      "title": "Source Line",
+      "type": "integer"
+    },
+    "synonyms": {
+      "items": {
+        "$ref": "#/$defs/LocalizedText"
+      },
+      "title": "Synonyms",
+      "type": "array"
+    },
+    "taxonomy_id": {
+      "title": "Taxonomy Id",
+      "type": "string"
+    },
+    "taxonomy_type": {
+      "title": "Taxonomy Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "taxonomy_id",
+    "taxonomy_type",
+    "canonical_name",
+    "localized_names",
+    "synonyms",
+    "parent_ids",
+    "source_line",
+    "lineage"
+  ],
+  "title": "TaxonomyRecord",
+  "type": "object",
+  "x-nutrilens-schema-version": "1.0.0"
+}

@@ -1,0 +1,45 @@
+{
+  "acquired_at": "2026-08-08T09:13:27.048869+00:00",
+  "annotation_count": 1259,
+  "artifacts": [
+    {
+      "bytes": 2307,
+      "path": ".gitattributes",
+      "sha256": "f4e703ea6e44bbebe53aceed2a89c11e40b88b7ae130c480c89860ab805ffc8f"
+    },
+    {
+      "bytes": 290656520,
+      "path": "data/train-00000-of-00002.parquet",
+      "sha256": "b300a67b1bceaa73e8a2396b7b597f84e0fcfdef1cdd346cd3d1ff09dff44fb0"
+    },
+    {
+      "bytes": 285092571,
+      "path": "data/train-00001-of-00002.parquet",
+      "sha256": "aca7a7d2442c3706f015b1f5b85a4d6f17fd38f049a4aebd4b8a891d50f69d1b"
+    },
+    {
+      "bytes": 64168127,
+      "path": "data/val-00000-of-00001.parquet",
+      "sha256": "b39b403a6259e653056702a96f350f15936a8a2cfd254aaab7f84ff6289a8728"
+    },
+    {
+      "bytes": 2537,
+      "path": "README.md",
+      "sha256": "f25892e1e7152584e206287aad6f5fc4392bb16d43ea57b6ff5e13e86c336b69"
+    }
+  ],
+  "dataset_id": "OFF-R3-NUTRITION-TABLE-DETECTION",
+  "dataset_version": "1.1",
+  "extracted_image_bytes": 640013744,
+  "image_count": 1206,
+  "license": "CC-BY-SA-3.0",
+  "payload_manifest": "data/external/r3/openfoodfacts/nutrition-table-detection/manifests/source-images.jsonl",
+  "payload_tree_sha256": "56a262887e222038de41c18e33b6457a48a4371f29b07ba94977add6796650c1",
+  "repo_id": "openfoodfacts/nutrition-table-detection",
+  "source_revision": "d59dcee85ecb44831831a85f7b345501db2b4071",
+  "split_counts": {
+    "train": 1083,
+    "val": 123
+  },
+  "status": "DOWNLOADED_AND_VALIDATED"
+}

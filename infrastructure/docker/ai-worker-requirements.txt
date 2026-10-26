@@ -1,0 +1,8 @@
+-r ../../backend/requirements.txt
+ultralytics==8.4.116
+# PyPI does not publish the Linux AArch64 wheel. Paddle's official stable CPU
+# index does; pin that exact artifact only on ARM64. Native OCI validation must
+# still inspect and execute the wheel before production cutover.
+paddlepaddle==3.3.1 ; platform_machine != "aarch64"
+paddlepaddle @ https://paddle-whl.cdn.bcebos.com/stable/cpu/paddlepaddle/paddlepaddle-3.3.1-cp312-cp312-linux_aarch64.whl ; platform_machine == "aarch64" and python_version == "3.12"
+paddleocr==3.7.0

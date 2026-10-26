@@ -1,0 +1,82 @@
+{
+  "$id": "https://nutrilens.local/schemas/1.0.0/ingredient-synonym.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "canonical_id": {
+      "title": "Canonical Id",
+      "type": "string"
+    },
+    "canonical_name": {
+      "title": "Canonical Name",
+      "type": "string"
+    },
+    "evidence_reference": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Evidence Reference"
+    },
+    "ingredient_category": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ingredient Category"
+    },
+    "language": {
+      "title": "Language",
+      "type": "string"
+    },
+    "review_status": {
+      "title": "Review Status",
+      "type": "string"
+    },
+    "scientific_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scientific Name"
+    },
+    "source": {
+      "title": "Source",
+      "type": "string"
+    },
+    "synonym": {
+      "title": "Synonym",
+      "type": "string"
+    },
+    "version": {
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "canonical_id",
+    "canonical_name",
+    "synonym",
+    "language",
+    "source",
+    "version",
+    "review_status"
+  ],
+  "title": "IngredientSynonymRecord",
+  "type": "object",
+  "x-nutrilens-schema-version": "1.0.0"
+}

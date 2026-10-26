@@ -1,0 +1,55 @@
+{
+  "$id": "https://nutrilens.local/schemas/1.0.0/quarantine.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "dataset_id": {
+      "title": "Dataset Id",
+      "type": "string"
+    },
+    "failure_reason": {
+      "title": "Failure Reason",
+      "type": "string"
+    },
+    "processing_stage": {
+      "title": "Processing Stage",
+      "type": "string"
+    },
+    "quarantined_at": {
+      "format": "date-time",
+      "title": "Quarantined At",
+      "type": "string"
+    },
+    "source_record_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Record Id"
+    },
+    "source_snapshot": {
+      "additionalProperties": true,
+      "title": "Source Snapshot",
+      "type": "object"
+    },
+    "validation_rule": {
+      "title": "Validation Rule",
+      "type": "string"
+    }
+  },
+  "required": [
+    "dataset_id",
+    "processing_stage",
+    "validation_rule",
+    "failure_reason",
+    "source_snapshot",
+    "quarantined_at"
+  ],
+  "title": "QuarantineRecord",
+  "type": "object",
+  "x-nutrilens-schema-version": "1.0.0"
+}

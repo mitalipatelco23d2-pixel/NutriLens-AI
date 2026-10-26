@@ -1,0 +1,13 @@
+# Create the named tunnel in the intended Yash AI Technologies Cloudflare account.
+# Keep its credentials JSON readable only by root and the cloudflared service
+# group; never commit it.
+tunnel: replace-with-tunnel-uuid
+credentials-file: /etc/nutrilens/cloudflared-credentials.json
+
+ingress:
+  - hostname: ai-worker.nutrilensx.tech
+    service: http://127.0.0.1:8000
+    originRequest:
+      connectTimeout: 10s
+      noHappyEyeballs: false
+  - service: http_status:404

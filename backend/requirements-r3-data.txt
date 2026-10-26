@@ -1,0 +1,8 @@
+-r requirements.txt
+
+# Reproducible R3 supplemental dataset acquisition and Parquet inspection.
+huggingface-hub==0.36.2
+hf-xet==1.6.0
+pyarrow==25.0.0
+duckdb==1.5.5
+requests>=2.34,<3

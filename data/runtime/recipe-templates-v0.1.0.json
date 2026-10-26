@@ -1,0 +1,37 @@
+{
+  "schema_version": "0.1.0",
+  "source": "NUTRILENS_CURATED_RECIPE_TEMPLATE",
+  "method": "DETERMINISTIC_PANTRY_COVERAGE_V1",
+  "templates": [
+    {
+      "id": "savory-oat-bowl",
+      "title": "Savory oat bowl",
+      "required": ["oats", "yogurt"],
+      "optional": ["spinach", "tomato"],
+      "steps": [
+        "Cook the oats according to their package instructions.",
+        "Fold in the available vegetables and serve with yogurt."
+      ]
+    },
+    {
+      "id": "chickpea-tomato-salad",
+      "title": "Chickpea and tomato salad",
+      "required": ["chickpea", "tomato"],
+      "optional": ["spinach", "yogurt"],
+      "steps": [
+        "Drain and rinse cooked or canned chickpeas.",
+        "Combine with the available vegetables and season to taste."
+      ]
+    },
+    {
+      "id": "pantry-toast",
+      "title": "Pantry vegetable toast",
+      "required": ["bread"],
+      "optional": ["spinach", "tomato", "yogurt"],
+      "steps": [
+        "Toast the bread.",
+        "Top with the available vegetables; use yogurt as an optional spread."
+      ]
+    }
+  ]
+}

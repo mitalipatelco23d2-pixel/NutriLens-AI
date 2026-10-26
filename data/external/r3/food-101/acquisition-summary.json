@@ -1,0 +1,18 @@
+{
+  "acquired_at": "2026-08-08T09:10:33.528856+00:00",
+  "annotation_count": 101000,
+  "archive_bytes": 4996278331,
+  "archive_sha256": "d97d15e438b7f4498f96086a4f7e2fa42a32f2712e87d3295441b2b6314053a4",
+  "dataset_id": "FOOD-101-R3",
+  "image_count": 101000,
+  "license": "No explicit licence on official page; academic evaluation and citation only",
+  "payload_manifest": "data/external/r3/food-101/manifests/source-images.jsonl",
+  "payload_tree_sha256": "9cd55d2d6b8f7a7ae8af7c12da31128d4a5e0995553c49dcf2f1c4f1577ea857",
+  "source_url": "https://data.vision.ee.ethz.ch/cvl/food-101.tar.gz",
+  "source_version": "official archive; Last-Modified 2014-07-09",
+  "split_counts": {
+    "test": 25250,
+    "train": 75750
+  },
+  "status": "DOWNLOADED_AND_VALIDATED"
+}

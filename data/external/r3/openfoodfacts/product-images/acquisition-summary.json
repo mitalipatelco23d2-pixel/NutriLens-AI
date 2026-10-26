@@ -1,0 +1,42 @@
+{
+  "acquired_at": "2026-08-08T10:18:56.962649+00:00",
+  "artifacts": [
+    {
+      "bytes": 2467,
+      "path": ".gitattributes",
+      "sha256": "63844110c092d166978ff178e3e08e9172729b5efabcf162dcb6dad6921a137d"
+    },
+    {
+      "bytes": 7745581378,
+      "path": "food.parquet",
+      "sha256": "c3beda31c5ce87d2369338263d5e3d5e4a57aa1a2987d24e56f7396c4db6cc23"
+    },
+    {
+      "bytes": 3190,
+      "path": "README.md",
+      "sha256": "7d49a18a519d65accd20204313d8b7f2b17f0b93edc232c8f8655f136eb46ad2"
+    }
+  ],
+  "candidate_count": 7274,
+  "dataset_id": "OFF-R3-PRODUCT-IMAGE-CORPUS",
+  "download_failures": 4,
+  "download_failures_manifest": "data/external/r3/openfoodfacts/product-images/manifests/download-failures.jsonl",
+  "image_count": 7270,
+  "license": "ODbL database metadata; CC-BY-SA-3.0 product images",
+  "payload_manifest": "data/external/r3/openfoodfacts/product-images/manifests/source-images.jsonl",
+  "payload_tree_sha256": "2ed8122f2aed484530fc89877a46a364ca2d7d89bd9b9f32a4e87547215bbbfd",
+  "product_count": 2500,
+  "repo_id": "openfoodfacts/product-database",
+  "requested_product_count": 2500,
+  "role_counts": {
+    "front": 2498,
+    "ingredients": 1268,
+    "nutrition": 2204,
+    "other": 1275,
+    "packaging": 25
+  },
+  "selection_method": "SHA256 rank within first 10000 eligible multi-view products in pinned Parquet order",
+  "source_revision": "cb1ae34c41cd2c4cc44eaf7007494d28ec4d9acb",
+  "status": "DOWNLOADED_AND_VALIDATED",
+  "total_image_bytes": 2993937036
+}

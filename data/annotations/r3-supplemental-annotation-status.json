@@ -1,0 +1,12 @@
+{
+  "classification_annotations": 107821,
+  "detection_annotations": 1259,
+  "multi_food_annotations": 0,
+  "notes": "R3 supplemental acquisitions processed through R2 image contracts; MyFoodRepo multi-food annotations remain MANUAL_ACCESS_REQUIRED.",
+  "ocr_annotations": 0,
+  "release": "r3-real-v1.0.0",
+  "source_images": 116297,
+  "source_role_annotations": 7270,
+  "status": "R3_SUPPLEMENTAL_REAL_IMAGES_AVAILABLE_WITH_LIMITATIONS",
+  "updated_at": "2026-08-08T16:02:21.702861+00:00"
+}
