@@ -1,0 +1,139 @@
+name: Build approved AI worker in GHCR
+
+on:
+  push:
+    branches: [college-demo/20261024]
+    paths: [.github/workflows/build-ai-worker-ghcr.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: approved-ai-worker-ghcr
+  cancel-in-progress: false
+
+jobs:
+  worker:
+    if: github.repository == 'Prakruti275/NutriLens-AI'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      SOURCE_SHA: 39361a0ca6c77e513f25b2b8a91268fcbf1b22af
+      MODEL_SHA256: af30081551e4f9c5dfae3c6d28515ec848c2559e27c15c31e363d474d00bd16b
+      WORKER_IMAGE: ghcr.io/prakruti275/nutrilens-ai-worker:39361a0ca6c77e513f25b2b8a91268fcbf1b22af
+    steps:
+      - name: Check out the exact approved source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: 39361a0ca6c77e513f25b2b8a91268fcbf1b22af
+          lfs: true
+          persist-credentials: false
+
+      - name: Restore the private, checksum-verified build input
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          git lfs fsck --objects "$SOURCE_SHA"
+          mkdir -p .model-cache/r3/custom
+          gh api /repos/Prakruti275/NutriLens-AI/releases/assets/676268707 \
+            -H 'Accept: application/octet-stream' \
+            > .model-cache/r3/custom/nutrition-table-yolo11n-v1.pt
+          printf '%s  %s\n' "$MODEL_SHA256" .model-cache/r3/custom/nutrition-table-yolo11n-v1.pt | sha256sum --check
+          # The approved ignore file ends with *.pt. Admit only the exact
+          # private checkpoint that the existing worker Dockerfile requires.
+          printf '\n!.model-cache/r3/custom/nutrition-table-yolo11n-v1.pt\n' >> .dockerignore
+
+      - name: Build only the existing CPU worker Dockerfile
+        run: |
+          set -euo pipefail
+          docker build --platform linux/amd64 \
+            --file infrastructure/docker/ai-worker.Dockerfile \
+            --label org.opencontainers.image.source=https://github.com/Prakruti275/NutriLens-AI \
+            --label org.opencontainers.image.revision="$SOURCE_SHA" \
+            --tag "$WORKER_IMAGE" .
+
+      - name: Validate authentication and inference within 1 CPU and 2 GiB
+        run: |
+          set -euo pipefail
+          probe_token="$(openssl rand -hex 32)"
+          printf '::add-mask::%s\n' "$probe_token"
+          docker run --detach --name approved-worker-probe \
+            --cpus 1 --memory 2g --memory-swap 2g \
+            --publish 127.0.0.1:18000:8000 \
+            --env AI_WORKER_TOKEN="$probe_token" \
+            --env APP_ENVIRONMENT=production \
+            --env AI_WORKER_MAX_CONCURRENT_SCANS=1 \
+            --env AI_WORKER_QUEUE_TIMEOUT_SECONDS=3 \
+            --env R3_SCAN_TIMEOUT_SECONDS=180 \
+            --env OMP_NUM_THREADS=1 --env OPENBLAS_NUM_THREADS=1 \
+            --env MKL_NUM_THREADS=1 --env PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True \
+            "$WORKER_IMAGE"
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:18000/health > /tmp/worker-health.json; then break; fi
+            sleep 3
+          done
+          curl --fail --silent --show-error http://127.0.0.1:18000/health
+          unauth_status="$(curl --silent --show-error --output /tmp/worker-unauth.json --write-out '%{http_code}' \
+            --form files=@reports/recovery/device-fixtures/product3.jpg \
+            --form input_kind=PRODUCT --form view_types=GENERAL \
+            http://127.0.0.1:18000/internal/r3/scan)"
+          test "$unauth_status" = 401
+          python -m pip install --disable-pip-version-check httpx==0.28.1
+          python scripts/benchmarks/benchmark_local_ai_worker.py \
+            --endpoint http://127.0.0.1:18000/internal/r3/scan \
+            --token "$probe_token" \
+            --image reports/recovery/device-fixtures/product3.jpg \
+            --iterations 1 --container approved-worker-probe \
+            --output /tmp/worker-resource-proof.json
+          python - <<'PY'
+          import json
+          import subprocess
+          from pathlib import Path
+          report = json.loads(Path('/tmp/worker-resource-proof.json').read_text())
+          scan = report['scans'][0]
+          peak = report['resources']['peak_memory_bytes']
+          assert scan['http_status'] == 200
+          assert scan['nutrition_rows'] >= 4, 'Structured nutrition extraction failed'
+          assert 'milk' in (scan['ingredient_text'] or '').lower(), 'Ingredient evidence missing'
+          assert 'PaddleOCR' in scan['ocr_engines'], 'Real server OCR did not run'
+          assert peak and peak < 1.8 * 1024**3, 'Insufficient 2 GiB memory headroom; do not provision'
+          state = json.loads(subprocess.check_output(['docker', 'inspect', 'approved-worker-probe']))[0]['State']
+          assert not state['OOMKilled'], 'Worker exceeded the 2 GiB limit'
+          assert state['Running'], 'Worker exited during inference'
+          Path('/tmp/worker-auth-proof.json').write_text(json.dumps({
+              'health_http': 200, 'unauthenticated_inference_http': 401,
+              'cpu_limit': 1, 'memory_limit_gib': 2, 'source_revision': '39361a0ca6c77e513f25b2b8a91268fcbf1b22af'
+          }, indent=2))
+          PY
+
+      - name: Publish the private SHA-tagged worker image
+        env:
+          GHCR_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          docker push "$WORKER_IMAGE"
+          docker image inspect "$WORKER_IMAGE" --format '{{json .RepoDigests}}' > /tmp/worker-image-digest.json
+
+      - name: Collect worker diagnostics and stop the disposable probe
+        if: always()
+        run: |
+          docker logs --tail 60 approved-worker-probe || true
+          docker rm --force approved-worker-probe || true
+          docker logout ghcr.io || true
+
+      - name: Preserve the small, credential-free worker proof
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: approved-worker-proof-${{ github.run_id }}
+          path: |
+            /tmp/worker-resource-proof.json
+            /tmp/worker-auth-proof.json
+            /tmp/worker-image-digest.json
+          retention-days: 1
+          if-no-files-found: warn
